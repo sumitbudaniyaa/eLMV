@@ -174,20 +174,19 @@ function MainApp() {
         </TouchableOpacity>
       </View>
 
-      {/* Settings Screen (Opened via Header Avatar Icon) */}
+      {/* Settings Screen (Opened via Header Avatar Icon with Horizontal Push & Swipe-Back) */}
       <Modal
         visible={isSettingsOpen}
-        animationType="slide"
-        presentationStyle="fullScreen"
+        transparent={true}
+        animationType="none"
+        statusBarTranslucent={true}
         onRequestClose={() => setIsSettingsOpen(false)}
       >
-        <SafeAreaView style={styles.modalSafeArea}>
-          <SettingsScreen
-            key={lang}
-            currentLanguage={lang}
-            onClose={() => setIsSettingsOpen(false)}
-          />
-        </SafeAreaView>
+        <SettingsScreen
+          key={lang}
+          currentLanguage={lang}
+          onClose={() => setIsSettingsOpen(false)}
+        />
       </Modal>
     </SafeAreaView>
   );

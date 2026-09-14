@@ -6,22 +6,32 @@ Unified statutory verification, certification, and regulatory tracking system un
 
 ## Quick Start (Single Command)
 
-To run the entire application (both the backend API and frontend web portal concurrently):
+To run the entire ecosystem (Backend API, Consumer Web, Admin Web, Field Officer Web, Mobile Expo Bundler, and Public Ngrok Tunnel concurrently):
 
 ```bash
 npm run dev
 ```
 
 This single command automatically:
-1. Frees ports `5001` and `5173` if occupied by stale processes (`scripts/free-ports.js`).
+1. Frees ports `5001`, `5173`, `5174`, `5175`, `8081`, `4040` if occupied by stale processes (`scripts/free-ports.js`).
 2. Builds the shared Zod schemas & types package (`@sih/shared`).
-3. Concurrently starts the **Express Backend Server** on `http://localhost:5001` and the **React/Vite Frontend** on `http://localhost:5173`.
+3. Starts the **Express Backend Server** on `http://localhost:5001`.
+4. Starts the **Consumer Web App** on `http://localhost:5173`, **Admin Portal** on `http://localhost:5174`, and **Field Suite** on `http://localhost:5175`.
+5. Opens a secure **Public Ngrok Tunnel** exposing port `5173` (with `/api` proxied to port `5001`).
+6. Starts the **React Native / Expo Mobile App** in **Tunnel Mode** (`--tunnel`) with `EXPO_PUBLIC_API_URL` configured to the public tunnel gateway.
+
+> **📱 Mobile Testing Across Any Network (Cellular / Remote Wi-Fi)**:
+> You do **not** need to be on the same Wi-Fi network as your laptop! When you run `npm run dev`, Expo outputs a public tunnel QR code. Scan it with **Expo Go** on your phone (even on 4G/5G mobile data) — the app bundle downloads over the Expo tunnel, and all login, inspection, and verification API calls route seamlessly to your local backend via the Ngrok API proxy.
 
 ### Additional Development Commands
 
-- **Run Server + Client + Mobile (Concurrent Dev)**:
+- **Run Full Stack with Public Tunnels (Default)**:
   ```bash
   npm run dev
+  ```
+- **Run Local LAN Only (No Tunnels)**:
+  ```bash
+  npm run dev:local
   ```
 - **Launch Mobile App on iOS Simulator (Mac)**:
   ```bash
@@ -31,7 +41,7 @@ This single command automatically:
   ```bash
   npm run mobile:android
   ```
-- **Run Mobile in Dedicated Terminal (with interactive QR code & keystrokes)**:
+- **Run Mobile in Dedicated Terminal (Tunnel Mode)**:
   ```bash
   npm run mobile:start
   ```
@@ -47,6 +57,10 @@ This single command automatically:
   ```bash
   npm run build
   ```
+- **Run Typecheck Across All Workspaces**:
+  ```bash
+  npm run typecheck
+  ```
 - **Run Integration & Unit Tests**:
   ```bash
   npm test
@@ -60,9 +74,13 @@ This single command automatically:
 
 ## Live Endpoints & Ports
 
-| Component | Port | URL |
+| Component | Port / Host | URL |
 |---|---|---|
-| **Web Client Portal** | `5173` | [http://localhost:5173](http://localhost:5173) |
+| **Consumer Web Portal** | `5173` | [http://localhost:5173](http://localhost:5173) |
+| **Admin Management Portal** | `5174` | [http://localhost:5174](http://localhost:5174) |
+| **Field Officer Web Suite** | `5175` | [http://localhost:5175](http://localhost:5175) |
+| **Public Web & API Tunnel** | `Ngrok` | `https://vapouringly-nonallegoric-teodora.ngrok-free.dev` |
+| **Mobile Metro Dev (Expo)** | `8081 / Tunnel` | `exp://...` (Rendered as QR in terminal) |
 | **Backend REST API** | `5001` | [http://localhost:5001/api/v1](http://localhost:5001/api/v1) |
 | **Server Health Check** | `5001` | [http://localhost:5001/health](http://localhost:5001/health) |
 | **PostgreSQL Database** | `5432` | `postgresql://localhost:5432/legal_metrology` |

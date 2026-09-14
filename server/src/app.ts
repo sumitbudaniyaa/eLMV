@@ -25,7 +25,7 @@ app.use(
         origin === "http://localhost:5175" ||
         origin === "http://localhost:3000" ||
         /^http:\/\/[a-z0-9-]+\.localhost(:[0-9]+)?$/.test(origin) ||
-        /^https:\/\/[a-z0-9-]+\.ngrok-free\.dev$/.test(origin);
+        /^https:\/\/[a-z0-9-]+\.(ngrok-free\.dev|ngrok-free\.app|ngrok\.app|ngrok\.io|loca\.lt)$/.test(origin);
 
       if (isAllowed || env.NODE_ENV === "development") {
         return callback(null, true);

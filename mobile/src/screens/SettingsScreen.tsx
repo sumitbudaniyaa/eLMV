@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,14 @@ import {
   Alert,
   ActivityIndicator,
   Modal as RNModal,
+  Animated,
+  PanResponder,
+  Dimensions,
+  Easing,
+  SafeAreaView,
 } from "react-native";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 import { useAuth } from "../lib/auth";
 import { mobileApi } from "../lib/api";
 import { theme } from "../components/ui/theme";
@@ -39,7 +46,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const [editPhone, setEditPhone] = useState(user?.phone || "");
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
 
-  // Password State
+  // Password State & Dialog
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -47,6 +55,63 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const [showNewPass, setShowNewPass] = useState(false);
   const [showConfirmPass, setShowConfirmPass] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+
+  // Horizontal Slide Animation (Right to Left) & Swipe-Right-to-Dismiss
+  const translateX = useRef(new Animated.Value(SCREEN_WIDTH)).current;
+
+  useEffect(() => {
+    Animated.spring(translateX, {
+      toValue: 0,
+      damping: 24,
+      mass: 0.9,
+      stiffness: 240,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
+  const handleDismiss = () => {
+    Animated.timing(translateX, {
+      toValue: SCREEN_WIDTH,
+      duration: 220,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start(() => {
+      if (onClose) onClose();
+    });
+  };
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => false,
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        if (isEditModalOpen || isPasswordModalOpen) return false;
+        return gestureState.dx > 10 && Math.abs(gestureState.dx) > Math.abs(gestureState.dy) * 1.5;
+      },
+      onPanResponderMove: (_, gestureState) => {
+        if (gestureState.dx > 0) {
+          translateX.setValue(gestureState.dx);
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dx > SCREEN_WIDTH * 0.25 || gestureState.vx > 0.45) {
+          handleDismiss();
+        } else {
+          Animated.spring(translateX, {
+            toValue: 0,
+            damping: 22,
+            stiffness: 220,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    })
+  ).current;
+
+  const backdropOpacity = translateX.interpolate({
+    inputRange: [0, SCREEN_WIDTH],
+    outputRange: [0.35, 0],
+    extrapolate: "clamp",
+  });
 
   useEffect(() => {
     if (user) {
@@ -59,6 +124,16 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     setEditName(user?.name || "");
     setEditPhone(user?.phone || "");
     setIsEditModalOpen(true);
+  };
+
+  const openPasswordModal = () => {
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setShowCurrentPass(false);
+    setShowNewPass(false);
+    setShowConfirmPass(false);
+    setIsPasswordModalOpen(true);
   };
 
   const handleUpdateProfile = async () => {
@@ -160,6 +235,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
+      setIsPasswordModalOpen(false);
     } catch (err: any) {
       const serverMsg = err.response?.data?.error?.message;
       Alert.alert(
@@ -203,34 +279,35 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     "Jaipur, Rajasthan";
 
   return (
-    <View style={styles.container}>
-      {/* Top Navigation Bar */}
-      {onClose && (
-        <View style={styles.topHeader}>
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={onClose}
-            style={styles.backButton}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Icons.ChevronLeft size={22} color="#0B2545" />
-            <Text style={styles.backButtonText}>{isHindi ? "वापस" : "Back"}</Text>
-          </TouchableOpacity>
-          <Text style={styles.topHeaderTitle}>
-            {isHindi ? "अधिकारी प्रोफ़ाइल" : "Officer Profile"}
-          </Text>
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={onClose}
-            style={styles.closeIconButton}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Icons.X size={20} color="#71717a" />
-          </TouchableOpacity>
-        </View>
-      )}
+    <View style={styles.rootWrapper}>
+      {/* Animated Backdrop */}
+      <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      {/* Horizontally Animated Screen Container with Swipe-Right Handler */}
+      <Animated.View
+        style={[
+          styles.animatedScreen,
+          { transform: [{ translateX }] },
+        ]}
+        {...panResponder.panHandlers}
+      >
+        <SafeAreaView style={styles.safeContainer}>
+          {/* Top Navigation Bar */}
+          {onClose && (
+            <View style={styles.topHeader}>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={handleDismiss}
+                style={styles.backButton}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                accessibilityLabel="Go back"
+              >
+                <Icons.ChevronLeft size={24} color="#0B2545" />
+              </TouchableOpacity>
+            </View>
+          )}
+
+          <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* 1. CENTERED PROFILE HERO: Profile Icon in Middle, then Name & Details */}
         <View style={styles.profileHero}>
           <View style={styles.largeAvatarContainer}>
@@ -257,20 +334,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
         {/* 2. OFFICER DETAILS CARD (Read-Only with Edit Details Trigger) */}
         <Card style={styles.card}>
-          <CardHeader style={styles.cardHeaderWithAction}>
+          <CardHeader style={{ paddingBottom: 6 }}>
             <CardTitle style={{ fontSize: 14 }}>
               {isHindi ? "अधिकारी विवरण" : "Officer Details"}
             </CardTitle>
-            <TouchableOpacity
-              onPress={openEditModal}
-              style={styles.editHeaderBtn}
-              activeOpacity={0.7}
-            >
-              <Icons.Pencil size={13} color="#0B2545" />
-              <Text style={styles.editHeaderBtnText}>
-                {isHindi ? "संपादित करें" : "Edit Details"}
-              </Text>
-            </TouchableOpacity>
           </CardHeader>
           <CardContent style={{ paddingTop: 0 }}>
             {/* Full Name Row */}
@@ -345,108 +412,41 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         {/* 3. SECURITY & PASSWORD MANAGEMENT */}
         <Card style={styles.card}>
           <CardHeader style={{ paddingBottom: 6 }}>
-            <View style={styles.sectionHeaderRow}>
-              <CardTitle style={{ fontSize: 14 }}>
-                {isHindi ? "सुरक्षा एवं पासवर्ड बदलें" : "Security & Password Management"}
-              </CardTitle>
-            </View>
+            <CardTitle style={{ fontSize: 14 }}>
+              {isHindi ? "सुरक्षा एवं पासवर्ड" : "Security & Password"}
+            </CardTitle>
           </CardHeader>
           <CardContent style={{ paddingTop: 0 }}>
-            {/* Current Password with Eye Toggle */}
-            <View style={styles.fieldGroup}>
-              <Text style={styles.fieldLabel}>
-                {isHindi ? "वर्तमान पासवर्ड" : "Current Password"} *
-              </Text>
-              <View style={styles.passwordInputWrapper}>
-                <Input
-                  value={currentPassword}
-                  onChangeText={setCurrentPassword}
-                  secureTextEntry={!showCurrentPass}
-                  placeholder={isHindi ? "वर्तमान पासवर्ड दर्ज करें" : "Enter current password"}
-                  containerStyle={{ marginBottom: 0, flex: 1 }}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowCurrentPass(!showCurrentPass)}
-                  style={styles.eyeBtn}
-                  activeOpacity={0.7}
-                >
-                  {showCurrentPass ? (
-                    <Icons.EyeOff size={18} color="#71717a" />
-                  ) : (
-                    <Icons.Eye size={18} color="#71717a" />
-                  )}
-                </TouchableOpacity>
+            {/* Password Status Row */}
+            <View style={styles.detailRow}>
+              <View style={styles.detailIconWrapper}>
+                <Icons.Lock size={15} color="#0B2545" />
+              </View>
+              <View style={styles.detailContent}>
+                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                  <Text style={styles.detailLabel}>{isHindi ? "खाता पासवर्ड" : "Account Password"}</Text>
+                  <View style={[styles.lockedPill, { backgroundColor: "#ecfdf5", borderColor: "#a7f3d0" }]}>
+                    <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: "#059669", marginRight: 4 }} />
+                    <Text style={[styles.lockedPillText, { color: "#047857" }]}>
+                      {isHindi ? "सुरक्षित" : "Protected"}
+                    </Text>
+                  </View>
+                </View>
+                <Text style={[styles.detailValue, { fontSize: 16, letterSpacing: 2, color: "#52525b" }]}>
+                  ••••••••••••
+                </Text>
               </View>
             </View>
 
-            {/* New Password with Eye Toggle */}
-            <View style={styles.fieldGroup}>
-              <Text style={styles.fieldLabel}>
-                {isHindi ? "नया पासवर्ड" : "New Password"} *
-              </Text>
-              <View style={styles.passwordInputWrapper}>
-                <Input
-                  value={newPassword}
-                  onChangeText={setNewPassword}
-                  secureTextEntry={!showNewPass}
-                  placeholder={isHindi ? "नया पासवर्ड (न्यूनतम 8 अक्षर)" : "New password (min. 8 chars)"}
-                  containerStyle={{ marginBottom: 0, flex: 1 }}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowNewPass(!showNewPass)}
-                  style={styles.eyeBtn}
-                  activeOpacity={0.7}
-                >
-                  {showNewPass ? (
-                    <Icons.EyeOff size={18} color="#71717a" />
-                  ) : (
-                    <Icons.Eye size={18} color="#71717a" />
-                  )}
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.helperText}>
-                {isHindi ? "न्यूनतम 8 अक्षर" : "Min. 8 characters."}
-              </Text>
-            </View>
-
-            {/* Confirm Password with Eye Toggle */}
-            <View style={styles.fieldGroup}>
-              <Text style={styles.fieldLabel}>
-                {isHindi ? "नए पासवर्ड की पुष्टि करें" : "Confirm New Password"} *
-              </Text>
-              <View style={styles.passwordInputWrapper}>
-                <Input
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  secureTextEntry={!showConfirmPass}
-                  placeholder={isHindi ? "नया पासवर्ड पुनः दर्ज करें" : "Re-enter new password"}
-                  containerStyle={{ marginBottom: 0, flex: 1 }}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowConfirmPass(!showConfirmPass)}
-                  style={styles.eyeBtn}
-                  activeOpacity={0.7}
-                >
-                  {showConfirmPass ? (
-                    <Icons.EyeOff size={18} color="#71717a" />
-                  ) : (
-                    <Icons.Eye size={18} color="#71717a" />
-                  )}
-                </TouchableOpacity>
-              </View>
-            </View>
-
+            {/* Change Password Action Button */}
             <Button
+              variant="outline"
               size="sm"
-              onPress={handleChangePassword}
-              disabled={isUpdatingPassword}
-              style={styles.actionBtn}
+              onPress={openPasswordModal}
+              style={styles.editActionButton}
+              icon={<Icons.Key size={14} color="#0B2545" />}
             >
-              {isUpdatingPassword ? (
-                <ActivityIndicator size="small" color="#ffffff" />
-              ) : (
-                isHindi ? "पासवर्ड बदलें" : "Change Password"
-              )}
+              {isHindi ? "पासवर्ड बदलें" : "Change Password"}
             </Button>
           </CardContent>
         </Card>
@@ -467,6 +467,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           {"\n"}Standardization under Legal Metrology Act, 2009 & Rules 2011
         </Text>
       </ScrollView>
+    </SafeAreaView>
+  </Animated.View>
 
       {/* ========================================================================= */}
       {/* 5. EDIT DETAILS DIALOG BOX / MODAL                                        */}
@@ -577,11 +579,176 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           </View>
         </View>
       </RNModal>
+
+      {/* ========================================================================= */}
+      {/* 6. CHANGE PASSWORD DIALOG BOX / MODAL                                     */}
+      {/* ========================================================================= */}
+      <RNModal
+        visible={isPasswordModalOpen}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsPasswordModalOpen(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalDialogCard}>
+            {/* Modal Header */}
+            <View style={styles.modalHeader}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.modalTitle}>
+                  {isHindi ? "पासवर्ड बदलें" : "Change Password"}
+                </Text>
+                <Text style={styles.modalSubtitle}>
+                  {isHindi
+                    ? "सुरक्षा के लिए अपना वर्तमान और नया पासवर्ड दर्ज करें।"
+                    : "Enter your current and new password (min. 8 characters)."}
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => setIsPasswordModalOpen(false)}
+                style={styles.modalCloseBtn}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <Icons.X size={18} color="#71717a" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Current Password with Eye Toggle */}
+            <View style={styles.modalFieldGroup}>
+              <Text style={styles.modalFieldLabel}>
+                {isHindi ? "वर्तमान पासवर्ड" : "Current Password"} *
+              </Text>
+              <View style={styles.passwordInputWrapper}>
+                <Input
+                  value={currentPassword}
+                  onChangeText={setCurrentPassword}
+                  secureTextEntry={!showCurrentPass}
+                  placeholder={isHindi ? "वर्तमान पासवर्ड दर्ज करें" : "Enter current password"}
+                  containerStyle={{ marginBottom: 0, flex: 1 }}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowCurrentPass(!showCurrentPass)}
+                  style={styles.eyeBtn}
+                  activeOpacity={0.7}
+                >
+                  {showCurrentPass ? (
+                    <Icons.EyeOff size={18} color="#71717a" />
+                  ) : (
+                    <Icons.Eye size={18} color="#71717a" />
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* New Password with Eye Toggle */}
+            <View style={styles.modalFieldGroup}>
+              <Text style={styles.modalFieldLabel}>
+                {isHindi ? "नया पासवर्ड" : "New Password"} *
+              </Text>
+              <View style={styles.passwordInputWrapper}>
+                <Input
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                  secureTextEntry={!showNewPass}
+                  placeholder={isHindi ? "नया पासवर्ड (न्यूनतम 8 अक्षर)" : "New password (min. 8 chars)"}
+                  containerStyle={{ marginBottom: 0, flex: 1 }}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowNewPass(!showNewPass)}
+                  style={styles.eyeBtn}
+                  activeOpacity={0.7}
+                >
+                  {showNewPass ? (
+                    <Icons.EyeOff size={18} color="#71717a" />
+                  ) : (
+                    <Icons.Eye size={18} color="#71717a" />
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Confirm Password with Eye Toggle */}
+            <View style={styles.modalFieldGroup}>
+              <Text style={styles.modalFieldLabel}>
+                {isHindi ? "नए पासवर्ड की पुष्टि करें" : "Confirm New Password"} *
+              </Text>
+              <View style={styles.passwordInputWrapper}>
+                <Input
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry={!showConfirmPass}
+                  placeholder={isHindi ? "नया पासवर्ड पुनः दर्ज करें" : "Re-enter new password"}
+                  containerStyle={{ marginBottom: 0, flex: 1 }}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowConfirmPass(!showConfirmPass)}
+                  style={styles.eyeBtn}
+                  activeOpacity={0.7}
+                >
+                  {showConfirmPass ? (
+                    <Icons.EyeOff size={18} color="#71717a" />
+                  ) : (
+                    <Icons.Eye size={18} color="#71717a" />
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Dialog Footer Actions */}
+            <View style={styles.modalActionsRow}>
+              <TouchableOpacity
+                onPress={() => setIsPasswordModalOpen(false)}
+                style={styles.modalCancelBtn}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.modalCancelBtnText}>
+                  {isHindi ? "रद्द करें" : "Cancel"}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={handleChangePassword}
+                disabled={isUpdatingPassword}
+                style={[styles.modalSaveBtn, isUpdatingPassword && { opacity: 0.7 }]}
+                activeOpacity={0.7}
+              >
+                {isUpdatingPassword ? (
+                  <ActivityIndicator size="small" color="#ffffff" />
+                ) : (
+                  <Text style={styles.modalSaveBtnText}>
+                    {isHindi ? "पासवर्ड अपडेट करें" : "Update Password"}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </RNModal>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  rootWrapper: {
+    flex: 1,
+    backgroundColor: "transparent",
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: "#000000",
+  },
+  animatedScreen: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+    shadowColor: "#000000",
+    shadowOffset: { width: -4, height: 0 },
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  safeContainer: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
@@ -589,7 +756,7 @@ const styles = StyleSheet.create({
   topHeader: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: "#ffffff",
@@ -597,22 +764,12 @@ const styles = StyleSheet.create({
     borderBottomColor: "#e4e4e7",
   },
   backButton: {
-    flexDirection: "row",
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: "#f4f4f5",
     alignItems: "center",
-    gap: 4,
-  },
-  backButtonText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#0B2545",
-  },
-  topHeaderTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#09090b",
-  },
-  closeIconButton: {
-    padding: 4,
+    justifyContent: "center",
   },
   scrollContent: {
     padding: 16,

@@ -612,5 +612,29 @@
   - Quick test buttons belong in staging environments; in production government portals, sample buttons clutter UI and confuse traders who copy sample numbers rather than their own reference IDs.
   - The previous progression stepper had no line connecting the 4 milestones, leaving circles floating disconnectedly. Connecting tracks and high-contrast daylight bento cards deliver immediate visual clarity and trust.
 
+### ADR-056: Multi-Network Mobile & Web Dev Tunneling via Ngrok Gateway & Expo Tunnel
+- **Decision**:
+  1. Leverage Expo's `--tunnel` mode via `@expo/ngrok` in `scripts/start-mobile.js` to broadcast the React Native Metro bundle across public tunnels.
+  2. Route all mobile Axios API requests through the unified public Ngrok gateway (`https://vapouringly-nonallegoric-teodora.ngrok-free.dev/api/v1`) using `PUBLIC_TUNNEL_URL` and `process.env.EXPO_PUBLIC_API_URL`.
+  3. Pass `ngrok-skip-browser-warning: "true"` across all Axios defaults and request interceptors in `mobile/src/lib/api.ts` to bypass ngrok's anti-phishing HTML splash screens during programmatic REST calls.
+  4. Expand server CORS origin regex in `server/src/app.ts` to accommodate `.ngrok-free.dev`, `.ngrok-free.app`, `.ngrok.app`, and `.loca.lt`.
+  5. Harmonize all components under a single execution command (`npm run dev`) via `package.json` and `scripts/free-ports.js`.
+- **Rationale**:
+  - In hackathons and distributed testing scenarios, mobile devices are frequently on cellular data (4G/5G) or separate Wi-Fi networks where local LAN IP resolution (`192.168.x.x`) fails.
+  - Exposing the Vite frontend on port `5173` via ngrok provides a dual benefit: it gives an immediate public URL for the web app while simultaneously functioning as a reverse proxy for `/api/v1` calls to backend port `5001`.
+  - Supplying the skip warning header prevents JSON parsing failures on native mobile clients, creating a seamless out-of-the-box experience with one command.
 
-
+### ADR-057: Mobile Settings Gestures, Text-Free Header, & Dialog-Based Password Modals
+- **Decision**:
+  1. Replace vertical slide-up modal with right-to-left horizontal slide animation (`Animated.Value` translateX) and translucent backdrop fade.
+  2. Implement native swipe-to-dismiss (`PanResponder`) tracking rightward drag gesture (`dx > 0` with directional dominance checking) to mimic standard mobile stack dismissal.
+  3. Clean the Settings top navigation bar:
+     - Remove all text (no title, no "Officer Profile", no "Back" text).
+     - Remove the cross (`×`) icon button; provide a clean circular back chevron button on the left.
+  4. Retain only one "Edit Details" button on the Officer Details card (pruned the duplicate button in CardHeader).
+  5. Move password management out of inline forms into an interactive dialog modal (`RNModal`) triggered by a "Change Password" button next to an encrypted status row (`••••••••••••` with "Protected" badge).
+  6. Disambiguate Ngrok binary execution in `scripts/start-tunnel.js` by explicitly invoking Homebrew's global ngrok v3 binary (`/opt/homebrew/bin/ngrok`) ahead of legacy v2 wrappers in `node_modules/.bin`.
+- **Rationale**:
+  - React Native's default `<Modal animationType="slide">` is strictly hardcoded to vertical bottom-to-top motion. Using a transparent modal with custom Animated transform and PanResponder gives full control over horizontal slide-in and interactive gesture-driven drag-to-dismiss.
+  - The Settings screen header previously had duplicate exit paths (back button and cross button) and cluttered title text. Streamlining it to a single circular back icon creates an uncluttered, modern mobile interface.
+  - Interactive password modals prevent accidental editing or layout shift inside the main settings view and allow focused, secure credential changes with dedicated show/hide eye toggles.

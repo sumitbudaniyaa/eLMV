@@ -626,3 +626,40 @@ In accordance with hard project rules, every phase must be fully implemented, te
 - [x] Added 100% complete bilingual English and Hindi translations across web and mobile locale dictionaries.
 - [x] Verified zero compilation regressions across monorepo (`npm run build --workspaces --if-present` exit code 0) and mobile typecheck (`npm run typecheck --workspace=@sih/mobile` exit code 0).
 
+## Phase 59: Landing Header Alignment, Password Security Defaults & Vercel SPA Routing
+- [x] Replaced citizen convenience bar in `client/src/portals/consumer/ConsumerLayout.tsx` with the exact landing page top strip:
+  - Saffron, white, and green Indian tricolor ribbon (`h-1 shadow-xs`).
+  - Frosted daylight Government attribution strip with bilingual text (`consumerLanding.topStrip.govtOfIndia` & `consumerLanding.topStrip.ministry`) and pill language switcher.
+- [x] Removed pre-filled default passwords (`"Password@123"`) and renamed fields:
+  - `OfficerManagementPage.tsx`: Cleared initial & reset state `password: ""`, renamed label to `Password *`, added placeholder `Enter password (min. 8 characters)`.
+  - `GatcStaffPage.tsx`: Cleared initial & reset state `password: ""`, renamed label to `Password *`, added placeholder `Enter password (min. 8 characters)`.
+  - `GatcAgencyManagementPage.tsx`: Cleared initial & reset state `adminPassword: ""`, renamed label to `Admin Password *`, added placeholder `Enter password (min. 8 characters)`.
+- [x] Configured `client/vercel.json` with SPA rewrite rule (`"source": "/(.*)", "destination": "/index.html"`) for zero-404 client-side routing on Vercel.
+- [x] Created root `.gitignore` blocking `.env`, `server/.env`, and secrets while retaining `.env.example`.
+- [x] Pushed codebase to remote GitHub repository (`https://github.com/sumitbudaniyaa/sih26.git`).
+
+## Phase 60: Multi-Network Tunnel Architecture & Single-Command (`npm run dev`) Unified Ecosystem
+- [x] Integrated `@expo/ngrok` dependency in `@sih/mobile` for native Expo Go tunnel support.
+- [x] Updated `scripts/start-mobile.js` to automatically start Expo in `--tunnel` mode and bind `EXPO_PUBLIC_API_URL` to the public gateway URL.
+- [x] Configured `mobile/src/lib/config.ts` with `PUBLIC_TUNNEL_URL` fallback and `process.env.EXPO_PUBLIC_API_URL` precedence so mobile clients on cellular 4G/5G or remote Wi-Fi can communicate with the backend.
+- [x] Updated `mobile/src/lib/api.ts` with `ngrok-skip-browser-warning: "true"` headers across Axios defaults and request interceptors to prevent HTML splash screens from intercepting JSON API responses.
+- [x] Updated `server/src/app.ts` CORS origin whitelist to permit modern ngrok domains (`.ngrok-free.dev`, `.ngrok-free.app`, `.ngrok.app`, `.ngrok.io`, `.loca.lt`).
+- [x] Enabled single-command full-stack developer experience via `npm run dev`:
+  - Automatically cleans ports (`5001`, `5173`, `5174`, `5175`, `8081`, `4040`).
+  - Concurrently runs Express Server, Consumer Web, Admin Web, Field Officer Web, Ngrok Gateway, and Expo Metro Tunnel.
+  - Allows immediate multi-network QR scanning on physical devices with Expo Go.
+- [x] Verified monorepo builds and typechecks cleanly (`exit code 0`).
+
+## Phase 61: Mobile Settings Navigation Gestures, Header Cleanup & Password Modal
+- [x] Converted Settings Screen modal transition to horizontal slide-in (right-to-left) with backdrop fade in `mobile/src/screens/SettingsScreen.tsx` and `mobile/App.tsx`.
+- [x] Implemented native swipe-right-to-dismiss gesture using React Native `PanResponder` and `Animated.Value`.
+- [x] Cleaned Settings top navigation header:
+  - Removed all title text ("Officer Profile" / "Settings") and button text so the header is 100% text-free.
+  - Removed the cross (`×`) icon button; retained a clean circular back chevron button on the left.
+- [x] Removed duplicate "Edit Details" button on Officer Details card, keeping only one clean action button.
+- [x] Migrated password change form to an interactive dialog modal (`RNModal`) with encrypted status row (`••••••••••••` with "Protected" badge), show/hide eye toggles, and validation.
+- [x] Upgraded `scripts/start-tunnel.js` to disambiguate Homebrew ngrok v3 binary from `@expo/ngrok` v2 wrappers.
+- [x] Verified full monorepo builds and typechecks cleanly (`npm run build` and `npm run typecheck` exit code 0).
+
+
+

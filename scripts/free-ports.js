@@ -1,13 +1,13 @@
 const { execSync } = require("child_process");
 
-const ports = [5001, 5173, 5174, 5175, 8081, 4040];
+const ports = [5001, 5173, 5174, 5175, 8081, 4040, 4041, 4042];
 
 // Kill lingering ngrok tunnel processes if any
 try {
   if (process.platform === "win32") {
     execSync("taskkill /F /IM ngrok.exe", { stdio: "ignore" });
   } else {
-    execSync("pkill -9 -f 'ngrok http'", { stdio: "ignore" });
+    execSync("pkill -9 -f 'ngrok'", { stdio: "ignore" });
   }
 } catch (_) {}
 

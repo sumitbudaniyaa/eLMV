@@ -43,6 +43,7 @@ export const Icons = {
   FlashlightOff: (props: IconProps) => <Ionicons name="flashlight-outline" size={props.size ?? 20} color={props.color ?? "#18181b"} style={props.style} />,
   Settings: (props: IconProps) => <Feather name="settings" size={props.size ?? 20} color={props.color ?? "#18181b"} style={props.style} />,
   Lock: (props: IconProps) => <Feather name="lock" size={props.size ?? 16} color={props.color ?? "#71717a"} style={props.style} />,
+  Key: (props: IconProps) => <Feather name="key" size={props.size ?? 16} color={props.color ?? "#18181b"} style={props.style} />,
   Edit: (props: IconProps) => <Feather name="edit-2" size={props.size ?? 16} color={props.color ?? "#18181b"} style={props.style} />,
   Pencil: (props: IconProps) => <Feather name="edit-3" size={props.size ?? 16} color={props.color ?? "#18181b"} style={props.style} />,
 };

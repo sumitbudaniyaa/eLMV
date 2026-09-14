@@ -1,4 +1,5 @@
 const { spawn } = require("child_process");
+const fs = require("fs");
 
 const TUNNEL_URL = "https://vapouringly-nonallegoric-teodora.ngrok-free.dev";
 const PORT = 5173;
@@ -12,11 +13,27 @@ console.log("\x1b[36m%s\x1b[0m", `📱  Mobile Metro Dev (Port 8081): http://loc
 console.log("\x1b[37m%s\x1b[0m", `    ↳ To run on iOS Simulator:    npm run mobile:ios`);
 console.log("\x1b[37m%s\x1b[0m", `    ↳ To run on Android:          npm run mobile:android`);
 console.log("\x1b[37m%s\x1b[0m", `    ↳ To scan QR in Expo Go:      npm run mobile:start`);
-console.log("\x1b[36m%s\x1b[0m", `🌐  Public Tunnel    (Consumer): ${TUNNEL_URL}`);
+console.log("\x1b[36m%s\x1b[0m", `🌐  Public Tunnel    (Web & API): ${TUNNEL_URL}`);
 console.log("\x1b[32m%s\x1b[0m", `========================================================\n`);
 
+function resolveNgrok() {
+  const candidates = [
+    "/opt/homebrew/bin/ngrok",
+    "/usr/local/bin/ngrok",
+    process.env.NGROK_BIN,
+  ];
+  for (const p of candidates) {
+    if (p && fs.existsSync(p)) {
+      return p;
+    }
+  }
+  return "ngrok";
+}
+
+const ngrokBin = resolveNgrok();
+
 const child = spawn(
-  "ngrok",
+  ngrokBin,
   ["http", PORT.toString(), "--url", TUNNEL_URL, "--log=stdout"],
   {
     stdio: ["ignore", "pipe", "pipe"],
@@ -25,7 +42,6 @@ const child = spawn(
 
 child.stdout.on("data", (data) => {
   const str = data.toString();
-  // Filter out repetitive connection join pings to keep the dev console clean
   if (!str.includes("join connections")) {
     process.stdout.write(str);
   }

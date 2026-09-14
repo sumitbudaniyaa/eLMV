@@ -8,12 +8,17 @@ const SERVER_URL_KEY = "lm_custom_server_url";
 // - Android Emulator: 10.0.2.2
 // - iOS Simulator / Web: localhost
 export const DEFAULT_LAN_IP = "192.168.29.193";
+export const PUBLIC_TUNNEL_URL = "https://vapouringly-nonallegoric-teodora.ngrok-free.dev/api/v1";
 
 export function getDefaultBaseUrl(): string {
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
   if (Platform.OS === "web") {
     return "http://localhost:5001/api/v1";
   }
-  return `http://${DEFAULT_LAN_IP}:5001/api/v1`;
+  // When tunneled, use the public tunnel URL so it works seamlessly on any network (cellular/remote Wi-Fi)
+  return PUBLIC_TUNNEL_URL;
 }
 
 export async function getSavedBaseUrl(): Promise<string> {

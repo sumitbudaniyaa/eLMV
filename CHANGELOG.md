@@ -3,6 +3,63 @@
 All notable changes to the **Online Verification System for Weighing & Measuring Instruments** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), adhering strictly to zero-omission rules.
 
+## [1.9.39] - Mobile Settings Navigation Gestures, Header Cleanup & Password Modal — 2026-09-14
+
+- **Horizontal Slide Navigation & Native Swipe-Right Dismissal**:
+  - Replaced native vertical slide-up modal with horizontal right-to-left push animation in [`SettingsScreen.tsx`](file:///Users/Sumit/Desktop/sih/mobile/src/screens/SettingsScreen.tsx) and [`App.tsx`](file:///Users/Sumit/Desktop/sih/mobile/App.tsx).
+  - Implemented interactive `PanResponder` tracking horizontal gesture drag (`dx > 0` with directional thresholding), enabling officers to swipe right smoothly to dismiss the settings screen with animated backdrop fade, mirroring native iOS and Android navigation transitions.
+- **Top Navigation Bar Clean-Up (Zero Text & No Cross Button)**:
+  - Removed all title text ("Officer Profile" / "Settings") and button text from the top header bar.
+  - Removed the cross (`×`) icon button, keeping only a clean, circular back chevron button (`Icons.ChevronLeft`) aligned to the left.
+- **Single "Edit Details" Button**:
+  - Removed duplicate "Edit Details" button from the card header in the Officer Details card, leaving a single, high-contrast action button at the bottom of the card.
+- **Dialog-Based Password Management**:
+  - Converted inline password inputs into an encrypted status row (`••••••••••••` with a green "Protected" badge) and a "Change Password" button.
+  - Clicking "Change Password" opens an interactive dialog modal (`RNModal`) with separate fields for Current Password, New Password, and Confirm Password, complete with show/hide eye toggle icons and full validation.
+- **Ngrok v3 Binary Disambiguation & Process Resiliency**:
+  - Updated [`scripts/start-tunnel.js`](file:///Users/Sumit/Desktop/sih/scripts/start-tunnel.js) to prioritize Homebrew's global ngrok v3 binary (`/opt/homebrew/bin/ngrok`) over legacy v2 wrappers in `node_modules/.bin`.
+  - Added port freeing for ngrok inspection ports (`4041`, `4042`) and configured `--kill-others-on-fail` in `package.json` to prevent process termination on clean events.
+- **Zero Build Regressions**:
+  - All monorepo workspaces pass build and typecheck cleanly (`exit code 0` across `@sih/shared`, `@sih/server`, `@sih/client`, `@sih/mobile`).
+
+---
+
+## [1.9.38] - Multi-Network Tunnel Architecture & Single-Command (`npm run dev`) Developer Experience — 2026-09-14
+
+- **Native Expo Tunnel Integration (`@expo/ngrok`)**:
+  - Integrated `@expo/ngrok` in `@sih/mobile` dev dependencies.
+  - Updated [`scripts/start-mobile.js`](file:///Users/Sumit/Desktop/sih/scripts/start-mobile.js) to start Expo in `--tunnel` mode by default, generating an internet-accessible `exp://...` QR code readable by Expo Go on physical phones regardless of whether the device is on cellular data (4G/5G) or a remote Wi-Fi network.
+- **Unified Public API Gateway & Ngrok Warning Bypass**:
+  - Configured [`mobile/src/lib/config.ts`](file:///Users/Sumit/Desktop/sih/mobile/src/lib/config.ts) with `PUBLIC_TUNNEL_URL` fallback (`https://vapouringly-nonallegoric-teodora.ngrok-free.dev/api/v1`) and dynamic `process.env.EXPO_PUBLIC_API_URL` precedence.
+  - Configured [`mobile/src/lib/api.ts`](file:///Users/Sumit/Desktop/sih/mobile/src/lib/api.ts) with `ngrok-skip-browser-warning: "true"` headers across Axios client instance and request interceptors to prevent HTML splash screens from intercepting JSON API responses.
+- **Server CORS Whitelist Upgrade**:
+  - In [`server/src/app.ts`](file:///Users/Sumit/Desktop/sih/server/src/app.ts), expanded CORS regex to accept modern ngrok and tunnel domains (`.ngrok-free.dev`, `.ngrok-free.app`, `.ngrok.app`, `.ngrok.io`, `.loca.lt`).
+- **Single-Command Full-Stack Execution (`npm run dev`)**:
+  - Port freeing, shared schema compilation, Express backend (`5001`), three React Vite web applications (`5173`, `5174`, `5175`), public Ngrok proxy, and mobile Expo bundler now execute concurrently under one terminal process with clean log prefixes.
+- **Zero Build Regressions**:
+  - Full monorepo builds and typechecks cleanly (`exit code 0` across `@sih/shared`, `@sih/server`, `@sih/client`, `@sih/mobile`).
+
+---
+
+## [1.9.37] - Landing Header Alignment, Password Defaults Cleaning & Vercel SPA Routing — 2026-09-14
+
+- **Consumer Portal Header Alignment**:
+  - In [`client/src/portals/consumer/ConsumerLayout.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/consumer/ConsumerLayout.tsx), replaced the dark citizen bar with the exact landing page top strip: saffron, white, and green national tricolor ribbon (`h-1 shadow-xs`) followed by the light Government attribution strip (`bg-slate-100/90 border-b border-border/80`) with bilingual title attribution and rounded pill language toggle.
+- **Form Password Security Defaults**:
+  - Removed pre-filled `"Password@123"` strings in administrative officer and staff creation modals:
+    - `OfficerManagementPage.tsx`: Initial & reset state cleared (`password: ""`), field renamed to `Password *` with helper placeholder.
+    - `GatcStaffPage.tsx`: Initial & reset state cleared (`password: ""`), field renamed to `Password *` with helper placeholder.
+    - `GatcAgencyManagementPage.tsx`: Initial & reset state cleared (`adminPassword: ""`), field renamed to `Admin Password *` with helper placeholder.
+- **Vercel Client-Side SPA Routing**:
+  - Created [`client/vercel.json`](file:///Users/Sumit/Desktop/sih/client/vercel.json) with catch-all rewrite (`{"source": "/(.*)", "destination": "/index.html"}`) so direct navigation and refreshes resolve without 404 errors on Vercel.
+- **Git Security & Repository Push**:
+  - Configured comprehensive root `.gitignore` blocking environment secrets and build artifacts while preserving `.env.example`.
+  - Pushed codebase to remote GitHub repository (`https://github.com/sumitbudaniyaa/sih26.git`).
+- **Zero Build Regressions**:
+  - Monorepo compiles cleanly with exit code 0.
+
+---
+
 ## [1.9.36] - Mobile Settings Clean-Up (Server URL & Language Removal) — 2026-09-14
 
 - **Server URL & Backend Exposure Removed**:

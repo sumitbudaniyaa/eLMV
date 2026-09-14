@@ -6,8 +6,9 @@ export const mobileApi = axios.create({
   baseURL: getDefaultBaseUrl(),
   headers: {
     "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
   },
-  timeout: 10000,
+  timeout: 15000,
 });
 
 const ACCESS_KEY = "auth_access_token";
@@ -45,6 +46,10 @@ export async function clearMobileTokens() {
 mobileApi.interceptors.request.use(async (config) => {
   const currentBaseUrl = await getSavedBaseUrl();
   config.baseURL = currentBaseUrl;
+
+  if (config.headers) {
+    config.headers["ngrok-skip-browser-warning"] = "true";
+  }
 
   const { accessToken } = await getMobileTokens();
   if (accessToken && config.headers) {
