@@ -53,8 +53,21 @@ export function AdminLoginPage() {
   return (
     <div className="w-full max-w-sm mx-auto">
       <Card className="border border-border shadow-xs bg-card rounded-xl">
-        <CardHeader className="text-center pb-2">
-          <CardTitle className="text-xl font-bold tracking-tight text-foreground">
+        <CardHeader className="text-center pb-2 space-y-2">
+          <div className="flex items-center justify-center space-x-2.5">
+            <img
+              src="/emblem.jpeg"
+              alt="Logo"
+              className="h-9 w-auto object-contain"
+              onError={(e) => {
+                (e.currentTarget as HTMLElement).style.display = "none";
+              }}
+            />
+            <span className="text-2xl font-black tracking-tight text-foreground">
+              eLMV
+            </span>
+          </div>
+          <CardTitle className="text-lg font-bold tracking-tight text-foreground">
             {isHindi ? "साइन इन" : "Sign In"}
           </CardTitle>
         </CardHeader>
