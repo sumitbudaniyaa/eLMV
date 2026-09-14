@@ -14,7 +14,7 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: { email: string; password: string }) => Promise<void>;
+  login: (credentials: { email: string; password: string }) => Promise<UserProfile>;
   register: (data: any) => Promise<void>;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -64,6 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setStoredTokens(tokens.accessToken, tokens.refreshToken);
         setToken(tokens.accessToken);
         setUser(loggedInUser);
+        return loggedInUser;
       } else {
         throw new Error(res.data.error?.message || "Login failed");
       }

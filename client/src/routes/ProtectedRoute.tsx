@@ -11,8 +11,14 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
   const location = useLocation();
+
+  React.useEffect(() => {
+    if (isAuthenticated && user && allowedRoles && !allowedRoles.includes(user.role as Role)) {
+      logout();
+    }
+  }, [isAuthenticated, user, allowedRoles, logout]);
 
   if (isLoading) {
     return (
@@ -31,12 +37,11 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
 
   if (allowedRoles && !allowedRoles.includes(user.role as Role)) {
     return (
-      <div className="max-w-md mx-auto mt-12 border border-destructive/50 bg-destructive/10 rounded-sm p-6 text-center">
-        <h3 className="text-sm font-semibold text-destructive">Access Restricted</h3>
-        <p className="text-xs text-muted-foreground mt-2">
-          Your account role ({user.role}) does not have permission to view this module.
-        </p>
-      </div>
+      <Navigate
+        to="/login"
+        state={{ authError: "Invalid credentials. Please try again." }}
+        replace
+      />
     );
   }
 

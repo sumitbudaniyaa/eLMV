@@ -1,3 +1,4 @@
+import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Role } from "@sih/shared";
@@ -16,30 +17,25 @@ import { AdminInstrumentsPage } from "./pages/AdminInstrumentsPage";
 import { AdminAnalyticsPage } from "./pages/AdminAnalyticsPage";
 import { AdminAuditPage } from "./pages/AdminAuditPage";
 import { SettingsPage } from "@/features/settings/SettingsPage";
-import { WrongPortalNotice } from "@/components/common/WrongPortalNotice";
 
 function AdminRoot() {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
+
+  React.useEffect(() => {
+    if (isAuthenticated && user && user.role !== Role.ADMIN && user.role !== Role.GATC_ADMIN) {
+      logout();
+    }
+  }, [isAuthenticated, user, logout]);
+
   if (isLoading) return null;
   if (!isAuthenticated || !user) return <Navigate to="/login" replace />;
 
-  // Cross-portal guard: if a Consumer or Field Officer logs in on Admin Portal
-  if (user.role === Role.CONSUMER) {
+  if (user.role !== Role.ADMIN && user.role !== Role.GATC_ADMIN) {
     return (
-      <WrongPortalNotice
-        currentPortal="admin"
-        requiredPortal="consumer"
-        portalTitle="Consumer & Commercial Trader Portal"
-      />
-    );
-  }
-
-  if (user.role === Role.LMO || user.role === Role.GATC_INSPECTOR) {
-    return (
-      <WrongPortalNotice
-        currentPortal="admin"
-        requiredPortal="field"
-        portalTitle="Field Inspection Suite"
+      <Navigate
+        to="/login"
+        state={{ authError: "Invalid credentials. Please try again." }}
+        replace
       />
     );
   }

@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/AuthContext";
-import { loginSchema, LoginInput } from "@sih/shared";
+import { loginSchema, LoginInput, Role } from "@sih/shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,11 +13,13 @@ import { Eye, EyeOff, AlertCircle } from "lucide-react";
 
 export function AdminLoginPage() {
   const { i18n } = useTranslation();
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [authError, setAuthError] = useState<string | null>(null);
+  const [authError, setAuthError] = useState<string | null>(
+    (location.state as any)?.authError || null
+  );
   const [showPassword, setShowPassword] = useState(false);
 
   const isHindi = (i18n.resolvedLanguage || i18n.language || "en").toLowerCase().startsWith("hi");
@@ -39,7 +41,16 @@ export function AdminLoginPage() {
   const onSubmit = async (data: LoginInput) => {
     try {
       setAuthError(null);
-      await login(data);
+      const loggedUser = await login(data);
+      if (loggedUser.role !== Role.ADMIN && loggedUser.role !== Role.GATC_ADMIN) {
+        await logout();
+        setAuthError(
+          isHindi
+            ? "अमान्य क्रेडेंशियल। कृपया पुनः प्रयास करें।"
+            : "Invalid credentials. Please try again."
+        );
+        return;
+      }
       navigate(from, { replace: true });
     } catch (err: any) {
       setAuthError(

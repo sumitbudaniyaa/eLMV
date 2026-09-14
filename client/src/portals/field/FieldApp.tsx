@@ -1,3 +1,4 @@
+import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Role } from "@sih/shared";
@@ -9,22 +10,27 @@ import { PublicVerificationPage } from "@/features/verification/PublicVerificati
 import { DashboardPage } from "@/features/dashboard/DashboardPage";
 import { ApplicationListPage } from "@/features/applications/ApplicationListPage";
 import { InstrumentListPage } from "@/features/instruments/InstrumentListPage";
-import { WrongPortalNotice } from "@/components/common/WrongPortalNotice";
 import { FieldRosterPage } from "./pages/FieldRosterPage";
 import { SettingsPage } from "@/features/settings/SettingsPage";
 
 function FieldRoot() {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
+
+  React.useEffect(() => {
+    if (isAuthenticated && user && user.role !== Role.LMO && user.role !== Role.GATC_INSPECTOR) {
+      logout();
+    }
+  }, [isAuthenticated, user, logout]);
+
   if (isLoading) return null;
   if (!isAuthenticated || !user) return <Navigate to="/login" replace />;
 
-  // Cross-portal guard: if a Consumer logs in on Field Suite
-  if (user.role === Role.CONSUMER) {
+  if (user.role !== Role.LMO && user.role !== Role.GATC_INSPECTOR) {
     return (
-      <WrongPortalNotice
-        currentPortal="field"
-        requiredPortal="consumer"
-        portalTitle="Consumer & Commercial Trader Portal"
+      <Navigate
+        to="/login"
+        state={{ authError: "Invalid credentials. Please try again." }}
+        replace
       />
     );
   }
