@@ -1,0 +1,127 @@
+{
+  "appName": "eLMV",
+  "subtitle": "Govt. of India — Department of Consumer Affairs",
+  "nav": {
+    "roster": "Roster",
+    "verify": "Verify",
+    "registry": "Registry",
+    "settings": "Settings"
+  },
+  "auth": {
+    "title": "Officer Authentication",
+    "desc": "Sign in to access your assigned statutory verification roster.",
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign In",
+    "signingIn": "Verifying credentials...",
+    "logout": "Sign Out",
+    "loginHeading": "Sign in",
+    "loginSubtitle": "Enter your credentials to access your account",
+    "demoAccount": "Use Demo Officer Account",
+    "footer": "eLMV • Govt. of India"
+  },
+  "roster": {
+    "title": "Inspection Roster",
+    "todayVisits": "Today's Visits",
+    "certified": "Certified",
+    "inJurisdiction": "In Jurisdiction",
+    "searchPlaceholder": "Search by app #, serial #, establishment...",
+    "tabs": {
+      "all": "All",
+      "scheduled": "Scheduled",
+      "certified": "Certified",
+      "rejected": "Rejected"
+    },
+    "startMpe": "Start MPE Test",
+    "digitallySign": "Digitally Sign & Issue",
+    "viewCert": "View Certificate / QR",
+    "empty": "No verification tasks found matching criteria."
+  },
+  "inspection": {
+    "title": "Record MPE Verification Test",
+    "desc": "Physical tolerance observation test for Application",
+    "mpeLabel": "Max Permissible Error (MPE)",
+    "actualErrorLabel": "Actual Error Observed",
+    "passedBanner": "PASSED STATUTORY TOLERANCE",
+    "failedBanner": "FAILED (EXCEEDS MPE)",
+    "passedDesc": "Observed error ({{error}}) is within statutory limit (±{{mpe}}).",
+    "failedDesc": "Observed error ({{error}}) exceeds statutory limit (±{{mpe}}).",
+    "sealLabel": "Affixed Verification Seal Number",
+    "standardsLabel": "Standards Used Serial Number",
+    "photoLabel": "Verification Site / Data Plate Photo",
+    "takePhoto": "Snap Photo / Proof",
+    "photoReady": "Photo proof attached for statutory audit",
+    "removePhoto": "Remove",
+    "remarksLabel": "Officer Observations & Remarks",
+    "autoSignNoticeTitle": "Automatic Digital Signing & Certification",
+    "autoSignNoticeDesc": "Statutory MPE tolerance verified. Submitting will record inspection and immediately generate an official ECDSA NIST P-256 digitally signed certificate.",
+    "failedNoticeTitle": "Statutory MPE Exceeded",
+    "failedNoticeDesc": "Observed error exceeds permissible limits. Submitting will record statutory rejection.",
+    "submitPassed": "Verify",
+    "submittingPassed": "Verifying...",
+    "submitFailed": "Record Rejection",
+    "submitting": "Submitting...",
+    "cancel": "Cancel"
+  },
+  "verify": {
+    "title": "Public Verification Portal",
+    "desc": "Scan statutory QR code on physical seal plate or certificate to authenticate.",
+    "cameraScanning": "Align statutory QR code inside the viewfinder",
+    "manualInput": "Or enter Certificate # / Token",
+    "placeholder": "e.g. LM-KA-2026-0000001 or 48-char token",
+    "verifyBtn": "Verify Authenticity",
+    "validStatus": "VALID & ACTIVE STATUTORY CERTIFICATE",
+    "pkiStamp": "Asymmetric Cryptographic PKI Stamp",
+    "keyVersion": "ECDSA NIST P-256 / SHA-256"
+  },
+  "registry": {
+    "title": "Trader Equipment Registry",
+    "desc": "Instruments registered within your assigned jurisdiction.",
+    "search": "Search equipment...",
+    "loading": "Loading equipment...",
+    "emptyTitle": "No Equipment Found",
+    "emptyFilter": "No equipment matches your search.",
+    "emptyNone": "No registered instruments found."
+  },
+  "settings": {
+    "title": "Officer Workstation Settings",
+    "language": "Interface Language",
+    "serverUrl": "Backend Server API URL",
+    "saveUrl": "Save & Apply Endpoint",
+    "currentOfficer": "Active Officer Identity",
+    "badge": "Badge Number",
+    "jurisdiction": "Territorial Jurisdiction"
+  },
+  "status": {
+    "SUBMITTED": "Submitted",
+    "SCHEDULED": "Scheduled",
+    "INSPECTED": "Inspected",
+    "CERTIFIED": "Certified",
+    "REJECTED": "Rejected"
+  },
+  "drawer": {
+    "title": "Application Details",
+    "equipment": "Equipment Specifications",
+    "verificationSchedule": "Verification Schedule",
+    "applicantDetails": "Applicant Details",
+    "issuedCertificate": "Issued Certificate",
+    "serialNumber": "Serial Number",
+    "capacity": "Capacity",
+    "accuracyClass": "Accuracy Class",
+    "interval": "Verification Interval",
+    "scheduledDate": "Scheduled Date",
+    "statutoryFee": "Statutory Fee",
+    "certNumber": "Certificate Number",
+    "validUntil": "Valid Until",
+    "close": "Close"
+  },
+  "header": {
+    "brand": "eLMV",
+    "designation": "Designation",
+    "jurisdiction": "Jurisdiction District",
+    "badge": "Official Badge",
+    "signOut": "Sign Out of Workstation"
+  }
+}
+
+

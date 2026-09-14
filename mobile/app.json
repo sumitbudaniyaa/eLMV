@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "eLMV",
+    "slug": "elmv",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "gov.in.metrology.verification"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#000000"
+      },
+      "package": "gov.in.metrology.verification"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow eLMV to access camera for scanning QR codes and taking on-site verification photos."
+        }
+      ]
+    ]
+  }
+}
+
