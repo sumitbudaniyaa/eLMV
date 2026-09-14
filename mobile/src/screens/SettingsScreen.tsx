@@ -13,6 +13,8 @@ import {
   Dimensions,
   Easing,
   SafeAreaView,
+  StatusBar,
+  Platform,
 } from "react-native";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -55,6 +57,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const [showNewPass, setShowNewPass] = useState(false);
   const [showConfirmPass, setShowConfirmPass] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [scrollEnabled, setScrollEnabled] = useState(true);
 
   // Horizontal Slide Animation (Right to Left) & Swipe-Right-to-Dismiss
   const translateX = useRef(new Animated.Value(SCREEN_WIDTH)).current;
@@ -83,26 +86,62 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => false,
+      onStartShouldSetPanResponderCapture: () => false,
       onMoveShouldSetPanResponder: (_, gestureState) => {
         if (isEditModalOpen || isPasswordModalOpen) return false;
-        return gestureState.dx > 10 && Math.abs(gestureState.dx) > Math.abs(gestureState.dy) * 1.5;
+        const isEdgeSwipe =
+          gestureState.x0 < 60 &&
+          gestureState.dx > 6 &&
+          Math.abs(gestureState.dx) > Math.abs(gestureState.dy);
+        const isScreenSwipe =
+          gestureState.dx > 10 &&
+          Math.abs(gestureState.dx) > Math.abs(gestureState.dy) * 1.2;
+        return isEdgeSwipe || isScreenSwipe;
+      },
+      onMoveShouldSetPanResponderCapture: (_, gestureState) => {
+        if (isEditModalOpen || isPasswordModalOpen) return false;
+        const isEdgeSwipe =
+          gestureState.x0 < 60 &&
+          gestureState.dx > 6 &&
+          Math.abs(gestureState.dx) > Math.abs(gestureState.dy);
+        const isScreenSwipe =
+          gestureState.dx > 10 &&
+          Math.abs(gestureState.dx) > Math.abs(gestureState.dy) * 1.2;
+        return isEdgeSwipe || isScreenSwipe;
+      },
+      onPanResponderGrant: () => {
+        translateX.stopAnimation();
+        setScrollEnabled(false);
       },
       onPanResponderMove: (_, gestureState) => {
         if (gestureState.dx > 0) {
           translateX.setValue(gestureState.dx);
+        } else {
+          translateX.setValue(0);
         }
       },
+      onPanResponderTerminationRequest: () => false,
       onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dx > SCREEN_WIDTH * 0.25 || gestureState.vx > 0.45) {
+        setScrollEnabled(true);
+        if (gestureState.dx > 50 || (gestureState.dx > 15 && gestureState.vx > 0.25)) {
           handleDismiss();
         } else {
           Animated.spring(translateX, {
             toValue: 0,
-            damping: 22,
-            stiffness: 220,
+            damping: 24,
+            stiffness: 240,
             useNativeDriver: true,
           }).start();
         }
+      },
+      onPanResponderTerminate: () => {
+        setScrollEnabled(true);
+        Animated.spring(translateX, {
+          toValue: 0,
+          damping: 24,
+          stiffness: 240,
+          useNativeDriver: true,
+        }).start();
       },
     })
   ).current;
@@ -280,6 +319,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
   return (
     <View style={styles.rootWrapper}>
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" animated={true} />
+
       {/* Animated Backdrop */}
       <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]} />
 
@@ -291,10 +332,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         ]}
         {...panResponder.panHandlers}
       >
-        <SafeAreaView style={styles.safeContainer}>
-          {/* Top Navigation Bar */}
-          {onClose && (
-            <View style={styles.topHeader}>
+        {/* Top Header Section with Matching White Status Bar Extension */}
+        <SafeAreaView style={styles.headerSafeArea}>
+          <View style={styles.topHeader}>
+            {onClose && (
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={handleDismiss}
@@ -304,10 +345,28 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               >
                 <Icons.ChevronLeft size={24} color="#0B2545" />
               </TouchableOpacity>
-            </View>
-          )}
+            )}
+            <Text style={styles.headerTitle}>
+              {isHindi ? "प्रोफ़ाइल" : "Profile"}
+            </Text>
+          </View>
+        </SafeAreaView>
 
-          <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Scrollable Content Body */}
+        <View style={styles.contentBody}>
+          {/* Left Edge Gesture Strip for Instant Native-Like Swipe-Back */}
+          <View
+            style={styles.leftEdgeSwipeStrip}
+            {...panResponder.panHandlers}
+          />
+
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={scrollEnabled}
+            directionalLockEnabled={true}
+            keyboardShouldPersistTaps="handled"
+          >
         {/* 1. CENTERED PROFILE HERO: Profile Icon in Middle, then Name & Details */}
         <View style={styles.profileHero}>
           <View style={styles.largeAvatarContainer}>
@@ -467,7 +526,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           {"\n"}Standardization under Legal Metrology Act, 2009 & Rules 2011
         </Text>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   </Animated.View>
 
       {/* ========================================================================= */}
@@ -753,6 +812,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background,
   },
+  headerSafeArea: {
+    backgroundColor: "#ffffff",
+    paddingTop: Platform.OS === "android" ? (StatusBar.currentHeight || 0) : 0,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e4e4e7",
+  },
   topHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -760,8 +825,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: "#ffffff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e4e4e7",
+    gap: 12,
+  },
+  contentBody: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  leftEdgeSwipeStrip: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 28,
+    zIndex: 99,
   },
   backButton: {
     width: 38,
@@ -770,6 +846,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#f4f4f5",
     alignItems: "center",
     justifyContent: "center",
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#0B2545",
+    letterSpacing: -0.3,
   },
   scrollContent: {
     padding: 16,

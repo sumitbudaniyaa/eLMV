@@ -624,17 +624,23 @@
   - Exposing the Vite frontend on port `5173` via ngrok provides a dual benefit: it gives an immediate public URL for the web app while simultaneously functioning as a reverse proxy for `/api/v1` calls to backend port `5001`.
   - Supplying the skip warning header prevents JSON parsing failures on native mobile clients, creating a seamless out-of-the-box experience with one command.
 
-### ADR-057: Mobile Settings Gestures, Text-Free Header, & Dialog-Based Password Modals
+### ADR-057: Mobile Settings Gestures, Status Bar Alignment, & Dialog-Based Password Modals
 - **Decision**:
   1. Replace vertical slide-up modal with right-to-left horizontal slide animation (`Animated.Value` translateX) and translucent backdrop fade.
-  2. Implement native swipe-to-dismiss (`PanResponder`) tracking rightward drag gesture (`dx > 0` with directional dominance checking) to mimic standard mobile stack dismissal.
-  3. Clean the Settings top navigation bar:
-     - Remove all text (no title, no "Officer Profile", no "Back" text).
-     - Remove the cross (`×`) icon button; provide a clean circular back chevron button on the left.
-  4. Retain only one "Edit Details" button on the Officer Details card (pruned the duplicate button in CardHeader).
-  5. Move password management out of inline forms into an interactive dialog modal (`RNModal`) triggered by a "Change Password" button next to an encrypted status row (`••••••••••••` with "Protected" badge).
-  6. Disambiguate Ngrok binary execution in `scripts/start-tunnel.js` by explicitly invoking Homebrew's global ngrok v3 binary (`/opt/homebrew/bin/ngrok`) ahead of legacy v2 wrappers in `node_modules/.bin`.
+  2. Implement comprehensive swipe-to-dismiss across both header and scrollable body:
+     - Use `PanResponder` with `onMoveShouldSetPanResponderCapture` to capture rightward gestures before the native `ScrollView` claims them.
+     - Dynamically toggle `scrollEnabled={scrollEnabled}` so vertical scrolling is locked only while an active rightward swipe is in progress.
+     - Add an absolute left-edge gesture strip (`width: 28, zIndex: 99`) for instantaneous, native-feeling edge swipe-back.
+  3. Match status bar color to header:
+     - Wrap header in `headerSafeArea` with Android `StatusBar.currentHeight` top inset and solid `#ffffff` background.
+     - Add `<StatusBar barStyle="dark-content" backgroundColor="#ffffff" animated={true} />` so phone system icons (battery, clock, Wi-Fi) render crisp and unified with the header.
+  4. Top navigation bar header:
+     - Display clean, high-contrast title text ("Profile" / "प्रोफ़ाइल") beside the circular back button.
+     - Remove the cross (`×`) icon button.
+  5. Retain only one "Edit Details" button on the Officer Details card (pruned duplicate in CardHeader).
+  6. Move password management into an interactive dialog modal (`RNModal`) triggered by "Change Password" next to an encrypted status row (`••••••••••••` with "Protected" badge).
+  7. Disambiguate Ngrok binary execution in `scripts/start-tunnel.js` by explicitly invoking Homebrew's global ngrok v3 binary (`/opt/homebrew/bin/ngrok`) ahead of legacy v2 wrappers in `node_modules/.bin`.
 - **Rationale**:
-  - React Native's default `<Modal animationType="slide">` is strictly hardcoded to vertical bottom-to-top motion. Using a transparent modal with custom Animated transform and PanResponder gives full control over horizontal slide-in and interactive gesture-driven drag-to-dismiss.
-  - The Settings screen header previously had duplicate exit paths (back button and cross button) and cluttered title text. Streamlining it to a single circular back icon creates an uncluttered, modern mobile interface.
-  - Interactive password modals prevent accidental editing or layout shift inside the main settings view and allow focused, secure credential changes with dedicated show/hide eye toggles.
+  - React Native's `<ScrollView>` is backed by native platform scroll views (`UIScrollView` / `ReactScrollView`) that consume touches. Without `onMoveShouldSetPanResponderCapture` and dynamic `scrollEnabled` toggling, gestures starting on the main content are swallowed by the native scroll recognizer, causing swiping to work only on non-scrollable header areas.
+  - Adding the left edge strip and capture hooks allows seamless edge swiping and content swiping without breaking standard vertical scrolling.
+  - Unifying the status bar container with `#ffffff` eliminates contrasting gaps above the header, rendering native phone icons cleanly against the daylight header.

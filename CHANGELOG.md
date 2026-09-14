@@ -5,12 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [1.9.39] - Mobile Settings Navigation Gestures, Header Cleanup & Password Modal — 2026-09-14
 
-- **Horizontal Slide Navigation & Native Swipe-Right Dismissal**:
+- **Horizontal Slide Navigation & Native Swipe-Right Dismissal Across Content & Header**:
   - Replaced native vertical slide-up modal with horizontal right-to-left push animation in [`SettingsScreen.tsx`](file:///Users/Sumit/Desktop/sih/mobile/src/screens/SettingsScreen.tsx) and [`App.tsx`](file:///Users/Sumit/Desktop/sih/mobile/App.tsx).
-  - Implemented interactive `PanResponder` tracking horizontal gesture drag (`dx > 0` with directional thresholding), enabling officers to swipe right smoothly to dismiss the settings screen with animated backdrop fade, mirroring native iOS and Android navigation transitions.
-- **Top Navigation Bar Clean-Up (Zero Text & No Cross Button)**:
-  - Removed all title text ("Officer Profile" / "Settings") and button text from the top header bar.
-  - Removed the cross (`×`) icon button, keeping only a clean, circular back chevron button (`Icons.ChevronLeft`) aligned to the left.
+  - Implemented interactive `PanResponder` with `onMoveShouldSetPanResponderCapture` to intercept horizontal rightward gestures before the native `ScrollView` claims touches, along with dynamic `scrollEnabled={scrollEnabled}` arbitration.
+  - Added an absolute left-edge gesture strip (`width: 28, zIndex: 99`) for instantaneous, native-feeling swipe-back across both the header and scrollable content body without blocking vertical scrolling.
+- **Header & Status Bar Color Synchronization**:
+  - Integrated `<StatusBar barStyle="dark-content" backgroundColor="#ffffff" animated={true} />` and wrapped the header in `headerSafeArea` with Android `StatusBar.currentHeight` top inset, unifying the phone status bar area (clock, battery, Wi-Fi icons) with the white `#ffffff` header surface.
+- **Top Navigation Bar Header ("Profile" / "प्रोफ़ाइल")**:
+  - Positioned clean, high-contrast statutory title text ("Profile" in English / "प्रोफ़ाइल" in Hindi) immediately adjacent to the circular back chevron button in [`SettingsScreen.tsx`](file:///Users/Sumit/Desktop/sih/mobile/src/screens/SettingsScreen.tsx).
+  - Maintained the removal of the cross (`×`) icon button for a clean, cohesive mobile header layout.
 - **Single "Edit Details" Button**:
   - Removed duplicate "Edit Details" button from the card header in the Officer Details card, leaving a single, high-contrast action button at the bottom of the card.
 - **Dialog-Based Password Management**:

@@ -652,10 +652,11 @@ In accordance with hard project rules, every phase must be fully implemented, te
 
 ## Phase 61: Mobile Settings Navigation Gestures, Header Cleanup & Password Modal
 - [x] Converted Settings Screen modal transition to horizontal slide-in (right-to-left) with backdrop fade in `mobile/src/screens/SettingsScreen.tsx` and `mobile/App.tsx`.
-- [x] Implemented native swipe-right-to-dismiss gesture using React Native `PanResponder` and `Animated.Value`.
-- [x] Cleaned Settings top navigation header:
-  - Removed all title text ("Officer Profile" / "Settings") and button text so the header is 100% text-free.
-  - Removed the cross (`×`) icon button; retained a clean circular back chevron button on the left.
+- [x] Implemented full-surface and left-edge swipe-right-to-dismiss gestures using `PanResponder` with `onMoveShouldSetPanResponderCapture`, dynamic `scrollEnabled` toggling, and an absolute left edge gesture strip (`width: 28`) across both the header and scrollable content body.
+- [x] Synchronized status bar color: Wrapped top header in `headerSafeArea` with Android `StatusBar.currentHeight` top inset and `<StatusBar barStyle="dark-content" backgroundColor="#ffffff" />` to unify the phone status bar area (clock, battery, Wi-Fi) with the white header.
+- [x] Updated Settings top navigation bar:
+  - Added clean "Profile" / "प्रोफ़ाइल" title text immediately beside the back chevron button.
+  - Removed the cross (`×`) icon button.
 - [x] Removed duplicate "Edit Details" button on Officer Details card, keeping only one clean action button.
 - [x] Migrated password change form to an interactive dialog modal (`RNModal`) with encrypted status row (`••••••••••••` with "Protected" badge), show/hide eye toggles, and validation.
 - [x] Upgraded `scripts/start-tunnel.js` to disambiguate Homebrew ngrok v3 binary from `@expo/ngrok` v2 wrappers.

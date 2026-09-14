@@ -182,11 +182,13 @@ function MainApp() {
         statusBarTranslucent={true}
         onRequestClose={() => setIsSettingsOpen(false)}
       >
-        <SettingsScreen
-          key={lang}
-          currentLanguage={lang}
-          onClose={() => setIsSettingsOpen(false)}
-        />
+        {isSettingsOpen && (
+          <SettingsScreen
+            key={lang}
+            currentLanguage={lang}
+            onClose={() => setIsSettingsOpen(false)}
+          />
+        )}
       </Modal>
     </SafeAreaView>
   );
