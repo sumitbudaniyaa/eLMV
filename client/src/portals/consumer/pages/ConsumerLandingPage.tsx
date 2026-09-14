@@ -503,7 +503,7 @@ export function ConsumerLandingPage() {
               <div className="p-6 flex flex-col items-center text-center space-y-4">
                 <div className="relative">
                   <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Pralhad_Joshi_in_2024.jpg/440px-Pralhad_Joshi_in_2024.jpg"
+                    src="/pj.jpeg"
                     alt={t("consumerLanding.leadership.ministerName")}
                     className="w-40 h-48 object-cover object-top rounded-xl shadow-sm border border-border bg-muted"
                     onError={(e) => {
