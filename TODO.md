@@ -662,5 +662,28 @@ In accordance with hard project rules, every phase must be fully implemented, te
 - [x] Upgraded `scripts/start-tunnel.js` to disambiguate Homebrew ngrok v3 binary from `@expo/ngrok` v2 wrappers.
 - [x] Verified full monorepo builds and typechecks cleanly (`npm run build` and `npm run typecheck` exit code 0).
 
+## Phase 62: Admin/Inspector Minimalist Login Cards, Leadership Media Update & Mobile Safe Area Layout Engine
+- [x] Overhauled Admin and Inspector login pages in `client/src/portals/admin/pages/AdminLoginPage.tsx` and `client/src/portals/field/pages/FieldLoginPage.tsx`:
+  - Stripped away extraneous headers, footers, warning banners, quick-fill buttons, and distracting helper texts.
+  - Centered clean, minimalist authentication cards with official Ashoka Lion Emblem and `eLMV` branding.
+  - Positioned floating, decoupled language and theme toggle pills at the top with matching heights (`h-8`).
+  - Replaced intrusive "Access Restricted (CONSUMER does not have permission...)" screens with an immediate session logout and clean "Invalid credentials. Please try again." error alert displayed directly on the login card.
+- [x] Updated leadership media in `client/src/portals/consumer/pages/ConsumerLandingPage.tsx`:
+  - Replaced Minister Shri Pralhad Joshi portrait with user-uploaded `pj.jpeg`.
+  - Enlarged photo dimensions (`w-48 h-56 sm:w-52 sm:h-60`) and configured crisp white background (`bg-white` / `#ffffff`).
+- [x] Resolved Android hardware status bar and bottom navigation bar overlap in `@sih/mobile`:
+  - Added dynamic top insets to `App.tsx` and all modal containers, ensuring headers clear notch and status bar icons on Android.
+  - Elevated bottom tab bar with dynamic bottom insets (`Math.max(insets.bottom, 24)`), preventing Android 3-button or gesture navigation bars from overlapping tab labels.
+  - Expanded scroll content padding (`64px`) across `RosterScreen`, `VerifyScreen`, `RegistryScreen`, and `SettingsScreen` so bottom action buttons ("Inspect" / "View Certificate") have comfortable clearance above the navigation tab bar.
+- [x] Migrated from deprecated `SafeAreaView` to `react-native-safe-area-context`:
+  - Installed `react-native-safe-area-context` (`^5.9.1`).
+  - Wrapped app root with `<SafeAreaProvider>`.
+  - Replaced all 8 instances of deprecated React Native core `SafeAreaView` across `App.tsx`, `LoginScreen.tsx`, `SettingsScreen.tsx`, `VerifyScreen.tsx`, `InspectionModal.tsx`, `modal.tsx`, `ApplicationDrawer.tsx`, and `CertificateModal.tsx` with standard `<View>` containers utilizing `useSafeAreaInsets()`.
+  - Added `LogBox.ignoreLogs(["SafeAreaView has been deprecated"])` guard in `App.tsx`.
+- [x] Eliminated mobile tab switching component flicker in `mobile/App.tsx`:
+  - Removed artificial 70ms fade-out animation (`tabFadeAnim`) that caused aggressive screen blanking on Android.
+  - Implemented persistent tab containers using `display: "none"` / `display: "flex"` to preserve component state, scroll position, and search terms while achieving instantaneous zero-flicker transitions.
+- [x] Verified zero compilation regressions across monorepo (`npm run typecheck` exit code 0).
+
 
 

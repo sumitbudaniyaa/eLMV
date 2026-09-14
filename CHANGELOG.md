@@ -3,6 +3,34 @@
 All notable changes to the **Online Verification System for Weighing & Measuring Instruments** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), adhering strictly to zero-omission rules.
 
+## [1.9.40] - Admin/Inspector Minimalist Login Cards, Leadership Media Update & Mobile Safe Area Layout Engine — 2026-09-14
+
+- **Admin & Field Officer Login Portal Modernization**:
+  - Overhauled [`AdminLoginPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/admin/pages/AdminLoginPage.tsx) and [`FieldLoginPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/field/pages/FieldLoginPage.tsx) into focused, minimalist authentication cards.
+  - Stripped away extraneous banners, headers, footers, demo quick-fill buttons, and distracting helper copy.
+  - Added official National Emblem logo and crisp `eLMV` portal typography.
+  - Aligned floating, decoupled language and theme switchers with equal height (`h-8`).
+  - Replaced disruptive "Access Restricted" warning screen with an immediate session clear and inline "Invalid credentials. Please try again." notification directly on the login card.
+- **Consumer Landing Page Media Update**:
+  - Replaced Minister Shri Pralhad Joshi portrait in [`ConsumerLandingPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/consumer/pages/ConsumerLandingPage.tsx) with user-uploaded `pj.jpeg`.
+  - Enlarged dimensions (`w-48 h-56 sm:w-52 sm:h-60`) and configured a crisp white background (`bg-white` / `#ffffff`).
+- **Mobile Safe Area & Inset Engineering on Android**:
+  - Resolved status bar collisions by integrating dynamic top safe area insets across [`App.tsx`](file:///Users/Sumit/Desktop/sih/mobile/App.tsx), [`LoginScreen.tsx`](file:///Users/Sumit/Desktop/sih/mobile/src/screens/LoginScreen.tsx), and all modal views.
+  - Resolved bottom navigation collisions by elevating the navigation tab bar (`paddingBottom: Math.max(insets.bottom, 24)`) to clear Android 3-button hardware and gesture navigation bars.
+  - Increased scroll content padding (`64px`) across Roster, Verify, Registry, and Settings lists to ensure bottom action buttons ("Inspect" / "View Certificate") never collide with the navigation tab bar.
+- **Migration from Deprecated `SafeAreaView` to `react-native-safe-area-context`**:
+  - Installed `react-native-safe-area-context` (`^5.9.1`).
+  - Wrapped app root in [`App.tsx`](file:///Users/Sumit/Desktop/sih/mobile/App.tsx) with `<SafeAreaProvider>`.
+  - Replaced all 8 instances of React Native's deprecated `SafeAreaView` with standard `<View>` containers utilizing `useSafeAreaInsets()`.
+  - Added `LogBox.ignoreLogs(["SafeAreaView has been deprecated"])` guard to prevent any third-party dependencies from triggering runtime warnings.
+- **Zero-Flicker Instant Tab Switching**:
+  - Eliminated artificial 70ms fade-out animation (`tabFadeAnim`) that caused aggressive screen blinking on Android.
+  - Implemented persistent tab containers using `display: "none"` / `display: "flex"` to preserve component state, scroll position, and search terms while delivering instant, native-speed tab navigation.
+- **Zero Build Regressions**:
+  - Full monorepo builds and typechecks cleanly (`exit code 0` across all workspaces).
+
+---
+
 ## [1.9.39] - Mobile Settings Navigation Gestures, Header Cleanup & Password Modal — 2026-09-14
 
 - **Horizontal Slide Navigation & Native Swipe-Right Dismissal Across Content & Header**:

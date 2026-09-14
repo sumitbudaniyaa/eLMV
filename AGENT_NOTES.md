@@ -644,3 +644,26 @@
   - React Native's `<ScrollView>` is backed by native platform scroll views (`UIScrollView` / `ReactScrollView`) that consume touches. Without `onMoveShouldSetPanResponderCapture` and dynamic `scrollEnabled` toggling, gestures starting on the main content are swallowed by the native scroll recognizer, causing swiping to work only on non-scrollable header areas.
   - Adding the left edge strip and capture hooks allows seamless edge swiping and content swiping without breaking standard vertical scrolling.
   - Unifying the status bar container with `#ffffff` eliminates contrasting gaps above the header, rendering native phone icons cleanly against the daylight header.
+
+### ADR-058: Mobile Safe Area Layout Engine, SafeAreaView Deprecation Migration, & Persistent Tab Switching
+- **Decision**:
+  1. Standardize safe area insets via `react-native-safe-area-context` (`useSafeAreaInsets` + `<SafeAreaProvider>`):
+     - Completely eliminate React Native core's deprecated `<SafeAreaView>` across all mobile screens and components.
+     - Dynamically apply `insets.top` to root screen containers, ensuring headers and camera viewfinders clear status bar icons and notches on all Android and iOS hardware variations.
+     - Dynamically elevate the bottom navigation tab bar with `paddingBottom: Math.max(insets.bottom, 24)` to safely avoid collisions with Android 3-button navigation bars and gesture pill handles.
+     - Increase scroll list bottom padding to `64px` across `RosterScreen`, `VerifyScreen`, `RegistryScreen`, and `SettingsScreen` so action buttons ("Inspect" / "View Certificate") never collide with the navigation tab bar.
+  2. Implement zero-flicker persistent tab switching:
+     - Remove artificial 70ms fade-out animation (`tabFadeAnim`) that caused aggressive screen blanking and layout thrashing on Android.
+     - Keep tab screens mounted and toggle visibility with `display: "none"` / `display: "flex"`.
+     - Retain tactile icon spring animation (`targetScale`) on tab selection.
+  3. Modernize Admin and Field Officer login portals:
+     - Strip away unnecessary headers, footers, demo quick-fill buttons, and warning banners.
+     - Center minimalist authentication cards with official Ashoka Lion Emblem and `eLMV` branding.
+     - Decouple and align language and theme toggles at equal height (`h-8`).
+     - Replace disruptive "Access Restricted" screen with immediate session clear and inline "Invalid credentials. Please try again." notification.
+  4. Update consumer landing leadership portrait:
+     - Replace Minister Shri Pralhad Joshi portrait with user-supplied `pj.jpeg` on clean `#ffffff` background with enlarged framing (`w-48 h-56 sm:w-52 sm:h-60`).
+- **Rationale**:
+  - React Native 0.86+ deprecated `<SafeAreaView>` because it never supported Android insets and relied on outdated iOS-only UIKit heuristics. `react-native-safe-area-context` reads native insets directly from the platform WindowInsets API, delivering exact pixel-perfect measurements across all Android screen aspect ratios.
+  - Artificial opacity fades on tab changes cause visual jarring because Android hardware renders the intermediate blank state during Hermes layout recalculation. Persistent views with CSS `display` toggling preserve scroll offsets, filter inputs, and component state while delivering instantaneous, native-speed tab navigation.
+
