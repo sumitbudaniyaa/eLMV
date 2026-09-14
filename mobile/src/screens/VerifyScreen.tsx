@@ -23,6 +23,7 @@ import { Button } from "../components/ui/button";
 import { CertificateModal } from "../components/officer/CertificateModal";
 import i18n from "../i18n";
 
+// Statutory Equipment & Certificate Verification Screen
 export const VerifyScreen: React.FC<{ currentLanguage?: string }> = ({ currentLanguage }) => {
   const insets = useSafeAreaInsets();
   const isHi = currentLanguage === "hi" || i18n.language === "hi";
