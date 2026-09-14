@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Badge } from "@/components/ui/badge";
-import { Sun, Moon, Globe, Shield } from "lucide-react";
+import { Sun, Moon, Globe } from "lucide-react";
 
 export function AdminAuthLayout() {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
 
   const [isDark, setIsDark] = useState(() => {
     return localStorage.getItem("theme_mode") === "dark";
@@ -33,88 +32,34 @@ export function AdminAuthLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans antialiased selection:bg-primary/20">
-      {/* 1. OFFICIAL TOP BAR - Aligned with Admin AppShell TopBar (h-14) */}
-      <header className="h-14 border-b border-border sticky top-0 z-20 bg-card shrink-0">
-        <div className="h-full max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
-          {/* Brand & Portal Identity */}
-          <div className="flex items-center space-x-3 min-w-0">
-            <Link to="/" className="flex items-center space-x-2.5 shrink-0 group">
-              <img
-                src="/emblem.jpeg"
-                alt="State Emblem of India"
-                className="h-8 w-auto object-contain"
-                onError={(e) => {
-                  (e.currentTarget as HTMLElement).style.display = "none";
-                }}
-              />
-              <span className="text-lg font-black tracking-tight text-foreground">
-                eLMV
-              </span>
-            </Link>
+    <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4 relative font-sans antialiased">
+      {/* Separate Language & Theme Controls in Top-Right */}
+      <div className="fixed top-4 right-4 flex items-center space-x-2 z-50">
+        <button
+          onClick={toggleLanguage}
+          className="px-2.5 py-1 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center space-x-1.5 border border-border bg-card shadow-2xs"
+          title={isHindi ? "Switch to English" : "हिन्दी में देखें"}
+        >
+          <Globe className="h-3.5 w-3.5 text-primary" />
+          <span>{isHindi ? "English" : "हिन्दी"}</span>
+        </button>
 
-            <span className="text-border">|</span>
+        <button
+          onClick={() => setIsDark(!isDark)}
+          className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors border border-border bg-card shadow-2xs"
+          aria-label="Toggle theme"
+          title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          {isDark ? (
+            <Sun className="h-4 w-4 text-amber-500" />
+          ) : (
+            <Moon className="h-4 w-4 text-slate-700" />
+          )}
+        </button>
+      </div>
 
-            <div className="flex items-center space-x-2 truncate">
-              <span className="text-xs sm:text-sm font-semibold text-foreground truncate">
-                {isHindi ? "नियामक एवं एजेंसी प्रशासन पोर्टल" : "Regulatory & Agency Administration"}
-              </span>
-              <Badge
-                variant="outline"
-                className="hidden sm:inline-flex text-[10px] font-bold tracking-wider uppercase bg-primary/10 border-primary/20 text-primary py-0.5 px-2"
-              >
-                <Shield className="h-3 w-3 mr-1" />
-                ADMIN CONSOLE
-              </Badge>
-            </div>
-          </div>
-
-          {/* Right Utility Actions */}
-          <div className="flex items-center space-x-2 shrink-0">
-            {/* Language Switcher */}
-            <button
-              onClick={toggleLanguage}
-              className="px-2.5 py-1 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center space-x-1.5 border border-border"
-              title={isHindi ? "Switch to English" : "हिन्दी में देखें"}
-            >
-              <Globe className="h-3.5 w-3.5 text-primary" />
-              <span>{isHindi ? "English" : "हिन्दी"}</span>
-            </button>
-
-            {/* Dark / Light Mode Toggle */}
-            <button
-              onClick={() => setIsDark(!isDark)}
-              className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors border border-border"
-              aria-label="Toggle theme"
-              title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-            >
-              {isDark ? (
-                <Sun className="h-4 w-4 text-amber-500" />
-              ) : (
-                <Moon className="h-4 w-4 text-slate-700" />
-              )}
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* 2. MAIN CONTENT WRAPPER */}
-      <main className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
-        <Outlet />
-      </main>
-
-      {/* 3. OFFICIAL STATUTORY FOOTER - Matching Admin AppShell Footer */}
-      <footer className="h-14 border-t border-border px-4 sm:px-6 flex items-center text-[11px] text-muted-foreground bg-card shrink-0">
-        <div className="w-full max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-1 sm:gap-2">
-          <span>
-            {t("common.appName")} &copy; 2026 &bull; {isHindi ? "विधिक मापविज्ञान निदेशालय" : "Legal Metrology Directorate"}
-          </span>
-          <span className="font-mono text-[10px]">
-            {t("common.statutoryFooter")}
-          </span>
-        </div>
-      </footer>
+      {/* Main Content */}
+      <Outlet />
     </div>
   );
 }
-
