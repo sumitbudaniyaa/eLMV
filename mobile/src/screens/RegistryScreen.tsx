@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: 16,
-    paddingBottom: 40,
+    paddingBottom: 64,
     paddingTop: 2,
   },
   loadingBox: {

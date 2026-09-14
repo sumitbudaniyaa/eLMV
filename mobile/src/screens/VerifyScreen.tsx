@@ -12,6 +12,8 @@ import {
   Modal,
   SafeAreaView,
   Easing,
+  Platform,
+  StatusBar,
 } from "react-native";
 import { CameraView, useCameraPermissions, type BarcodeScanningResult } from "expo-camera";
 import { mobileApi } from "../lib/api";
@@ -803,7 +805,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
-    paddingBottom: 40,
+    paddingBottom: 64,
   },
   header: {
     marginBottom: 16,
@@ -1267,6 +1269,7 @@ const styles = StyleSheet.create({
   scannerContainer: {
     flex: 1,
     backgroundColor: "#000000",
+    paddingTop: Platform.OS === "android" ? (StatusBar.currentHeight || 24) : 0,
   },
   scannerHeader: {
     flexDirection: "row",

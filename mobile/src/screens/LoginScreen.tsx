@@ -14,6 +14,7 @@ import {
   ActivityIndicator,
   Animated,
   Easing,
+  StatusBar,
 } from "react-native";
 import { useAuth } from "../lib/auth";
 import { Icons } from "../components/ui/icons";
@@ -103,6 +104,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" translucent={true} />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
@@ -265,6 +267,8 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: "#ffffff",
+    paddingTop: Platform.OS === "android" ? (StatusBar.currentHeight || 24) : 0,
+    paddingBottom: Platform.OS === "android" ? 24 : 0,
   },
   container: {
     flex: 1,

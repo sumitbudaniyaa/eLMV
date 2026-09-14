@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
   listContent: {
     paddingHorizontal: 16,
     paddingTop: 4,
-    paddingBottom: 24,
+    paddingBottom: 64,
   },
   loadingContainer: {
     flex: 1,

@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Animated,
   Modal,
+  Platform,
 } from "react-native";
 import { AuthProvider, useAuth } from "./src/lib/auth";
 import { theme } from "./src/components/ui/theme";
@@ -98,7 +99,7 @@ function MainApp() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" translucent={true} />
 
       {/* Officer Header */}
       <OfficerHeader
@@ -206,6 +207,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#ffffff",
+    paddingTop: Platform.OS === "android" ? (StatusBar.currentHeight || 24) : 0,
   },
   modalSafeArea: {
     flex: 1,
@@ -234,7 +236,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#f4f4f5",
     paddingTop: 8,
-    paddingBottom: 4,
+    paddingBottom: Platform.OS === "android" ? 34 : 6,
     paddingHorizontal: 8,
   },
   navItem: {

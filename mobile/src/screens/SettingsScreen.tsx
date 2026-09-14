@@ -888,7 +888,7 @@ const styles = StyleSheet.create({
   },
   headerSafeArea: {
     backgroundColor: "#ffffff",
-    paddingTop: Platform.OS === "android" ? (StatusBar.currentHeight || 0) : 0,
+    paddingTop: Platform.OS === "android" ? (StatusBar.currentHeight || 24) : 0,
     borderBottomWidth: 1,
     borderBottomColor: "#e4e4e7",
   },
@@ -930,7 +930,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
-    paddingBottom: 40,
+    paddingBottom: Platform.OS === "android" ? 64 : 40,
   },
 
   // Centered Profile Hero

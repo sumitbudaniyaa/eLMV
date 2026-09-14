@@ -14,6 +14,7 @@ import {
   Dimensions,
   Easing,
   Image,
+  Platform,
 } from "react-native";
 import { mobileApi } from "../../lib/api";
 import { Icons } from "../ui/icons";
@@ -1003,7 +1004,7 @@ const styles = StyleSheet.create({
   footer: {
     paddingHorizontal: 16,
     paddingTop: 10,
-    paddingBottom: 14,
+    paddingBottom: Platform.OS === "android" ? 28 : 14,
     borderTopWidth: 1,
     borderTopColor: "#f4f4f5",
     backgroundColor: "#ffffff",

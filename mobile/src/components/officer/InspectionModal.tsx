@@ -8,6 +8,8 @@ import {
   Image,
   Modal as RNModal,
   SafeAreaView,
+  Platform,
+  StatusBar,
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { InspectionResult } from "@sih/shared";
@@ -697,6 +699,7 @@ const styles = StyleSheet.create({
   cameraModalContainer: {
     flex: 1,
     backgroundColor: "#000000",
+    paddingTop: Platform.OS === "android" ? (StatusBar.currentHeight || 24) : 0,
   },
   cameraHeader: {
     flexDirection: "row",
