@@ -117,3 +117,4 @@ export function AdminAuthLayout() {
     </div>
   );
 }
+
