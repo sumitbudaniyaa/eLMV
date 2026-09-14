@@ -147,10 +147,35 @@ export class GatcService {
 
     const application = await prisma.application.findUnique({
       where: { id: applicationId },
+      include: { instrument: true },
     });
 
     if (!application) {
       throw new AppError(404, ErrorCode.NOT_FOUND, "Application not found.");
+    }
+
+    const agencyScopes = agencyProfile.authorizedScope.length > 0
+      ? agencyProfile.authorizedScope
+      : ["NON_AUTOMATIC_WEIGHING_INSTRUMENT"];
+
+    if (!agencyScopes.includes(application.instrument.type)) {
+      throw new AppError(
+        403,
+        ErrorCode.FORBIDDEN,
+        `Application instrument type (${application.instrument.type}) is outside your agency's authorized scopes.`
+      );
+    }
+
+    const inspectorScopes = (inspectorProfile.authorizedScope && inspectorProfile.authorizedScope.length > 0)
+      ? inspectorProfile.authorizedScope
+      : agencyScopes;
+
+    if (!inspectorScopes.includes(application.instrument.type)) {
+      throw new AppError(
+        403,
+        ErrorCode.FORBIDDEN,
+        `Selected inspector does not have authorized scope for instrument type (${application.instrument.type}).`
+      );
     }
 
     const updated = await prisma.application.update({

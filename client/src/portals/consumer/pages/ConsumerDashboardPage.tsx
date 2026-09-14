@@ -71,7 +71,7 @@ export function ConsumerDashboardPage() {
           <Button
             size="sm"
             onClick={() => setApplyOpen(true)}
-            className="h-8 text-xs font-semibold"
+            className="h-8 text-xs font-semibold bg-[#0B2545] hover:bg-[#0B2545]/90 text-white shadow-xs"
           >
             <FileCheck className="h-3.5 w-3.5 mr-1" />
             Apply for Stamping
@@ -229,11 +229,11 @@ export function ConsumerDashboardPage() {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-6 text-[11px] font-semibold px-2 text-emerald-700 dark:text-emerald-300 border-emerald-400/40 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                              className="h-6 text-[11px] font-semibold px-2 text-emerald-700 dark:text-emerald-300 border-emerald-400/40 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 inline-flex items-center gap-1.5 whitespace-nowrap"
                               onClick={() => setViewCertNumber(app.certificate.certificateNumber)}
                             >
-                              <Award className="h-3 w-3 mr-1 text-emerald-600" />
-                              Certificate
+                              <Award className="h-3 w-3 text-emerald-600 shrink-0" />
+                              <span>Certificate</span>
                             </Button>
                           )}
                           <Link

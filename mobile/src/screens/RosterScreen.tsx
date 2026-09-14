@@ -9,8 +9,9 @@ import {
   Alert,
   TextInput,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
-import { ApplicationStatus } from "@sih/shared";
+import { ApplicationStatus, InstrumentType } from "@sih/shared";
 import { mobileApi } from "../lib/api";
 import { theme } from "../components/ui/theme";
 import { Icons } from "../components/ui/icons";
@@ -135,12 +136,24 @@ const FALLBACK_APPLICATIONS = [
   },
 ];
 
+const INSTRUMENT_TYPE_FILTERS = [
+  { key: "all", shortLabel: "All Types" },
+  { key: InstrumentType.NON_AUTOMATIC_WEIGHING_INSTRUMENT, shortLabel: "NAWI" },
+  { key: InstrumentType.AUTOMATIC_WEIGHING_INSTRUMENT, shortLabel: "AWI" },
+  { key: InstrumentType.FUEL_DISPENSER, shortLabel: "Fuel" },
+  { key: InstrumentType.STORAGE_TANK, shortLabel: "Tanks" },
+  { key: InstrumentType.LENGTH_MEASURE, shortLabel: "Length" },
+  { key: InstrumentType.CAPACITY_MEASURE, shortLabel: "Capacity" },
+  { key: InstrumentType.OTHER, shortLabel: "Specialized" },
+];
+
 export const RosterScreen: React.FC<{ currentLanguage?: string }> = ({ currentLanguage }) => {
   const [applications, setApplications] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("all");
+  const [selectedType, setSelectedType] = useState<string>("all");
   const [isOfflineMode, setIsOfflineMode] = useState<boolean>(false);
   const [offlineCount, setOfflineCount] = useState<number>(0);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
@@ -162,7 +175,11 @@ export const RosterScreen: React.FC<{ currentLanguage?: string }> = ({ currentLa
   const fetchApplications = useCallback(async () => {
     try {
       await checkOfflineCount();
-      const res = await mobileApi.get("/applications");
+      const params: any = {};
+      if (selectedType !== "all") {
+        params.instrumentType = selectedType;
+      }
+      const res = await mobileApi.get("/applications", { params });
       const list = res.data?.data;
       if (Array.isArray(list) && list.length > 0) {
         setApplications(list);
@@ -180,7 +197,7 @@ export const RosterScreen: React.FC<{ currentLanguage?: string }> = ({ currentLa
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, [checkOfflineCount]);
+  }, [checkOfflineCount, selectedType]);
 
   useEffect(() => {
     fetchApplications();
@@ -247,6 +264,9 @@ export const RosterScreen: React.FC<{ currentLanguage?: string }> = ({ currentLa
       : applications;
 
   const filteredApps = currentPartition.filter((app) => {
+    if (selectedType !== "all" && app.instrument?.type !== selectedType) {
+      return false;
+    }
     if (!search.trim()) return true;
     const q = search.toLowerCase().trim();
     return (
@@ -258,6 +278,11 @@ export const RosterScreen: React.FC<{ currentLanguage?: string }> = ({ currentLa
       (app.instrument?.model?.toLowerCase()?.includes(q) ?? false)
     );
   });
+
+  const getTypeCount = (typeKey: string) => {
+    if (typeKey === "all") return currentPartition.length;
+    return currentPartition.filter((a) => a.instrument?.type === typeKey).length;
+  };
 
   return (
     <View style={styles.container}>
@@ -321,6 +346,55 @@ export const RosterScreen: React.FC<{ currentLanguage?: string }> = ({ currentLa
         />
       </View>
 
+      {/* Horizontal Instrument Type Filter Chips */}
+      <View style={styles.typeChipsWrapper}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.typeChipsContainer}
+        >
+          {INSTRUMENT_TYPE_FILTERS.map((item) => {
+            const isSelected = selectedType === item.key;
+            const count = getTypeCount(item.key);
+            return (
+              <TouchableOpacity
+                key={item.key}
+                onPress={() => setSelectedType(item.key)}
+                activeOpacity={0.75}
+                style={[
+                  styles.typeChip,
+                  isSelected && styles.typeChipActive,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.typeChipText,
+                    isSelected && styles.typeChipTextActive,
+                  ]}
+                >
+                  {item.shortLabel}
+                </Text>
+                <View
+                  style={[
+                    styles.typeChipCount,
+                    isSelected && styles.typeChipCountActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.typeChipCountText,
+                      isSelected && styles.typeChipCountTextActive,
+                    ]}
+                  >
+                    {count}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
+
       {/* Offline sync status notice if server is unreachable */}
       {isOfflineMode ? (
         <View style={styles.offlineNotice}>
@@ -363,7 +437,22 @@ export const RosterScreen: React.FC<{ currentLanguage?: string }> = ({ currentLa
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Icons.FileText size={32} color={theme.colors.mutedForeground} />
-              <Text style={styles.emptyTitle}>{i18n.t("roster.empty")}</Text>
+              <Text style={styles.emptyTitle}>
+                {selectedType !== "all" || search
+                  ? "No applications matching active filters."
+                  : i18n.t("roster.empty")}
+              </Text>
+              {(selectedType !== "all" || search) ? (
+                <TouchableOpacity
+                  onPress={() => {
+                    setSearch("");
+                    setSelectedType("all");
+                  }}
+                  style={styles.resetFiltersBtn}
+                >
+                  <Text style={styles.resetFiltersBtnText}>Clear Filters</Text>
+                </TouchableOpacity>
+              ) : null}
             </View>
           }
         />
@@ -535,6 +624,69 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontSize: 11,
     fontWeight: "700",
+  },
+  typeChipsWrapper: {
+    backgroundColor: "#ffffff",
+    paddingVertical: 7,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f4f4f5",
+  },
+  typeChipsContainer: {
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    gap: 8,
+  },
+  typeChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingVertical: 5,
+    paddingHorizontal: 11,
+    borderRadius: 20,
+    backgroundColor: "#f4f4f5",
+    borderWidth: 1,
+    borderColor: "#e4e4e7",
+  },
+  typeChipActive: {
+    backgroundColor: "#09090b",
+    borderColor: "#09090b",
+  },
+  typeChipText: {
+    fontSize: 11.5,
+    fontWeight: "600",
+    color: "#52525b",
+  },
+  typeChipTextActive: {
+    color: "#ffffff",
+  },
+  typeChipCount: {
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    borderRadius: 10,
+    backgroundColor: "#e4e4e7",
+  },
+  typeChipCountActive: {
+    backgroundColor: "#27272a",
+  },
+  typeChipCountText: {
+    fontSize: 9.5,
+    fontWeight: "700",
+    color: "#71717a",
+  },
+  typeChipCountTextActive: {
+    color: "#e4e4e7",
+  },
+  resetFiltersBtn: {
+    marginTop: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: "#09090b",
+  },
+  resetFiltersBtnText: {
+    fontSize: 11.5,
+    fontWeight: "600",
+    color: "#ffffff",
   },
 });
 

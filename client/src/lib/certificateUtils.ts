@@ -116,3 +116,4 @@ export function printCertificateElement(target: string | HTMLElement): void {
     }, 1500);
   }, 350);
 }
+

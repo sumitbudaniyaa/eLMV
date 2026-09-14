@@ -66,7 +66,7 @@
 ### 2.3. Instrument Registry (`/api/v1/instruments`)
 | Method | Endpoint | Auth | Roles | Description |
 |---|---|---|---|---|
-| `POST` | `/api/v1/instruments` | Required | `CONSUMER`, `ADMIN` | Register new weighing/measuring instrument |
+| `POST` | `/api/v1/instruments` | Required | `CONSUMER` | Register new weighing/measuring instrument (commercial traders only) |
 | `GET` | `/api/v1/instruments` | Required | All | List instruments (filtered by ownership for `CONSUMER`) |
 | `GET` | `/api/v1/instruments/:id` | Required | All | Get detailed instrument profile and verification history |
 | `PUT` | `/api/v1/instruments/:id` | Required | `CONSUMER` (Owner), `ADMIN` | Update instrument specifications or location |
@@ -75,9 +75,9 @@
 ### 2.4. Applications & Scheduling (`/api/v1/applications`)
 | Method | Endpoint | Auth | Roles | Description |
 |---|---|---|---|---|
-| `POST` | `/api/v1/applications` | Required | `CONSUMER`, `ADMIN` | Submit verification application; computes Rule 14 fee and provisions Treasury Receipt (`feeReceiptNumber`) |
-| `GET` | `/api/v1/applications` | Required | All | List applications (owner filtered for `CONSUMER`, assigned for `LMO`) |
-| `GET` | `/api/v1/applications/:id` | Required | All | Get application details, assigned officer, inspection records |
+| `POST` | `/api/v1/applications` | Required | `CONSUMER` | Submit verification application (commercial traders only); computes Rule 14 fee and provisions Treasury Receipt (`feeReceiptNumber`) |
+| `GET` | `/api/v1/applications` | Required | All | List applications with `status` and `instrumentType` filters (owner filtered for `CONSUMER`, assigned for `LMO`, accredited scope constrained for `GATC`) |
+| `GET` | `/api/v1/applications/:id` | Required | All | Get application details, assigned officer, inspection records (GATC restricted to accredited scope) |
 | `PATCH` | `/api/v1/applications/:id/assign` | Required | `ADMIN` | Assign application to an LMO or GATC |
 | `PATCH` | `/api/v1/applications/:id/schedule` | Required | `LMO`, `GATC`, `ADMIN` | Schedule physical verification date and time |
 | `PATCH` | `/api/v1/applications/:id/reject` | Required | `LMO`, `GATC`, `ADMIN` | Reject application with documented reason |
@@ -140,6 +140,7 @@
 | `GET` | `/api/v1/admin/officers` | Required | `ADMIN` | List and search provisioned LMO enforcement officers |
 | `POST` | `/api/v1/admin/gatc-agencies` | Required | `ADMIN` | Accredit institutional GATC laboratory with Gazette Notification reference |
 | `GET` | `/api/v1/admin/gatc-agencies` | Required | `ADMIN` | List and search accredited GATC testing agencies |
+| `PATCH` | `/api/v1/admin/gatc-agencies/:id` | Required | `ADMIN` | Update accredited statutory testing scopes and accreditation validity for GATC agency |
 | `POST` | `/api/v1/gatc/inspectors` | Required | `GATC_ADMIN` | Provision in-house technical field inspector linked to parent laboratory |
 | `GET` | `/api/v1/gatc/inspectors` | Required | `GATC_ADMIN` | List in-house technical inspectors for active agency |
 | `GET` | `/api/v1/gatc/dashboard` | Required | `GATC_ADMIN` | Laboratory capacity, active calibration workload, and testing queue metrics |

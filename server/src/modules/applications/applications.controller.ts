@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { applicationsService } from "./applications.service";
-import { ApiResponse, ApplicationStatus } from "@sih/shared";
+import { ApiResponse, ApplicationStatus, InstrumentType } from "@sih/shared";
 
 export class ApplicationsController {
   async create(req: Request, res: Response, next: NextFunction) {
@@ -21,12 +21,13 @@ export class ApplicationsController {
 
   async list(req: Request, res: Response, next: NextFunction) {
     try {
-      const { status, search, page, limit } = req.query;
+      const { status, instrumentType, search, page, limit } = req.query;
       const result = await applicationsService.listApplications(
         req.user!.id,
         req.user!.role,
         {
           status: status as ApplicationStatus,
+          instrumentType: instrumentType as InstrumentType,
           search: search as string,
           page: page ? parseInt(page as string, 10) : undefined,
           limit: limit ? parseInt(limit as string, 10) : undefined,

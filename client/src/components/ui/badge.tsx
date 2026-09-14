@@ -46,7 +46,7 @@ function Badge({ className, variant, size, dot, children, ...props }: BadgeProps
           aria-hidden="true"
         />
       )}
-      <span>{children}</span>
+      {children}
     </div>
   );
 }

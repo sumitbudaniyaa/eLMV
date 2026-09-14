@@ -710,7 +710,182 @@ In accordance with hard project rules, every phase must be fully implemented, te
   - `client/src/components/layout/GlobalSearchDialog.tsx`: Added `onSelectCertificate` callback so clicking "Direct Certificate Verification" opens `CertificateDialog` directly.
   - `client/src/components/layout/TopBar.tsx`: Wired `onSelectCertificate` and mounted `CertificateDialog` in the portal topbar.
   - `client/src/features/verification/PublicVerificationPage.tsx`: Replaced `window.open` on "Download PDF" with `downloadCertificatePdf`.
-- [x] Verified zero external tabs or blank windows opened, client production build succeeds (`npm run build --workspace=@sih/client`), and monorepo passes typecheck (`npm run typecheck` exit code 0).
+## Phase 64: GATC Statutory Scope Multi-Select Provisioning & Strict Queue Isolation
+- [x] Provisioning Multi-Select Scopes UI & Wide Dialog Layout:
+  - Expanded Provision GATC Agency and Edit GATC Agency modals to wide layout (`max-w-3xl sm:max-w-4xl max-h-[92vh] overflow-y-auto p-6 sm:p-7`), eliminating vertical crowding and giving form fields clean, organized breathing room.
+  - Created interactive card-based `ScopeSelector` in `client/src/portals/admin/pages/GatcAgencyManagementPage.tsx` supporting all 7 statutory instrument scopes under Rule 14 (`NON_AUTOMATIC_WEIGHING_INSTRUMENT`, `AUTOMATIC_WEIGHING_INSTRUMENT`, `FUEL_DISPENSER`, `STORAGE_TANK`, `LENGTH_MEASURE`, `CAPACITY_MEASURE`, `OTHER`).
+  - Styled each scope as a selectable card with dedicated Lucide icon (`Scale`, `Gauge`, `Fuel`, `Building2`, `Ruler`, `FlaskConical`, `Compass`), category badge, checkmark indicator, bold title, and instrument examples.
+  - Added "Select All", "Clear All", dynamic selected badge, and zero-scope validation guard.
+- [x] Agency Details & Scopes Editing:
+  - Added "Edit" action button and dedicated Edit Modal in `GatcAgencyManagementPage.tsx`.
+  - Added `updateGatcAgencySchema` and `UpdateGatcAgencyInput` in `shared/src/schemas/user.schema.ts`.
+  - Added `PATCH /api/v1/admin/gatc-agencies/:id` endpoint in `server/src/modules/admin/admin.routes.ts`, `admin.controller.ts`, and `admin.service.ts` with audit logging.
+- [x] Strict Scope Isolation in Applications & Dashboards:
+  - Updated `applications.service.ts`: Enforced `{ instrument: { type: { in: scopes } } }` for `Role.GATC_ADMIN` and `Role.GATC_INSPECTOR` in `listApplications` and added 403 Forbidden enforcement in `getApplicationById`.
+  - Updated `dashboard.service.ts`: Scoped `pendingInspections`, `completedInspections`, `certifiedCount`, and `upcomingSchedule` for GATC Admin and Inspector roles to their authorized statutory scopes.
+  - Updated `gatc.service.ts`: Enforced agency and inspector scope validation in `delegateApplication`.
+  - Updated `auth.service.ts`: Included `authorizedScope: true` in `gatcAgency` selection in `getMe`.
+- [x] Frontend Pipeline & Testing Queue Transparency:
+  - Updated `GatcDashboardPage.tsx`: Rendered dynamic active scopes card and added instrument type badges to scheduled bench pipeline rows.
+  - Updated `ApplicationListPage.tsx`: Added statutory scope restricted queue notice banner displaying active scopes for GATC accounts and added instrument type badges to the application table.
+- [x] Header & Sidebar Chrome Streamlining:
+  - Removed settings icon button from the header navigation bar in `TopBar.tsx`.
+  - Removed settings icon button from the desktop sidebar bottom user profile card and the mobile navigation drawer footer in `Sidebar.tsx`.
+- [x] Harmonized Input Field Alignment & Grid Geometry in GATC Dialogs:
+  - Replaced mixed 3-col and 4-col split with a unified 4-column responsive grid across Section 1 and Section 3 in both Create and Edit modals.
+  - Enforced locked label height (`h-5 flex items-center truncate`) and standardized `space-y-1.5` field containers, eliminating label wrapping offsets and mismatched margins.
+  - Standardized all inputs to `h-9 text-xs`, ensuring every field sharing a line starts and ends at identical vertical pixel coordinates.
+- [x] Verified full build and typecheck pass across all workspaces (`npm run build --workspace=@sih/client`, `npx tsc --noEmit` in server).
+
+## Phase 65: Cross-Platform Instrument Type Filtering for Applications (Web & Mobile)
+- [x] Backend `GET /applications` Endpoint Enhancements:
+  - Added `instrumentType` query parameter parsing in `server/src/modules/applications/applications.controller.ts`.
+  - Added `instrumentType` handling to `options` and `andClauses.push({ instrument: { type: options.instrumentType } })` in `applications.service.ts`.
+  - Composes with user role authorization (Consumer, LMO jurisdiction, GATC institutional statutory scopes, Admin).
+- [x] Web Applications Filtering (`client/src/features/applications/ApplicationListPage.tsx`):
+  - Added `typeFilter` state and wired into TanStack Query parameters.
+  - Added Instrument Type filter dropdown with options for all 7 statutory classes under Rule 14 (NAWI, AWI, Fuel Dispensers, Storage Tanks, Length Measures, Capacity Measures, Specialized Measures).
+  - Added active filter chips with individual dismiss buttons and quick "Reset all" action.
+  - Updated empty state to reflect active instrument type filters and provide a single-click reset.
+- [x] Mobile Application Roster Filtering (`mobile/src/screens/RosterScreen.tsx` & `mobile/src/components/officer/RosterCard.tsx`):
+  - Added `selectedType` state and integrated query parameter synchronization with `mobileApi.get("/applications")`.
+  - Created a horizontal scrollable **Instrument Type Chips Bar** with live counter badges for each category.
+  - Filtered applications in-memory across status partitions, text query, and instrument type for offline-safe instantaneous responsiveness.
+  - Added instrument type badges (`NAWI`, `Fuel`, `AWI`, `Tank`, etc.) to the `RosterCard` header alongside the status badge.
+- [x] Verification:
+  - Client build (`npm run build --workspace=@sih/client`): 0 errors.
+  - Server build (`npm run build --workspace=@sih/server`): 0 errors.
+  - Mobile typecheck (`npm run typecheck --workspace=@sih/mobile`): 0 errors.
+
+## Phase 66: Persona-Specific Button Color Separation (Admin Black vs. Consumer Bluish)
+- [x] Primary Button Role Discrimination:
+  - Ensured all primary action buttons in the Consumer / User portal retain the designated brand navy blue styling:
+    `bg-[#0B2545] hover:bg-[#0B2545]/90 text-white shadow-xs`
+  - Ensured all action buttons in the Admin portal retain the regulatory black styling:
+    `bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900`
+- [x] Affected Shared & Dedicated Views:
+  - `client/src/features/applications/ApplicationListPage.tsx`: "New Application" and "Submit New" buttons conditionally styled (`Role.CONSUMER` -> `#0B2545`, `Role.ADMIN` -> `bg-slate-900`).
+  - `client/src/features/instruments/InstrumentListPage.tsx`: "Register Instrument" and empty state action buttons conditionally styled (`Role.CONSUMER` -> `#0B2545`, `Role.ADMIN` -> `bg-slate-900`).
+  - `client/src/portals/consumer/pages/ConsumerDashboardPage.tsx`: "Apply for Stamping" button styled with `bg-[#0B2545]`.
+  - `client/src/features/dashboard/DashboardPage.tsx`: "Apply Renewal" table action button in consumer view styled with `bg-[#0B2545]`.
+- [x] Verification:
+  - Client build (`npm run build --workspace=@sih/client`): Passed with 0 errors.
+  - Server build (`npm run build --workspace=@sih/server`): Passed with 0 errors.
+
+## Phase 67: Dedicated Statutory & Citizen Public Information Pages
+- [x] Layout Architecture (`client/src/features/public/PublicPageLayout.tsx`):
+  - Built official government layout featuring national tricolor header band, Government of India utility bar with Hindi/English language toggle, state emblem header, active page navigation strip, breadcrumbs, and official statutory footer with toll-free 1915 helpline and copyright notice.
+- [x] Dedicated Public Pages:
+  - `WebsitePoliciesPage.tsx` (`/policies`, `/website-policies`, `/privacy`): Multi-tab statutory policies covering Privacy Policy under DPDP Act 2023, Hyperlinking Policy, Copyright Policy, and Security/ECDSA Cryptography Standards.
+  - `TermsConditionsPage.tsx` (`/terms`, `/terms-and-conditions`): Comprehensive legal framework under Legal Metrology Act 2009, Section 24 mandatory stamping, user obligations, fee payment terms, and Section 30/31 strict penal liabilities.
+  - `HelpFaqPage.tsx` (`/help`, `/faq`, `/faqs`): Interactive accordion FAQ knowledge base with keyword search, category filters (General, Traders, LMO Inspections, GATC Labs, QR Certificates), and toll-free helpline banner.
+  - `FeedbackPage.tsx` (`/feedback`): Citizen & Trader experience feedback form with interactive 1-5 star ratings, feedback categories, stakeholder persona selector, and confirmation receipt with simulated reference ticket number.
+  - `ContactUsPage.tsx` (`/contact`, `/contact-us`): Directorate of Legal Metrology central coordinates (Krishi Bhawan, New Delhi), 1915 Helpline, state enforcement cells directory, and official inquiry dispatch form.
+- [x] Routing & Footer Linkage:
+  - Mounted routes in `ConsumerApp.tsx`, `AdminApp.tsx`, and `FieldApp.tsx`.
+  - Updated `ConsumerLandingPage.tsx` footer links to directly route to `/policies`, `/terms`, `/help`, `/feedback`, and `/contact`.
+  - Moved uploaded `digi-india.png` from root to `client/public/digi-india.png` and mounted it in the official statutory footers of `ConsumerLandingPage.tsx` and `PublicPageLayout.tsx`.
+- [x] Verification:
+  - Client build (`npm run build --workspace=@sih/client`): Passed with 0 errors.
+  - Server build (`npm run build --workspace=@sih/server`): Passed with 0 errors.
+
+## Phase 68: Restriction of Instrument Registration Exclusively to Commercial Consumers/Traders
+- [x] Frontend Enforcement (`client/src/features/instruments/InstrumentListPage.tsx`):
+  - Removed "Register Instrument" header button for `Role.ADMIN`, `Role.GATC_ADMIN`, and `Role.GATC_INSPECTOR`.
+  - Conditioned "Register Instrument" button strictly to `user?.role === Role.CONSUMER`.
+  - Updated empty state actions: Consumers see "Register your first instrument"; Admin/GATC roles see "Reset filters" when filters are active, and no registration CTA when viewing the master state registry.
+  - Guarded `<RegisterInstrumentDialog>` mount to render solely for `Role.CONSUMER`.
+- [x] Backend API Guard (`server/src/modules/instruments/instruments.routes.ts`):
+  - Added `requireRole([Role.CONSUMER])` to `POST /api/v1/instruments` so unauthorized API calls from Admin or GATC roles are rejected with 403 Forbidden.
+- [x] Verification:
+  - Client build (`npm run build --workspace=@sih/client`): Passed with 0 errors.
+  - Server build (`npm run build --workspace=@sih/server`): Passed with 0 errors.
+
+## Phase 69: Mobile Officer Registry Multi-Criteria Statutory & Accuracy Filtering
+- [x] Multi-Criteria Statutory Filtering Engine (`mobile/src/screens/RegistryScreen.tsx`):
+  - **Instrument Type Filter Row**: Horizontal `ScrollView` of category pill chips across all Rule 14 classes (`All Types`, `NAWI`, `AWI`, `Fuel`, `Tanks`, `Length`, `Capacity`, `Specialized`) with live dynamic counts computed against active criteria.
+  - **Accuracy Class Filter Panel**: Expandable panel toggled via `Icons.Sliders` with active amber indicator dot, supporting `All Classes`, `Class I`, `Class II`, `Class III`, and `Class IV` with live counts.
+  - **Active Filter Badges**: Compact summary bar showing match count (e.g. "Showing 4 of 6 equipment"), dismissible chips with tap-to-remove `✕` for active types/classes/search strings, and a "Clear all" button.
+  - **Equipment Cards & Inspection Details Modal**: Added statutory instrument type badge alongside accuracy class badge on every card. Tapping opens an inspection detail modal with full technical specs, verification interval, trader establishment coordinates, and legal compliance seal.
+  - **Offline Fallback Resilience**: Added rich statutory fallback instruments for uninterrupted offline demonstrations.
+- [x] Localization: Added bilingual translations in `mobile/src/i18n/locales/en.json` and `mobile/src/i18n/locales/hi.json`.
+- [x] Verification: Mobile typecheck and client/server builds passed with 0 errors.
+
+## Phase 70: Universal Inline Icon Alignment & CSS Flex Centering
+- [x] Core Web Badge Component (`client/src/components/ui/badge.tsx`):
+  - Removed nested non-flex `<span>{children}</span>` wrapper so all children are direct flex items of `inline-flex items-center gap-1.5`, eliminating the CSS baseline offset that caused SVG icons to sit misaligned with text.
+- [x] Core Web Button Component (`client/src/components/ui/button.tsx`):
+  - Added `gap-1.5` to `buttonVariants` ensuring icons and text inside buttons automatically maintain vertical and horizontal centering.
+- [x] Inspection Roster, Applications, Instruments, & Admin Badges:
+  - Updated "Certified & Stamped", "Rejected (Exceeds MPE)", "Start MPE Test", "View Certificate", and all metadata icons across `FieldRosterPage.tsx`, `ApplicationListPage.tsx`, `InstrumentListPage.tsx`, `ConsumerLandingPage.tsx`, `ConsumerDashboardPage.tsx`, and `GatcDashboardPage.tsx` with `shrink-0` and `gap-1.5`.
+- [x] Mobile Badge Component (`mobile/src/components/ui/badge.tsx`):
+  - Added `iconContainer` centering with `includeFontPadding: false` and `textAlignVertical: "center"`.
+- [x] Verification: Full client, server, and mobile typecheck passed with 0 errors.
+
+## Phase 71: Dynamic Chrome Browser Tab Title Personalization
+- [x] Pre-Hydration Immediate Initialization (`client/index.html`):
+  - Added inline `<script>` in `<head>` inspecting port (`5174` -> admin, `5175` -> field, `5173` -> user), subdomain, or URL path prior to bundle download or React hydration, eliminating tab title flicker.
+- [x] Reactive Document Title Observer (`client/src/App.tsx`):
+  - Top-level observer syncing `document.title` on route changes and authentication state updates:
+    - Admin & GATC (`Role.ADMIN`, `Role.GATC_ADMIN`, port 5174, or `/admin/*`, `/agency/*`, `/gatc/*`): `eLMV | admin`
+    - Field Officer & Inspector (`Role.LMO`, `Role.GATC_INSPECTOR`, port 5175, or `/field/*`, `/roster/*`, `/inspectors/*`): `eLMV | field`
+    - Consumer / Citizen / Trader (`Role.CONSUMER` or public landing/dashboard): `eLMV`
+- [x] Verification: Full build and typecheck passed with 0 errors.
+
+## Phase 72: Statutory Footer Layout Harmonization & Helpline Realignment
+- [x] Digital India Emblem Placement:
+  - Relocated `/digi-india.png` to the right-hand column in `ConsumerLandingPage.tsx` and `PublicPageLayout.tsx`, positioning it above the National Consumer Helpline.
+- [x] National Consumer Toll-Free Helpline (1915) Single-Line Layout:
+  - Replaced `flex-wrap` with `whitespace-nowrap flex items-center md:justify-end gap-2 text-xs` and added `shrink-0` to the amber `1915` badge, ensuring "National Consumer Toll-Free Helpline:" and "1915" never wrap onto separate lines.
+- [x] Verification: Client build passed with 0 errors.
+
+## Phase 73: Citizen Feedback Pruning & Route Consolidation
+- [x] Route & Navigation Removal:
+  - Removed Feedback link from statutory footers in `ConsumerLandingPage.tsx` and `PublicPageLayout.tsx`.
+  - Removed Feedback tab from public sub-navigation bar in `PublicPageLayout.tsx`.
+  - Removed `/feedback` routes and component imports from `ConsumerApp.tsx`, `AdminApp.tsx`, and `FieldApp.tsx`.
+  - Pruned `FeedbackPage.tsx`.
+- [x] Verification: Clean builds across all packages.
+
+## Phase 74: Full Bilingual Hindi Localization of Statutory Knowledge Base
+- [x] Complete Hindi Translation across Public Statutory Knowledge Base:
+  - `PublicPageLayout.tsx`: Sub-navigation tabs, breadcrumbs, titles, and statutory footer helpline labels dynamically translate to Hindi.
+  - `WebsitePoliciesPage.tsx`: All 4 policy tabs (*गोपनीयता नीति*, *हाइपरलिंकिंग नीति*, *कॉपीराइट नीति*, *सुरक्षा व क्रिप्टोग्राफी*) fully translated into official Hindi legal terminology.
+  - `TermsConditionsPage.tsx`: Complete Hindi statutory text covering Section 24(1), trader obligations, Schedule XI fees, and Section 30/31 penal provisions.
+  - `HelpFaqPage.tsx`: Category filter chips, search placeholder, and all 8 comprehensive FAQs translated into Hindi.
+  - `ContactUsPage.tsx`: Directorate coordinates, state enforcement cells directory, and inquiry dispatch actions rendered in Hindi.
+- [x] Verification: Full build passed with 0 errors.
+
+## Phase 75: Legal Metrology Service Visual Asset & Static Display
+- [x] Hero Section Visual Asset Integration (`ConsumerLandingPage.tsx`):
+  - Utilized previously empty right-hand space (`lg:col-span-5`) with official 3D legal metrology service visual asset: high-precision analytical scale, Rule 14 calibration weights, digital certificate on tablet, and validation badge.
+  - Strictly non-intrusive: zero alterations to headings, typography, statutory pillars, or ticker.
+  - Static display clean-up: removed overlay status badge ("Legal Metrology Verified") and removed all hover zoom, scale, and glow transitions (`hover:scale-[1.02]`, `hover:shadow-md`) to ensure a completely stable, clean display.
+- [x] Verification: Client build passed with 0 errors.
+
+## Phase 76: Verification Application Creation Lockdown (Role.CONSUMER Only)
+- [x] Frontend Restriction (`ApplicationListPage.tsx` & `GlobalSearchDialog.tsx`):
+  - Restricted top "New Application" button, empty-state "Submit New Application" button, and `<SubmitApplicationDialog />` strictly to `Role.CONSUMER`. Admin, GATC Admin, and Inspectors no longer see application initiation buttons.
+  - Restricted "Register New Instrument" and "Submit Verification Application" quick commands in `GlobalSearchDialog.tsx` strictly to `Role.CONSUMER`.
+- [x] Backend API Guard (`applications.routes.ts`):
+  - Hardened `POST /api/v1/applications` with `requireRole([Role.CONSUMER])` to reject non-consumer application creation with 403 Forbidden.
+- [x] Verification: Full client and server builds passed with 0 errors.
+
+## Phase 77: Streamlined Electronic Mail Support ("Email Us" Button)
+- [x] Contact Us Page Email Center Simplification (`ContactUsPage.tsx`):
+  - Replaced complex multi-desk selector, subject pre-fill dropdowns, textarea notes, and SLA guarantee block with a clean, official support box.
+  - Features official email address display (`support-elmv@gov.in`), a 1-click "Copy" address button (`Copied!` confirmation), and a prominent, direct **"Email Us"** (`mailto:support-elmv@gov.in`) action button.
+- [x] Verification: Client build passed with 0 errors.
+
+## Phase 78: Removal of Blue Text Badges across all Statutory Footer Pages
+- [x] Shared Public Layout (`PublicPageLayout.tsx`):
+  - Removed `badge` prop and blue pill rendering (`bg-blue-50 text-blue-700 border-blue-200`) adjacent to the page title.
+- [x] Child Statutory Pages:
+  - `WebsitePoliciesPage.tsx`: Removed *"DPDP Act, 2023 & GIGW Compliant"* blue badge and updated icon colors to theme.
+  - `TermsConditionsPage.tsx`: Removed *"Act No. 1 of 2010"* blue badge.
+  - `HelpFaqPage.tsx`: Removed *"Citizen & Trader Knowledge Base"* blue badge.
+  - `ContactUsPage.tsx`: Removed *"Official Directory"* blue badge and neutralized icon containers to slate.
+- [x] Verification: Monorepo build and typecheck passed with 0 errors.
 
 
 

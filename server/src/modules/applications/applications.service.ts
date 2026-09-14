@@ -8,6 +8,7 @@ import {
   Role,
   ApplicationStatus,
   AuditAction,
+  InstrumentType,
 } from "@sih/shared";
 
 // Verification fee structure under Legal Metrology Rules (in INR)
@@ -110,6 +111,7 @@ export class ApplicationsService {
     role: Role,
     options: {
       status?: ApplicationStatus;
+      instrumentType?: InstrumentType;
       search?: string;
       page?: number;
       limit?: number;
@@ -135,8 +137,21 @@ export class ApplicationsService {
         ].filter(Boolean) as any[],
       });
     } else if (role === Role.GATC_INSPECTOR) {
-      const inspectorProfile = await prisma.gATCInspectorProfile.findUnique({ where: { userId } });
+      const inspectorProfile = await prisma.gATCInspectorProfile.findUnique({
+        where: { userId },
+        include: { gatcAgency: true },
+      });
+      const rawScopes = (inspectorProfile?.authorizedScope && inspectorProfile.authorizedScope.length > 0)
+        ? inspectorProfile.authorizedScope
+        : inspectorProfile?.gatcAgency?.authorizedScope || [];
+      const scopes = rawScopes.length > 0
+        ? (rawScopes as any[])
+        : [InstrumentType.NON_AUTOMATIC_WEIGHING_INSTRUMENT];
+
       andClauses.push({
+        instrument: {
+          type: { in: scopes },
+        },
         OR: [
           { assignedOfficerId: userId },
           { assignedGatcProfileId: inspectorProfile?.gatcProfileId || "none" },
@@ -145,7 +160,14 @@ export class ApplicationsService {
       });
     } else if (role === Role.GATC_ADMIN) {
       const gatcProfile = await prisma.gATCProfile.findUnique({ where: { userId } });
+      const scopes = (gatcProfile?.authorizedScope && gatcProfile.authorizedScope.length > 0)
+        ? (gatcProfile.authorizedScope as any[])
+        : [InstrumentType.NON_AUTOMATIC_WEIGHING_INSTRUMENT];
+
       andClauses.push({
+        instrument: {
+          type: { in: scopes },
+        },
         OR: [
           { assignedGatcProfileId: gatcProfile?.id || "none" },
           { assignedOfficerId: userId },
@@ -156,6 +178,10 @@ export class ApplicationsService {
 
     if (options.status) {
       andClauses.push({ status: options.status });
+    }
+
+    if (options.instrumentType) {
+      andClauses.push({ instrument: { type: options.instrumentType } });
     }
 
     if (options.search) {
@@ -258,6 +284,38 @@ export class ApplicationsService {
         ErrorCode.FORBIDDEN,
         "You do not have access to this application."
       );
+    }
+
+    if (role === Role.GATC_ADMIN) {
+      const gatcProfile = await prisma.gATCProfile.findUnique({ where: { userId } });
+      const scopes = (gatcProfile?.authorizedScope && gatcProfile.authorizedScope.length > 0)
+        ? (gatcProfile.authorizedScope as any[])
+        : [InstrumentType.NON_AUTOMATIC_WEIGHING_INSTRUMENT];
+      if (!scopes.includes(application.instrument.type)) {
+        throw new AppError(
+          403,
+          ErrorCode.FORBIDDEN,
+          "This application's instrument type is outside your GATC agency's authorized scope."
+        );
+      }
+    } else if (role === Role.GATC_INSPECTOR) {
+      const inspectorProfile = await prisma.gATCInspectorProfile.findUnique({
+        where: { userId },
+        include: { gatcAgency: true },
+      });
+      const rawScopes = (inspectorProfile?.authorizedScope && inspectorProfile.authorizedScope.length > 0)
+        ? inspectorProfile.authorizedScope
+        : inspectorProfile?.gatcAgency?.authorizedScope || [];
+      const scopes = rawScopes.length > 0
+        ? (rawScopes as any[])
+        : [InstrumentType.NON_AUTOMATIC_WEIGHING_INSTRUMENT];
+      if (!scopes.includes(application.instrument.type)) {
+        throw new AppError(
+          403,
+          ErrorCode.FORBIDDEN,
+          "This application's instrument type is outside your authorized testing scope."
+        );
+      }
     }
 
     return application;

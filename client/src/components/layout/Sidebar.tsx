@@ -201,7 +201,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 <NavLink to="/dashboard" onClick={onClose} className={navLinkClass}>
                   <div className="flex items-center space-x-2.5">
                     <LayoutDashboard className="h-4 w-4 shrink-0" />
-                    <span>Command Center</span>
+                    <span>{t("nav.dashboard", { defaultValue: "Dashboard" })}</span>
                   </div>
                 </NavLink>
 
@@ -303,14 +303,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               </Link>
 
               <div className="flex items-center gap-1 shrink-0">
-                <Link
-                  to="/settings"
-                  onClick={onClose}
-                  className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                  title={t("nav.settings", { defaultValue: "Settings" })}
-                >
-                  <Settings className="h-3.5 w-3.5" />
-                </Link>
                 <button
                   onClick={handleSignOut}
                   className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
@@ -440,14 +432,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   <p className="text-[10px] text-muted-foreground">{getRoleTitle(user.role as Role)}</p>
                 </Link>
                 <div className="flex items-center gap-1">
-                  <Link
-                    to="/settings"
-                    onClick={onClose}
-                    className="p-1 text-muted-foreground hover:text-foreground"
-                    title={t("nav.settings", { defaultValue: "Settings" })}
-                  >
-                    <Settings className="h-4 w-4" />
-                  </Link>
                   <button onClick={handleSignOut} className="p-1 text-muted-foreground hover:text-foreground" title={t("nav.logout")}>
                     <LogOut className="h-4 w-4" />
                   </button>

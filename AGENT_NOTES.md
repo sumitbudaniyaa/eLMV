@@ -685,8 +685,100 @@
      - `LandingPage.tsx` (Hero certificate quick search).
      - `TopBar.tsx` / `GlobalSearchDialog.tsx` (Direct certificate lookup shortcut across all portals).
      - `PublicVerificationPage.tsx` (Replaced `window.open` PDF download with in-page blob stream).
+### ADR-060: Statutory Scope Multi-Select Provisioning & Strict GATC Scope-Isolated Testing Queues
+- **Decision**:
+  1. Mandate statutory instrument scopes selection during GATC Agency provisioning and editing in `GatcAgencyManagementPage.tsx`:
+     - Provide an interactive multi-select UI covering all 7 statutory instrument types defined in Rule 14:
+       `NON_AUTOMATIC_WEIGHING_INSTRUMENT`, `AUTOMATIC_WEIGHING_INSTRUMENT`, `FUEL_DISPENSER`, `STORAGE_TANK`, `LENGTH_MEASURE`, `CAPACITY_MEASURE`, and `OTHER`.
+     - Support "Select All" and "Clear All" convenience actions, display categorization and instrument examples, and enforce validation requiring at least 1 scope.
+     - Add `PATCH /api/v1/admin/gatc-agencies/:id` with `updateGatcAgencySchema` to allow updating scopes and validity dates for existing agencies.
+  2. Implement strict backend scope filtering and isolation:
+     - In `applications.service.ts`:
+       - Restrict `listApplications` for `Role.GATC_ADMIN` and `Role.GATC_INSPECTOR` by `{ instrument: { type: { in: scopes } } }`.
+       - Throw `AppError(403, FORBIDDEN)` in `getApplicationById` if a GATC user attempts to access an application outside their authorized scopes.
+     - In `dashboard.service.ts`:
+       - Enforce scope filtering across all GATC Admin and Inspector statistics (`pendingInspections`, `completedInspections`, `certifiedCount`, and `upcomingSchedule`).
+     - In `gatc.service.ts`:
+       - Validate in `delegateApplication` that the application instrument type is strictly within both the agency's and inspector's authorized scopes.
+  3. Frontend transparency and visual badges:
+     - In `GatcDashboardPage.tsx`: Render dynamic active scopes and instrument type badges in the test bench pipeline.
+     - In `ApplicationListPage.tsx`: Render a "Statutory Scope Restricted Testing Queue" notice for GATC users indicating active scopes and display instrument type badges on table rows.
 - **Rationale**:
-  - Forcing users to open new browser tabs or navigating them to a public verification URL fragments their operational context (e.g. an inspector on a field visit losing their roster place or a trader losing their application pagination).
-  - Browser popup blockers frequently suppress `window.open(..., "_blank")` calls initiated asynchronously from fetch callbacks. In-page blob downloads and hidden iframe printing eliminate popup blockers while keeping the user experience seamless, fast, and secure.
+  - GATC institutional laboratories are accredited by NABL and notified by the Central Government under Section 14 and Rule 14 for specific metrological disciplines (e.g. some labs are accredited only for fuel dispensers and flow meters, while others are accredited for weighing bridges).
+  - Allowing GATC agencies to view or be assigned applications outside their accredited scope violates statutory Rule 14 regulations and compromises verification integrity. Strict multi-tenant scope isolation guarantees that test centres only see and test instruments within their legal competence.
+
+### ADR-061: Mobile Officer Registry Multi-Criteria Statutory & Accuracy Filtering
+- **Decision**:
+  1. Enhance `mobile/src/screens/RegistryScreen.tsx` with a multi-criteria filtering engine:
+     - Horizontal `ScrollView` chips bar covering all 7 Rule 14 equipment categories (`All Types`, `NAWI`, `AWI`, `Fuel`, `Tanks`, `Length`, `Capacity`, `Specialized`) with live dynamic matching counts.
+     - Collapsible accuracy class drawer toggled by `Icons.Sliders` with active amber indicator, supporting Class I through Class IV.
+     - Summary bar with match count (e.g. "Showing 4 of 6 equipment"), dismissible tags with tap-to-remove `✕`, and "Clear all" action.
+  2. Introduce full statutory equipment modal displaying complete Rule 14 technical category, verification intervals, trader coordinates, and official compliance seal.
+  3. Embed rich statutory fallback data for smooth offline field demonstrations and full English/Hindi localization.
+- **Rationale**:
+  - Field officers inspect diverse commercial equipment across retail bazaars, fuel stations, and industrial zones. A multi-criteria filter allows instantaneous isolation of specific instrument classes and accuracy grades during targeted field surveillance sweeps.
+
+### ADR-062: Universal Inline Icon Alignment & CSS Flex Centering
+- **Decision**:
+  1. Remove nested inline non-flex `<span>{children}</span>` in `client/src/components/ui/badge.tsx` so all children are direct flex items of `inline-flex items-center gap-1.5`.
+  2. Add `gap-1.5` to `buttonVariants` in `client/src/components/ui/button.tsx`.
+  3. Update "Certified & Stamped", "Rejected (Exceeds MPE)", "Start MPE Test", "View Certificate", and metadata icons across `FieldRosterPage.tsx`, `ApplicationListPage.tsx`, `InstrumentListPage.tsx`, `ConsumerLandingPage.tsx`, `ConsumerDashboardPage.tsx`, and `GatcDashboardPage.tsx` with `shrink-0` and `gap-1.5`.
+  4. In `mobile/src/components/ui/badge.tsx`, configure `iconContainer` centering with `includeFontPadding: false` and `textAlignVertical: "center"`.
+- **Rationale**:
+  - Non-flex inline `<span>` wrappers caused SVG icons to align with font baseline heuristics rather than the flexbox vertical center, causing checkmarks and status icons to appear visibly raised or shifted relative to adjacent text. Eliminating the wrapper achieves pixel-perfect optical alignment across web and mobile.
+
+### ADR-063: Dynamic Document Title Synchronization by Role & Subdomain
+- **Decision**:
+  1. Insert an inline pre-hydration script in `client/index.html` head to evaluate port/hostname/subdomain immediately before React mounts.
+  2. Add reactive document title observer in `client/src/App.tsx`:
+     - Admin & GATC: `eLMV | admin`
+     - Field Officer & Inspector: `eLMV | field`
+     - Consumer / Citizen / Trader: `eLMV`
+- **Rationale**:
+  - Users navigating across multiple browser tabs or administering multi-tenant roles need instant tab identification in Chrome without title flicker or generic default labels.
+
+### ADR-064: Statutory Footer Layout Harmonization (Helpline 1915 & Digital India Alignment)
+- **Decision**:
+  1. Relocate `/digi-india.png` to the right-hand column above the National Consumer Helpline in `ConsumerLandingPage.tsx` and `PublicPageLayout.tsx`.
+  2. Replace `flex-wrap` with `whitespace-nowrap flex items-center md:justify-end gap-2 text-xs` and add `shrink-0` to the amber `1915` badge.
+- **Rationale**:
+  - Left column is reserved for the State Emblem of India and statutory copyright disclaimers. Moving Digital India to the right creates visual symmetry with the national helpline. Enforcing `whitespace-nowrap` prevents the helpline title and "1915" badge from breaking onto awkward separate lines on mid-sized screens.
+
+### ADR-065: Streamlined Electronic Mail Support & Feedback Removal
+- **Decision**:
+  1. Remove `/feedback` route, navigation tabs, and `FeedbackPage.tsx` across all portal applications.
+  2. Simplify the electronic mail section on `ContactUsPage.tsx` from complex multi-desk selectors and long forms to a clean support box displaying `support-elmv@gov.in`, a copy button, and a prominent "Email Us" (`mailto:`) button.
+- **Rationale**:
+  - Multiple bureaucratic email dropdowns, subject selectors, and feedback ticket simulators added friction and cognitive load. A clean, direct "Email Us" button and copyable address provide immediate, frictionless communication directly into the user's native email client or webmail.
+
+### ADR-066: Full Bilingual Hindi Localization of Statutory Knowledge Base
+- **Decision**:
+  1. Fully localize all public statutory pages (`PublicPageLayout.tsx`, `WebsitePoliciesPage.tsx`, `TermsConditionsPage.tsx`, `HelpFaqPage.tsx`, `ContactUsPage.tsx`) into official Hindi legal terminology.
+  2. Translate all 4 policy tabs, Section 24 statutory terms, 8 comprehensive FAQs, and contact directory coordinates.
+- **Rationale**:
+  - As an official Government of India portal, linguistic inclusion is a statutory requirement under the Official Languages Act. Full Hindi localization ensures accessibility for non-English-speaking commercial traders and citizens nationwide.
+
+### ADR-067: Hero Visual Metrology Asset Integration & Static Display
+- **Decision**:
+  1. Utilize the whitespace in the hero section (`lg:col-span-5`) of `ConsumerLandingPage.tsx` with a 3D precision analytical scale, Rule 14 weights, and digital certificate visual asset without altering existing hero text or pillars.
+  2. Remove all overlay badge text ("Legal Metrology Verified") and eliminate all hover zoom, scale, and glow animations (`hover:scale-[1.02]`, `hover:shadow-md`).
+- **Rationale**:
+  - Unnecessary hover zoom effects and text badges on decorative hero imagery create visual clutter and movement unbefitting an authoritative government portal. A clean, static image provides aesthetic balance without distraction.
+
+### ADR-068: Verification Application Creation Lockdown to Commercial Consumers/Traders
+- **Decision**:
+  1. Restrict "New Application" CTA buttons and `<SubmitApplicationDialog />` strictly to `Role.CONSUMER` in `ApplicationListPage.tsx` and `GlobalSearchDialog.tsx`.
+  2. Enforce `requireRole([Role.CONSUMER])` on `POST /api/v1/applications` in `applications.routes.ts`.
+- **Rationale**:
+  - Under the Legal Metrology Act, 2009, verification and stamping applications are legally submitted by commercial users, traders, and equipment owners. Regulatory officers (LMO) and accredited test laboratories (GATC) review, inspect, and certify applications; they must never initiate applications on behalf of traders to maintain statutory impartiality.
+
+### ADR-069: De-badging and Monochrome Elegance for Statutory Footer Pages
+- **Decision**:
+  1. Remove `badge` prop and blue pill component (`bg-blue-50 text-blue-700 border-blue-200`) from `PublicPageLayout.tsx`.
+  2. Prune blue text badges (*"DPDP Act, 2023 & GIGW Compliant"*, *"Act No. 1 of 2010"*, *"Citizen & Trader Knowledge Base"*, *"Official Directory"*) from `WebsitePoliciesPage.tsx`, `TermsConditionsPage.tsx`, `HelpFaqPage.tsx`, and `ContactUsPage.tsx`.
+  3. Neutralize icon badge containers to subtle slate tones.
+- **Rationale**:
+  - Bright blue badge pills beside page titles created visual fragmentation and looked like promotional marketing tags. Neutral, authoritative typography aligns with standard Government of India digital service guidelines.
+
 
 

@@ -14,7 +14,6 @@ import {
   Search,
   ChevronRight,
   User,
-  Settings,
 } from "lucide-react";
 
 interface TopBarProps {
@@ -171,11 +170,6 @@ export function TopBar({ onToggleMobileMenu, isDark, onToggleTheme }: TopBarProp
                 <Badge variant="outline" className="text-xs font-normal text-muted-foreground hover:text-foreground hover:border-slate-400 py-0.5 px-2 cursor-pointer transition-colors">
                   {user.role}
                 </Badge>
-              </Link>
-              <Link to="/settings" title={t("nav.settings", { defaultValue: "Settings & Credentials" })}>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                  <Settings className="h-4 w-4" />
-                </Button>
               </Link>
             </div>
           ) : (

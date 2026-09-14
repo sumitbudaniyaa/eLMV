@@ -81,9 +81,9 @@ export function GatcDashboardPage() {
 
         <div className="flex items-center gap-2">
           <Link to="/inspectors">
-            <Button size="sm" variant="outline" className="h-8 text-xs font-semibold">
-              <Users className="h-3.5 w-3.5 mr-1" />
-              Manage Staff ({stats?.inspectorsCount || inspectors.length})
+            <Button size="sm" variant="outline" className="h-8 text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap">
+              <Users className="h-3.5 w-3.5 shrink-0" />
+              <span>Manage Staff ({stats?.inspectorsCount || inspectors.length})</span>
             </Button>
           </Link>
         </div>
@@ -147,21 +147,29 @@ export function GatcDashboardPage() {
       {/* Authorized Testing Scopes Card */}
       <Card className="shadow-2xs">
         <CardHeader className="p-4 pb-2 border-b border-border">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 text-primary" />
-            <CardTitle className="text-xs font-bold text-foreground">Authorized Laboratory Testing Scopes (Rule 14)</CardTitle>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-primary" />
+              <CardTitle className="text-xs font-bold text-foreground">Authorized Statutory Testing Scopes (Rule 14)</CardTitle>
+            </div>
+            <Badge variant="outline" className="text-[10px] font-mono">
+              {(agencyProfile?.authorizedScope?.length || 1)} Scopes Active
+            </Badge>
           </div>
         </CardHeader>
         <CardContent className="p-4">
           <div className="flex flex-wrap gap-2">
-            {(agencyProfile?.authorizedScope || ["NON_AUTOMATIC_WEIGHING_INSTRUMENT", "FUEL_DISPENSER"]).map((scope: string) => (
+            {(agencyProfile?.authorizedScope && agencyProfile.authorizedScope.length > 0
+              ? agencyProfile.authorizedScope
+              : ["NON_AUTOMATIC_WEIGHING_INSTRUMENT"]
+            ).map((scope: string) => (
               <div
                 key={scope}
                 className="px-3 py-1.5 rounded-md border border-border bg-muted/30 flex items-center gap-2 text-xs font-medium"
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                 <span>{scope.replace(/_/g, " ")}</span>
-                <span className="text-[10px] text-muted-foreground font-mono">(Class II & III)</span>
+                <span className="text-[10px] text-muted-foreground font-mono">(Statutory)</span>
               </div>
             ))}
           </div>
@@ -174,7 +182,7 @@ export function GatcDashboardPage() {
           <div>
             <CardTitle className="text-xs font-bold text-foreground">Assigned Testing Jobs & Bench Pipeline</CardTitle>
             <p className="text-[11px] text-muted-foreground mt-0.5">
-              Testing batches assigned to this Agency awaiting inspection or engineer delegation.
+              Testing batches strictly matching your authorized scopes awaiting inspection or engineer delegation.
             </p>
           </div>
           <Link
@@ -208,8 +216,15 @@ export function GatcDashboardPage() {
                     <tr key={app.id} className="hover:bg-muted/20 transition-colors">
                       <td className="p-3 font-mono font-medium text-foreground">{app.applicationNumber}</td>
                       <td className="p-3">
-                        <span className="font-mono text-foreground font-semibold">{app.instrument?.serialNumber}</span>
-                        <span className="text-[11px] text-muted-foreground ml-1.5">({app.instrument?.make})</span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-mono text-foreground font-semibold">{app.instrument?.serialNumber}</span>
+                          {app.instrument?.type && (
+                            <Badge variant="outline" className="text-[9px] px-1 py-0 bg-muted/40 font-mono">
+                              {app.instrument.type.replace(/_/g, " ")}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">{app.instrument?.make}</p>
                       </td>
                       <td className="p-3">
                         <p className="text-foreground font-medium">{app.applicant?.name}</p>
@@ -217,8 +232,8 @@ export function GatcDashboardPage() {
                       </td>
                       <td className="p-3">
                         {app.assignedOfficer?.name ? (
-                          <div className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-medium">
-                            <UserCheck className="h-3 w-3" />
+                          <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-medium">
+                            <UserCheck className="h-3.5 w-3.5 shrink-0" />
                             <span>{app.assignedOfficer.name}</span>
                           </div>
                         ) : (

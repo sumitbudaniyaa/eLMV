@@ -266,7 +266,7 @@ export function DashboardPage() {
                             </TableCell>
                             <TableCell className="text-right">
                               <Link to={`/applications?instrumentId=${inst.id}`}>
-                                <Button size="sm" className="h-7 text-xs font-semibold">
+                                <Button size="sm" className="h-7 text-xs font-semibold bg-[#0B2545] hover:bg-[#133966] text-white shadow-xs">
                                   {t("dashboard.applyRenewal")}
                                 </Button>
                               </Link>

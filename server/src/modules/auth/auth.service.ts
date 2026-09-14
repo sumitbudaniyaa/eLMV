@@ -311,6 +311,7 @@ export class AuthService {
                 accreditationNumber: true,
                 district: true,
                 state: true,
+                authorizedScope: true,
               },
             },
           },

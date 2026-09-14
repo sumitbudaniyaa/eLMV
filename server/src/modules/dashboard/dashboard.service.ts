@@ -1,5 +1,5 @@
 import { prisma } from "../../config/database";
-import { Role, ApplicationStatus, InspectionResult } from "@sih/shared";
+import { Role, ApplicationStatus, InspectionResult, InstrumentType } from "@sih/shared";
 
 export class DashboardService {
   async getSummary(userId: string, role: Role) {
@@ -66,6 +66,22 @@ export class DashboardService {
     }
 
     if (role === Role.LMO || role === Role.GATC_INSPECTOR) {
+      let inspectorScopes: InstrumentType[] | undefined;
+      if (role === Role.GATC_INSPECTOR) {
+        const inspectorProfile = await prisma.gATCInspectorProfile.findUnique({
+          where: { userId },
+          include: { gatcAgency: true },
+        });
+        const rawScopes = (inspectorProfile?.authorizedScope && inspectorProfile.authorizedScope.length > 0)
+          ? inspectorProfile.authorizedScope
+          : inspectorProfile?.gatcAgency?.authorizedScope || [];
+        inspectorScopes = rawScopes.length > 0
+          ? (rawScopes as InstrumentType[])
+          : [InstrumentType.NON_AUTOMATIC_WEIGHING_INSTRUMENT];
+      }
+
+      const scopeFilter = inspectorScopes ? { instrument: { type: { in: inspectorScopes } } } : {};
+
       const [
         pendingInspections,
         completedInspections,
@@ -76,14 +92,21 @@ export class DashboardService {
           where: {
             assignedOfficerId: userId,
             status: { in: [ApplicationStatus.SUBMITTED, ApplicationStatus.SCHEDULED] },
+            ...scopeFilter,
           },
         }),
         prisma.inspectionRecord.count({
-          where: { officerId: userId },
+          where: {
+            officerId: userId,
+            ...(inspectorScopes ? { application: { instrument: { type: { in: inspectorScopes } } } } : {}),
+          },
         }),
         prisma.certificate.count({
           where: {
-            application: { assignedOfficerId: userId },
+            application: {
+              assignedOfficerId: userId,
+              ...scopeFilter,
+            },
           },
         }),
         prisma.application.findMany({
@@ -91,11 +114,12 @@ export class DashboardService {
             assignedOfficerId: userId,
             status: ApplicationStatus.SCHEDULED,
             scheduledDate: { gte: now },
+            ...scopeFilter,
           },
           take: 5,
           orderBy: { scheduledDate: "asc" },
           include: {
-            instrument: { select: { serialNumber: true, make: true, district: true } },
+            instrument: { select: { serialNumber: true, make: true, district: true, type: true } },
             applicant: { select: { name: true, phone: true } },
           },
         }),
@@ -103,6 +127,7 @@ export class DashboardService {
 
       return {
         role,
+        authorizedScopes: inspectorScopes,
         stats: {
           pendingInspections,
           completedInspections,
@@ -118,6 +143,10 @@ export class DashboardService {
         where: { userId },
       });
       const agencyId = gatcProfile?.id;
+      const rawScopes = (gatcProfile?.authorizedScope && gatcProfile.authorizedScope.length > 0)
+        ? (gatcProfile.authorizedScope as InstrumentType[])
+        : [InstrumentType.NON_AUTOMATIC_WEIGHING_INSTRUMENT];
+      const scopes = rawScopes;
 
       const [
         pendingTests,
@@ -128,6 +157,7 @@ export class DashboardService {
       ] = await Promise.all([
         prisma.application.count({
           where: {
+            instrument: { type: { in: scopes } },
             OR: [
               { assignedGatcProfileId: agencyId, status: { in: [ApplicationStatus.SUBMITTED, ApplicationStatus.SCHEDULED] } },
               { assignedOfficerId: userId, status: { in: [ApplicationStatus.SUBMITTED, ApplicationStatus.SCHEDULED] } },
@@ -136,6 +166,7 @@ export class DashboardService {
         }),
         prisma.inspectionRecord.count({
           where: {
+            application: { instrument: { type: { in: scopes } } },
             officer: {
               gatcInspectorProfile: { gatcProfileId: agencyId },
             },
@@ -144,6 +175,7 @@ export class DashboardService {
         prisma.certificate.count({
           where: {
             application: {
+              instrument: { type: { in: scopes } },
               OR: [
                 { assignedGatcProfileId: agencyId },
                 { assignedOfficer: { gatcInspectorProfile: { gatcProfileId: agencyId } } },
@@ -156,6 +188,7 @@ export class DashboardService {
           : 0,
         prisma.application.findMany({
           where: {
+            instrument: { type: { in: scopes } },
             OR: [
               { assignedGatcProfileId: agencyId },
               { assignedOfficerId: userId },
@@ -165,7 +198,7 @@ export class DashboardService {
           take: 5,
           orderBy: { scheduledDate: "asc" },
           include: {
-            instrument: { select: { serialNumber: true, make: true, district: true } },
+            instrument: { select: { serialNumber: true, make: true, district: true, type: true } },
             applicant: { select: { name: true, phone: true } },
           },
         }),
@@ -174,6 +207,7 @@ export class DashboardService {
       return {
         role,
         agencyProfile: gatcProfile,
+        authorizedScopes: scopes,
         stats: {
           pendingInspections: pendingTests,
           completedInspections: completedTests,

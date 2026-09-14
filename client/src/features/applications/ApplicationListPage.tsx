@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { api } from "@/lib/api";
-import { ApiResponse, ApplicationStatus, Role } from "@sih/shared";
+import { ApiResponse, ApplicationStatus, Role, InstrumentType } from "@sih/shared";
 import { useAuth } from "@/context/AuthContext";
 import { formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -35,7 +35,18 @@ import {
   ArrowRight,
   Loader2,
   ShieldCheck,
+  Scale,
 } from "lucide-react";
+
+export const INSTRUMENT_TYPE_LABELS: Record<InstrumentType, string> = {
+  [InstrumentType.NON_AUTOMATIC_WEIGHING_INSTRUMENT]: "Non-Automatic Weighing (NAWI)",
+  [InstrumentType.AUTOMATIC_WEIGHING_INSTRUMENT]: "Automatic Weighing (AWI)",
+  [InstrumentType.FUEL_DISPENSER]: "Fuel & Flow Dispensers",
+  [InstrumentType.STORAGE_TANK]: "Storage Tanks & Vats",
+  [InstrumentType.LENGTH_MEASURE]: "Length & Linear Measures",
+  [InstrumentType.CAPACITY_MEASURE]: "Capacity Measures",
+  [InstrumentType.OTHER]: "Other Specialized Measures",
+};
 
 export function ApplicationListPage() {
   const { t } = useTranslation();
@@ -43,6 +54,7 @@ export function ApplicationListPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("");
+  const [typeFilter, setTypeFilter] = useState<string>("");
   const [isSubmitOpen, setIsSubmitOpen] = useState(false);
   const [issuingId, setIssuingId] = useState<string | null>(null);
 
@@ -50,6 +62,15 @@ export function ApplicationListPage() {
   const [scheduleTarget, setScheduleTarget] = useState<any | null>(null);
   const [inspectionTarget, setInspectionTarget] = useState<any | null>(null);
   const [viewCertNumber, setViewCertNumber] = useState<string | null>(null);
+
+  const gatcScopes: string[] =
+    user?.role === Role.GATC_ADMIN
+      ? user?.gatcProfile?.authorizedScope || ["NON_AUTOMATIC_WEIGHING_INSTRUMENT"]
+      : user?.role === Role.GATC_INSPECTOR
+      ? (user?.gatcInspectorProfile?.authorizedScope?.length > 0
+          ? user.gatcInspectorProfile.authorizedScope
+          : user?.gatcInspectorProfile?.gatcAgency?.authorizedScope || ["NON_AUTOMATIC_WEIGHING_INSTRUMENT"])
+      : [];
 
   const handleIssueCertificate = async (app: any) => {
     try {
@@ -69,11 +90,12 @@ export function ApplicationListPage() {
   };
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["applications", search, statusFilter],
+    queryKey: ["applications", search, statusFilter, typeFilter],
     queryFn: async () => {
       const params: any = {};
       if (search) params.search = search;
       if (statusFilter) params.status = statusFilter;
+      if (typeFilter) params.instrumentType = typeFilter;
       const res = await api.get<ApiResponse<any[]>>("/applications", { params });
       return res.data;
     },
@@ -118,13 +140,13 @@ export function ApplicationListPage() {
           </p>
         </div>
 
-        {(user?.role === Role.CONSUMER || user?.role === Role.ADMIN) && (
+        {user?.role === Role.CONSUMER && (
           <Button
             size="sm"
             onClick={() => setIsSubmitOpen(true)}
-            className="h-8 text-xs font-bold bg-[#0B2545] hover:bg-[#133966] text-white shadow-xs rounded-lg transition-all"
+            className="h-8 text-xs font-semibold shrink-0 bg-[#0B2545] hover:bg-[#0B2545]/90 text-white shadow-xs"
           >
-            <Plus className="h-3.5 w-3.5 mr-1.5" />
+            <Plus className="h-3.5 w-3.5 mr-1" />
             {t("applications.newApplication")}
           </Button>
         )}
@@ -225,9 +247,33 @@ export function ApplicationListPage() {
         </div>
       </Card>
 
+      {/* GATC Statutory Scope Restriction Notice */}
+      {(user?.role === Role.GATC_ADMIN || user?.role === Role.GATC_INSPECTOR) && (
+        <div className="p-3.5 rounded-xl border border-primary/20 bg-primary/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+              <ShieldCheck className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="font-semibold text-foreground">Statutory Scope Restricted Testing Queue</p>
+              <p className="text-[11px] text-muted-foreground">
+                Showing applications strictly matching your authorized institutional testing scopes under Rule 14.
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {gatcScopes.map((scope) => (
+              <Badge key={scope} variant="outline" className="text-[10px] bg-background/80 font-mono">
+                {scope.replace(/_/g, " ")}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Filters Toolbar */}
-      <Card className="p-3.5 sm:p-4 bg-muted/20 border-border/80 rounded-2xl shadow-2xs">
-        <div className="flex flex-col sm:flex-row items-center gap-3">
+      <Card className="p-3.5 sm:p-4 bg-muted/20 border-border/80 rounded-2xl shadow-2xs space-y-3">
+        <div className="flex flex-col lg:flex-row items-center gap-3">
           <div className="relative flex-1 w-full flex items-center">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 z-10">
               <Search className="h-4 w-4 text-slate-400 shrink-0" />
@@ -252,22 +298,100 @@ export function ApplicationListPage() {
             )}
           </div>
 
-          <div className="flex items-center gap-2.5 w-full sm:w-auto">
-            <Filter className="h-4 w-4 text-slate-400 shrink-0 hidden sm:block" />
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-11 rounded-xl border border-slate-200 dark:border-border bg-white dark:bg-card px-3.5 text-sm w-full sm:w-60 shadow-2xs outline-none transition-all duration-300 ease-out focus:outline-none focus:border-[#0B2545] dark:focus:border-primary focus:ring-4 focus:ring-[#0B2545]/15 dark:focus:ring-primary/20 font-medium text-slate-800 dark:text-foreground cursor-pointer"
-            >
-              <option value="" className="bg-white dark:bg-card text-foreground">{t("applications.allStatuses")}</option>
-              {Object.values(ApplicationStatus).map((st) => (
-                <option key={st} value={st} className="bg-white dark:bg-card text-foreground">
-                  {t(`status.${st}`, st)}
+          <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full lg:w-auto">
+            {/* Instrument Type Filter */}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Scale className="h-4 w-4 text-slate-400 shrink-0 hidden sm:block" />
+              <select
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                className="h-11 rounded-xl border border-slate-200 dark:border-border bg-white dark:bg-card px-3.5 text-sm w-full sm:w-60 shadow-2xs outline-none transition-all duration-300 ease-out focus:outline-none focus:border-[#0B2545] dark:focus:border-primary focus:ring-4 focus:ring-[#0B2545]/15 dark:focus:ring-primary/20 font-medium text-slate-800 dark:text-foreground cursor-pointer"
+              >
+                <option value="" className="bg-white dark:bg-card text-foreground">
+                  {t("applications.allInstrumentTypes", { defaultValue: "All Instrument Types" })}
                 </option>
-              ))}
-            </select>
+                {Object.values(InstrumentType).map((itype) => (
+                  <option key={itype} value={itype} className="bg-white dark:bg-card text-foreground">
+                    {INSTRUMENT_TYPE_LABELS[itype] || itype.replace(/_/g, " ")}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Status Filter */}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Filter className="h-4 w-4 text-slate-400 shrink-0 hidden sm:block" />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="h-11 rounded-xl border border-slate-200 dark:border-border bg-white dark:bg-card px-3.5 text-sm w-full sm:w-52 shadow-2xs outline-none transition-all duration-300 ease-out focus:outline-none focus:border-[#0B2545] dark:focus:border-primary focus:ring-4 focus:ring-[#0B2545]/15 dark:focus:ring-primary/20 font-medium text-slate-800 dark:text-foreground cursor-pointer"
+              >
+                <option value="" className="bg-white dark:bg-card text-foreground">{t("applications.allStatuses")}</option>
+                {Object.values(ApplicationStatus).map((st) => (
+                  <option key={st} value={st} className="bg-white dark:bg-card text-foreground">
+                    {t(`status.${st}`, st)}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
+
+        {/* Active Filter Badges */}
+        {(search || statusFilter || typeFilter) && (
+          <div className="flex items-center flex-wrap gap-2 pt-2 border-t border-border/60 text-xs">
+            <span className="text-muted-foreground font-medium">Active filters:</span>
+            {typeFilter && (
+              <Badge variant="secondary" className="gap-1.5 py-1 px-2.5 font-normal inline-flex items-center">
+                <Scale className="h-3 w-3 text-muted-foreground shrink-0" />
+                <span>{INSTRUMENT_TYPE_LABELS[typeFilter as InstrumentType] || typeFilter}</span>
+                <button
+                  onClick={() => setTypeFilter("")}
+                  className="hover:text-foreground ml-0.5 inline-flex items-center"
+                  title="Remove type filter"
+                >
+                  <X className="h-3 w-3 shrink-0" />
+                </button>
+              </Badge>
+            )}
+            {statusFilter && (
+              <Badge variant="secondary" className="gap-1.5 py-1 px-2.5 font-normal inline-flex items-center">
+                <Filter className="h-3 w-3 text-muted-foreground shrink-0" />
+                <span>{t(`status.${statusFilter}`, statusFilter)}</span>
+                <button
+                  onClick={() => setStatusFilter("")}
+                  className="hover:text-foreground ml-0.5 inline-flex items-center"
+                  title="Remove status filter"
+                >
+                  <X className="h-3 w-3 shrink-0" />
+                </button>
+              </Badge>
+            )}
+            {search && (
+              <Badge variant="secondary" className="gap-1.5 py-1 px-2.5 font-normal inline-flex items-center">
+                <Search className="h-3 w-3 text-muted-foreground shrink-0" />
+                <span>"{search}"</span>
+                <button
+                  onClick={() => setSearch("")}
+                  className="hover:text-foreground ml-0.5 inline-flex items-center"
+                  title="Clear search"
+                >
+                  <X className="h-3 w-3 shrink-0" />
+                </button>
+              </Badge>
+            )}
+            <button
+              onClick={() => {
+                setSearch("");
+                setStatusFilter("");
+                setTypeFilter("");
+              }}
+              className="text-xs font-semibold text-primary hover:underline ml-auto"
+            >
+              Reset all
+            </button>
+          </div>
+        )}
       </Card>
 
       {/* Content State */}
@@ -287,28 +411,29 @@ export function ApplicationListPage() {
           icon={FileText}
           title={t("applications.emptyTitle")}
           description={
-            search || statusFilter
+            search || statusFilter || typeFilter
               ? t("applications.emptyFilterDesc")
               : t("applications.emptyNoRecordsDesc")
           }
           action={
-            search || statusFilter ? (
+            search || statusFilter || typeFilter ? (
               <Button
                 size="sm"
                 onClick={() => {
                   setSearch("");
                   setStatusFilter("");
+                  setTypeFilter("");
                 }}
-                className="h-8 text-xs"
+                className="h-8 text-xs font-semibold"
               >
                 <Plus className="h-3.5 w-3.5 mr-1.5" />
                 {t("applications.clearFilters")}
               </Button>
-            ) : (user?.role === Role.CONSUMER || user?.role === Role.ADMIN) ? (
+            ) : user?.role === Role.CONSUMER ? (
               <Button
                 size="sm"
                 onClick={() => setIsSubmitOpen(true)}
-                className="h-8 text-xs"
+                className="h-8 text-xs font-semibold shrink-0 bg-[#0B2545] hover:bg-[#0B2545]/90 text-white shadow-xs"
               >
                 <Plus className="h-3.5 w-3.5 mr-1.5" />
                 {t("applications.submitNew")}
@@ -338,9 +463,16 @@ export function ApplicationListPage() {
                     {app.applicationNumber}
                   </TableCell>
                   <TableCell>
-                    <span className="font-semibold text-foreground block leading-tight">
-                      {app.instrument?.serialNumber}
-                    </span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-semibold text-foreground leading-tight">
+                        {app.instrument?.serialNumber}
+                      </span>
+                      {app.instrument?.type && (
+                        <Badge variant="outline" className="text-[9px] px-1 py-0 bg-muted/40 font-mono">
+                          {app.instrument.type.replace(/_/g, " ")}
+                        </Badge>
+                      )}
+                    </div>
                     <span className="text-[11px] text-muted-foreground block">
                       {app.instrument?.make} ({app.instrument?.capacity} {app.instrument?.unit})
                     </span>
@@ -380,29 +512,29 @@ export function ApplicationListPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-7 text-xs font-medium px-2.5 shadow-2xs"
+                            className="h-7 text-xs font-medium px-2.5 shadow-2xs inline-flex items-center gap-1.5 whitespace-nowrap"
                             onClick={() => setScheduleTarget(app)}
                           >
-                            <Calendar className="h-3 w-3 mr-1" />
-                            {t("applications.table.schedule")}
+                            <Calendar className="h-3 w-3 shrink-0" />
+                            <span>{t("applications.table.schedule")}</span>
                           </Button>
                         )}
                         {app.status === ApplicationStatus.SCHEDULED && (
                           <Button
                             variant="default"
                             size="sm"
-                            className="h-7 text-xs font-semibold px-2.5 shadow-xs"
+                            className="h-7 text-xs font-semibold px-2.5 shadow-xs inline-flex items-center gap-1.5 whitespace-nowrap"
                             onClick={() => setInspectionTarget(app)}
                           >
-                            <ClipboardCheck className="h-3 w-3 mr-1" />
-                            {t("applications.table.inspect")}
+                            <ClipboardCheck className="h-3 w-3 shrink-0" />
+                            <span>{t("applications.table.inspect")}</span>
                           </Button>
                         )}
                         {app.status === ApplicationStatus.INSPECTED && (
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-7 text-xs font-semibold px-2.5 shadow-2xs border-amber-500/50 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+                            className="h-7 text-xs font-semibold px-2.5 shadow-2xs border-amber-500/50 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/30 inline-flex items-center gap-1.5 whitespace-nowrap"
                             onClick={() => {
                               if (window.confirm(`Digitally sign and issue statutory certificate for ${app.applicationNumber} under Section 24?`)) {
                                 handleIssueCertificate(app);
@@ -411,11 +543,11 @@ export function ApplicationListPage() {
                             disabled={issuingId === app.id}
                           >
                             {issuingId === app.id ? (
-                              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                              <Loader2 className="h-3 w-3 animate-spin shrink-0" />
                             ) : (
-                              <ShieldCheck className="h-3 w-3 mr-1 text-amber-600" />
+                              <ShieldCheck className="h-3 w-3 text-amber-600 shrink-0" />
                             )}
-                            {t("applications.table.digitallySign", { defaultValue: "Digitally Sign & Issue" })}
+                            <span>{t("applications.table.digitallySign", { defaultValue: "Digitally Sign & Issue" })}</span>
                           </Button>
                         )}
                       </>
@@ -425,11 +557,11 @@ export function ApplicationListPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-7 text-xs font-medium px-2.5 shadow-2xs border-emerald-500/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                        className="h-7 text-xs font-medium px-2.5 shadow-2xs border-emerald-500/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 inline-flex items-center gap-1.5 whitespace-nowrap"
                         onClick={() => setViewCertNumber(app.certificate.certificateNumber)}
                       >
-                        <Award className="h-3 w-3 mr-1" />
-                        {t("applications.table.certificate")}
+                        <Award className="h-3 w-3 shrink-0" />
+                        <span>{t("applications.table.certificate")}</span>
                       </Button>
                     )}
                   </TableCell>
@@ -441,7 +573,9 @@ export function ApplicationListPage() {
       )}
 
       {/* Dialogs */}
-      <SubmitApplicationDialog open={isSubmitOpen} onOpenChange={setIsSubmitOpen} />
+      {user?.role === Role.CONSUMER && (
+        <SubmitApplicationDialog open={isSubmitOpen} onOpenChange={setIsSubmitOpen} />
+      )}
 
       {scheduleTarget && (
         <ScheduleInspectionDialog

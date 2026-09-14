@@ -206,8 +206,8 @@ export function FieldRosterPage() {
 
                     {/* Instrument Specs */}
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-                      <div className="flex items-center gap-1 font-mono font-semibold text-foreground">
-                        <Scale className="h-3.5 w-3.5 text-primary" />
+                      <div className="flex items-center gap-1.5 font-mono font-semibold text-foreground">
+                        <Scale className="h-3.5 w-3.5 text-primary shrink-0" />
                         <span>SN: {app.instrument?.serialNumber}</span>
                       </div>
                       <span className="text-muted-foreground">•</span>
@@ -221,20 +221,20 @@ export function FieldRosterPage() {
 
                     {/* Establishment & Address */}
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1 font-medium text-foreground">
-                        <Building className="h-3 w-3 text-muted-foreground" />
+                      <div className="flex items-center gap-1.5 font-medium text-foreground">
+                        <Building className="h-3 w-3 text-muted-foreground shrink-0" />
                         <span>{app.applicant?.name}</span>
                       </div>
                       <span>•</span>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3 text-muted-foreground" />
+                      <div className="flex items-center gap-1.5">
+                        <MapPin className="h-3 w-3 text-muted-foreground shrink-0" />
                         <span>{app.instrument?.district}, {app.instrument?.state}</span>
                       </div>
                       {app.applicant?.phone && (
                         <>
                           <span>•</span>
-                          <div className="flex items-center gap-1">
-                            <Phone className="h-3 w-3 text-muted-foreground" />
+                          <div className="flex items-center gap-1.5">
+                            <Phone className="h-3 w-3 text-muted-foreground shrink-0" />
                             <span>{app.applicant.phone}</span>
                           </div>
                         </>
@@ -243,8 +243,8 @@ export function FieldRosterPage() {
 
                     {/* Scheduled Date */}
                     {app.scheduledDate && (
-                      <p className="text-[11px] text-sky-700 dark:text-sky-400 font-medium flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
+                      <p className="text-[11px] text-sky-700 dark:text-sky-400 font-medium inline-flex items-center gap-1.5">
+                        <Calendar className="h-3 w-3 shrink-0" />
                         <span>{t("roster.pendingVisits", { defaultValue: "Visit Appointment" })}: {new Date(app.scheduledDate).toLocaleString()}</span>
                       </p>
                     )}
@@ -269,30 +269,36 @@ export function FieldRosterPage() {
                       </Button>
                     ) : app.status === ApplicationStatus.CERTIFIED ? (
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-xs px-2.5 py-1 text-emerald-700 border-emerald-300 bg-emerald-50 dark:bg-emerald-950/30">
-                          <CheckCircle2 className="h-3.5 w-3.5 mr-1 text-emerald-600" />
-                          {t("roster.certifiedStampedTab", { defaultValue: "Certified & Stamped" })}
+                        <Badge
+                          variant="outline"
+                          className="text-xs px-2.5 py-1 text-emerald-700 border-emerald-300 bg-emerald-50 dark:bg-emerald-950/30 font-medium inline-flex items-center gap-1.5 whitespace-nowrap"
+                        >
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                          <span>{t("roster.certifiedStampedTab", { defaultValue: "Certified & Stamped" })}</span>
                         </Badge>
                         {app.certificate?.certificateNumber && (
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-8 text-xs font-semibold shadow-2xs hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800"
+                            className="h-8 text-xs font-semibold shadow-2xs hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800 inline-flex items-center gap-1.5 whitespace-nowrap"
                             onClick={() => setViewCertNumber(app.certificate.certificateNumber)}
                           >
-                            <QrCode className="h-3.5 w-3.5 mr-1 text-emerald-600" />
-                            {t("roster.viewCertificate", { defaultValue: "View Certificate" })}
+                            <QrCode className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                            <span>{t("roster.viewCertificate", { defaultValue: "View Certificate" })}</span>
                           </Button>
                         )}
                       </div>
                     ) : app.status === ApplicationStatus.REJECTED ? (
-                      <Badge variant="outline" className="text-xs px-2.5 py-1 text-rose-700 border-rose-300 bg-rose-50 dark:bg-rose-950/30">
-                        <XCircle className="h-3.5 w-3.5 mr-1 text-rose-600" />
-                        {t("status.REJECTED", { defaultValue: "Rejected (Exceeds MPE)" })}
+                      <Badge
+                        variant="outline"
+                        className="text-xs px-2.5 py-1 text-rose-700 border-rose-300 bg-rose-50 dark:bg-rose-950/30 font-medium inline-flex items-center gap-1.5 whitespace-nowrap"
+                      >
+                        <XCircle className="h-3.5 w-3.5 text-rose-600 shrink-0" />
+                        <span>{t("status.REJECTED", { defaultValue: "Rejected (Exceeds MPE)" })}</span>
                       </Badge>
                     ) : (
-                      <Badge variant="outline" className="text-xs px-2.5 py-1 text-muted-foreground border-border">
-                        {t(`status.${app.status}`, { defaultValue: app.status })}
+                      <Badge variant="outline" className="text-xs px-2.5 py-1 text-muted-foreground border-border whitespace-nowrap inline-flex items-center">
+                        <span>{t(`status.${app.status}`, { defaultValue: app.status })}</span>
                       </Badge>
                     )}
                   </div>

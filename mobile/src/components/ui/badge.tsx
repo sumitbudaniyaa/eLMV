@@ -83,7 +83,7 @@ export const Badge: React.FC<BadgeProps> = ({
 
   return (
     <View style={[styles.badge, currentStyles.container, style]}>
-      {icon ? <View style={{ marginRight: 4 }}>{icon}</View> : null}
+      {icon ? <View style={styles.iconContainer}>{icon}</View> : null}
       {React.isValidElement(children) ? (
         children
       ) : (
@@ -103,10 +103,17 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.full,
     borderWidth: 1,
   },
+  iconContainer: {
+    marginRight: 4,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   text: {
     fontSize: 10.5,
     fontWeight: "600",
     letterSpacing: -0.1,
+    includeFontPadding: false,
+    textAlignVertical: "center",
   },
 });
 

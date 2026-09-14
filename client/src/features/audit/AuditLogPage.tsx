@@ -60,9 +60,9 @@ export function AuditLogPage() {
             <h1 className="text-xl font-bold tracking-tight text-foreground">
               {t("audit.title")}
             </h1>
-            <Badge variant="outline" className="text-xs font-normal text-muted-foreground">
-              <Shield className="h-3 w-3 mr-1 text-muted-foreground" />
-              {t("audit.badge")}
+            <Badge variant="outline" className="text-xs font-normal text-muted-foreground inline-flex items-center gap-1.5 whitespace-nowrap">
+              <Shield className="h-3 w-3 text-muted-foreground shrink-0" />
+              <span>{t("audit.badge")}</span>
             </Badge>
           </div>
           <p className="text-xs text-muted-foreground">

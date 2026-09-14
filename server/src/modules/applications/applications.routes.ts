@@ -15,9 +15,10 @@ export const applicationsRouter = Router();
 
 applicationsRouter.use(requireAuth);
 
-// Submit application
+// Submit application (Consumers / Traders only)
 applicationsRouter.post(
   "/",
+  requireRole([Role.CONSUMER]),
   validate({ body: createApplicationSchema }),
   applicationsController.create
 );

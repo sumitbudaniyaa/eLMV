@@ -46,11 +46,32 @@ export const RosterCard: React.FC<RosterCardProps> = ({
   const getStatusBadge = () => {
     switch (status) {
       case ApplicationStatus.CERTIFIED:
-        return <Badge variant="certified">{i18n.t("roster.tabs.certified", { defaultValue: "Certified" })}</Badge>;
+        return (
+          <Badge
+            variant="certified"
+            icon={<Icons.CheckCircle2 size={11} color="#059669" />}
+          >
+            {i18n.t("roster.tabs.certified", { defaultValue: "Certified" })}
+          </Badge>
+        );
       case ApplicationStatus.SCHEDULED:
-        return <Badge variant="scheduled">{i18n.t("roster.tabs.scheduled", { defaultValue: "Scheduled" })}</Badge>;
+        return (
+          <Badge
+            variant="scheduled"
+            icon={<Icons.Clock size={11} color="#0284c7" />}
+          >
+            {i18n.t("roster.tabs.scheduled", { defaultValue: "Scheduled" })}
+          </Badge>
+        );
       case ApplicationStatus.REJECTED:
-        return <Badge variant="rejected">{i18n.t("roster.tabs.rejected", { defaultValue: "Rejected" })}</Badge>;
+        return (
+          <Badge
+            variant="rejected"
+            icon={<Icons.XCircle size={11} color="#e11d48" />}
+          >
+            {i18n.t("roster.tabs.rejected", { defaultValue: "Rejected" })}
+          </Badge>
+        );
       case ApplicationStatus.SUBMITTED:
       default:
         return <Badge variant="secondary">{i18n.t("status.SUBMITTED", { defaultValue: "Submitted" })}</Badge>;
@@ -85,6 +106,26 @@ export const RosterCard: React.FC<RosterCardProps> = ({
             </Text>
           </View>
           <View style={styles.badgeRow}>
+            {instrument.type ? (
+              <Badge
+                variant="outline"
+                style={{ paddingHorizontal: 6, paddingVertical: 1 }}
+              >
+                {instrument.type === "NON_AUTOMATIC_WEIGHING_INSTRUMENT"
+                  ? "NAWI"
+                  : instrument.type === "AUTOMATIC_WEIGHING_INSTRUMENT"
+                  ? "AWI"
+                  : instrument.type === "FUEL_DISPENSER"
+                  ? "Fuel"
+                  : instrument.type === "STORAGE_TANK"
+                  ? "Tank"
+                  : instrument.type === "LENGTH_MEASURE"
+                  ? "Length"
+                  : instrument.type === "CAPACITY_MEASURE"
+                  ? "Capacity"
+                  : "Specialized"}
+              </Badge>
+            ) : null}
             {getStatusBadge()}
             <Icons.ChevronRight size={14} color="#a1a1aa" />
           </View>

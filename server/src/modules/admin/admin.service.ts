@@ -6,6 +6,7 @@ import {
   Role,
   CreateOfficerInput,
   CreateGatcAgencyInput,
+  UpdateGatcAgencyInput,
   AuditAction,
 } from "@sih/shared";
 
@@ -203,6 +204,61 @@ export class AdminService {
         },
       },
     });
+  }
+
+  /**
+   * Update an accredited GATC Agency (scopes, validity, details)
+   */
+  async updateGatcAgency(agencyId: string, input: UpdateGatcAgencyInput, adminId: string) {
+    const existingAgency = await prisma.gATCProfile.findUnique({
+      where: { id: agencyId },
+    });
+
+    if (!existingAgency) {
+      throw new AppError(404, ErrorCode.NOT_FOUND, "GATC agency not found.");
+    }
+
+    const updated = await prisma.gATCProfile.update({
+      where: { id: agencyId },
+      data: {
+        ...(input.agencyName ? { agencyName: input.agencyName } : {}),
+        ...(input.notificationRefNumber !== undefined ? { notificationRefNumber: input.notificationRefNumber } : {}),
+        ...(input.authorizedScope ? { authorizedScope: input.authorizedScope } : {}),
+        ...(input.validUntil ? { validUntil: new Date(input.validUntil) } : {}),
+        ...(input.district ? { district: input.district } : {}),
+        ...(input.state ? { state: input.state } : {}),
+        ...(input.address ? { address: input.address } : {}),
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            isActive: true,
+          },
+        },
+        _count: {
+          select: {
+            inspectors: true,
+            applications: true,
+          },
+        },
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        actorId: adminId,
+        action: AuditAction.UPDATE,
+        entity: "GATCProfile",
+        entityId: agencyId,
+        changes: input,
+      },
+    });
+
+    return updated;
   }
 }
 

@@ -368,15 +368,30 @@ export function ConsumerLandingPage() {
       >
         <div className="py-14 sm:py-20 px-4 sm:px-8">
           <div className="max-w-7xl mx-auto space-y-8 sm:space-y-10">
-            {/* Top Text & CTAs */}
-            <div className="max-w-4xl space-y-5 sm:space-y-6">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-[#0B2545]">
-                {t("consumerLanding.hero.title")}
-              </h1>
+            {/* Top Text, CTAs & Visual Service Illustration */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+              {/* Left Column: Title & Description */}
+              <div className="lg:col-span-7 space-y-5 sm:space-y-6">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-[#0B2545]">
+                  {t("consumerLanding.hero.title")}
+                </h1>
 
-              <p className="text-sm sm:text-base md:text-lg text-slate-700 leading-relaxed max-w-3xl font-normal">
-                {t("consumerLanding.hero.desc")}
-              </p>
+                <p className="text-sm sm:text-base md:text-lg text-slate-700 leading-relaxed max-w-3xl font-normal">
+                  {t("consumerLanding.hero.desc")}
+                </p>
+              </div>
+
+              {/* Right Column: Relevant Legal Metrology Service Image */}
+              <div className="lg:col-span-5 flex justify-center lg:justify-end">
+                <div className="w-full max-w-sm sm:max-w-md lg:max-w-full rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 bg-white shadow-sm">
+                  <img
+                    src="/metrology-hero.jpg"
+                    alt="Legal Metrology Precision Verification & Certification"
+                    className="w-full h-auto object-cover sm:object-contain block"
+                    loading="eager"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Dual Core Pillars: 1. Easy to Get Certified | 2. Easily Verified */}
@@ -478,9 +493,9 @@ export function ConsumerLandingPage() {
       {/* 6. STATUTORY ADVISORY TICKER (CONTINUOUS RUNNING MARQUEE) */}
       <div className="bg-amber-50 border-b border-amber-200 px-4 sm:px-8 py-2.5 text-xs overflow-hidden">
         <div className="max-w-7xl mx-auto flex items-center gap-3">
-          <Badge className="bg-red-600 hover:bg-red-700 text-white text-[10px] font-extrabold uppercase shrink-0 tracking-wider shadow-xs rounded-full px-2.5 py-0.5 z-10">
-            <AlertTriangle className="h-3 w-3 mr-1 inline" />
-            {t("consumerLanding.hero.tickerLabel")}
+          <Badge className="bg-red-600 hover:bg-red-700 text-white text-[10px] font-extrabold uppercase shrink-0 tracking-wider shadow-xs rounded-full px-2.5 py-0.5 z-10 inline-flex items-center gap-1.5 whitespace-nowrap">
+            <AlertTriangle className="h-3 w-3 shrink-0" />
+            <span>{t("consumerLanding.hero.tickerLabel")}</span>
           </Badge>
           <div className="overflow-hidden flex-1 relative">
             <div className="animate-ticker cursor-default">
@@ -988,11 +1003,11 @@ export function ConsumerLandingPage() {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="h-8 text-xs font-semibold bg-white border-emerald-400 text-emerald-800 hover:bg-emerald-100/60 shadow-2xs shrink-0"
+                      className="h-8 text-xs font-semibold bg-white border-emerald-400 text-emerald-800 hover:bg-emerald-100/60 shadow-2xs shrink-0 inline-flex items-center gap-1.5 whitespace-nowrap"
                       onClick={() => setViewCertNumber(trackedApp.certificate!.certificateNumber)}
                     >
-                      <Award className="h-3.5 w-3.5 mr-1 text-emerald-600" />
-                      View Certificate
+                      <Award className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                      <span>View Certificate</span>
                     </Button>
                   </div>
                 )}
@@ -1146,14 +1161,14 @@ export function ConsumerLandingPage() {
       {/* 12. OFFICIAL GOVERNMENT STATUTORY FOOTER */}
       <footer id="contact" className="bg-[#071326] text-slate-300 border-t-2 border-amber-500/40 pt-14 pb-10 px-4 sm:px-8 text-xs">
         <div className="max-w-7xl mx-auto space-y-10">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
             {/* Emblem & Ministry Info */}
-            <div className="md:col-span-6 space-y-4">
+            <div className="md:col-span-7 space-y-4">
               <div className="flex items-center space-x-3.5">
                 <img
                   src="/emblem.jpeg"
                   alt="Emblem of India"
-                  className="h-12 w-auto object-contain brightness-110"
+                  className="h-12 w-auto object-contain brightness-110 shrink-0"
                 />
                 <div>
                   <h3 className="font-bold text-sm text-white">
@@ -1164,45 +1179,41 @@ export function ConsumerLandingPage() {
                   </p>
                 </div>
               </div>
-              <p className="text-xs text-slate-400 leading-relaxed max-w-lg font-normal">
+              <p className="text-xs text-slate-400 leading-relaxed max-w-xl font-normal">
                 {t("consumerLanding.footer.disclaimer")}
               </p>
             </div>
 
-            {/* Helpline & Support */}
-            <div className="md:col-span-3 space-y-2.5">
-              <h4 className="font-bold text-white text-xs uppercase tracking-wider">
-                Support &amp; Helpline
-              </h4>
-              <p className="text-xs text-slate-400">
-                National Consumer Toll-Free Helpline:
-              </p>
-              <div className="inline-block px-3.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 font-mono font-bold text-amber-400 text-sm shadow-inner">
-                📞 1915
+            {/* Helpline, Support & Digital India */}
+            <div className="md:col-span-5 flex flex-col md:items-end space-y-4">
+              {/* Digital India Brand Mark on Right */}
+              <div className="p-1.5 px-3 rounded-xl bg-white shadow-2xs inline-flex items-center justify-center">
+                <img
+                  src="/digi-india.png"
+                  alt="Digital India"
+                  className="h-9 w-auto object-contain"
+                />
               </div>
-              <p className="text-[11px] text-slate-500 pt-1">
-                Operating Hours: 09:30 AM to 05:30 PM (Mon-Sat, except Gazetted Holidays)
-              </p>
-            </div>
 
-            {/* GIGW Compliance & Standards Statement */}
-            <div className="md:col-span-3 space-y-2.5">
-              <h4 className="font-bold text-white text-xs uppercase tracking-wider">
-                Technical Standards
-              </h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                {t("consumerLanding.footer.nicCompliance")}
-              </p>
-              <div className="flex items-center gap-2 pt-2">
-                <span className="px-2.5 py-1 rounded-md bg-slate-900 border border-slate-800 text-[10px] font-mono text-emerald-400 font-bold">
-                  DIGITAL INDIA
-                </span>
-                <span className="px-2.5 py-1 rounded-md bg-slate-900 border border-slate-800 text-[10px] font-mono text-sky-400 font-bold">
-                  GIGW 3.0
-                </span>
-                <span className="px-2.5 py-1 rounded-md bg-slate-900 border border-slate-800 text-[10px] font-mono text-amber-400 font-bold">
-                  W3C AAA
-                </span>
+              <div className="space-y-2 md:text-right">
+                <h4 className="font-bold text-white text-xs uppercase tracking-wider">
+                  {isHindi ? "सहायता एवं हेल्पलाइन" : "Support & Helpline"}
+                </h4>
+                <div className="flex items-center md:justify-end gap-2 text-xs whitespace-nowrap">
+                  <span className="text-slate-400">
+                    {isHindi
+                      ? "राष्ट्रीय उपभोक्ता टोल-फ्री हेल्पलाइन:"
+                      : "National Consumer Toll-Free Helpline:"}
+                  </span>
+                  <span className="inline-block px-2.5 py-1 rounded-md bg-slate-900 border border-slate-800 font-mono font-bold text-amber-400 text-xs shadow-inner shrink-0">
+                    1915
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 pt-0.5">
+                  {isHindi
+                    ? "कार्य समय: प्रातः 09:30 से सायं 05:30 (सोम-शनि, राजपत्रित अवकाशों को छोड़कर)"
+                    : "Operating Hours: 09:30 AM to 05:30 PM (Mon-Sat, except Gazetted Holidays)"}
+                </p>
               </div>
             </div>
           </div>
@@ -1210,25 +1221,21 @@ export function ConsumerLandingPage() {
           {/* Bottom links & Copyright */}
           <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
             <div className="flex flex-wrap items-center gap-4 font-medium">
-              <a href="#hero" className="hover:text-slate-300 transition-colors">
+              <Link to="/policies" className="hover:text-slate-300 transition-colors">
                 {t("consumerLanding.footer.links.privacy")}
-              </a>
+              </Link>
               <span>•</span>
-              <a href="#hero" className="hover:text-slate-300 transition-colors">
+              <Link to="/terms" className="hover:text-slate-300 transition-colors">
                 {t("consumerLanding.footer.links.terms")}
-              </a>
+              </Link>
               <span>•</span>
-              <a href="#hero" className="hover:text-slate-300 transition-colors">
+              <Link to="/help" className="hover:text-slate-300 transition-colors">
                 {t("consumerLanding.footer.links.help")}
-              </a>
+              </Link>
               <span>•</span>
-              <a href="#hero" className="hover:text-slate-300 transition-colors">
-                {t("consumerLanding.footer.links.feedback")}
-              </a>
-              <span>•</span>
-              <a href="#contact" className="hover:text-slate-300 transition-colors">
+              <Link to="/contact" className="hover:text-slate-300 transition-colors">
                 {t("consumerLanding.footer.links.contact")}
-              </a>
+              </Link>
             </div>
             <p className="font-mono text-[10px]">{t("consumerLanding.footer.copyright")}</p>
           </div>

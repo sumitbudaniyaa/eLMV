@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { adminService } from "./admin.service";
-import { CreateOfficerInput, CreateGatcAgencyInput } from "@sih/shared";
+import { CreateOfficerInput, CreateGatcAgencyInput, UpdateGatcAgencyInput } from "@sih/shared";
 
 export class AdminController {
   async createOfficer(req: Request, res: Response) {
@@ -38,6 +38,18 @@ export class AdminController {
     res.status(200).json({
       success: true,
       data: agencies,
+    });
+  }
+
+  async updateGatcAgency(req: Request, res: Response) {
+    const adminId = (req as any).user.id;
+    const agencyId = req.params.id;
+    const input = req.body as UpdateGatcAgencyInput;
+    const updated = await adminService.updateGatcAgency(agencyId, input, adminId);
+    res.status(200).json({
+      success: true,
+      data: updated,
+      message: "GATC Agency details and statutory scopes updated successfully.",
     });
   }
 }

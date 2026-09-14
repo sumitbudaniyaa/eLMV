@@ -170,7 +170,7 @@ export function GlobalSearchDialog({
 
   // Quick In-App Actions
   const quickActions = [
-    ...(user?.role === Role.CONSUMER || user?.role === Role.ADMIN
+    ...(user?.role === Role.CONSUMER
       ? [
           {
             title: isHindi ? "नया उपकरण पंजीकृत करें" : "Register New Instrument",

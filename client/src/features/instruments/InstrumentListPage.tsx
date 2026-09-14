@@ -82,13 +82,13 @@ export function InstrumentListPage() {
           </p>
         </div>
 
-        {(user?.role === Role.CONSUMER || user?.role === Role.ADMIN) && (
+        {user?.role === Role.CONSUMER && (
           <Button
             size="sm"
             onClick={() => setIsRegisterOpen(true)}
-            className="h-8 text-xs font-bold bg-[#0B2545] hover:bg-[#133966] text-white shadow-xs rounded-lg transition-all"
+            className="h-8 text-xs font-semibold shrink-0 bg-[#0B2545] hover:bg-[#0B2545]/90 text-white shadow-xs"
           >
-            <Plus className="h-3.5 w-3.5 mr-1.5" />
+            <Plus className="h-3.5 w-3.5 mr-1" />
             {t("instruments.registerButton")}
           </Button>
         )}
@@ -223,21 +223,28 @@ export function InstrumentListPage() {
               : t("instruments.emptyNoRecordsDesc")
           }
           action={
-            <Button
-              size="sm"
-              onClick={() => {
-                if (search || selectedType) {
+            search || selectedType ? (
+              <Button
+                size="sm"
+                onClick={() => {
                   setSearch("");
                   setSelectedType("");
-                } else {
-                  setIsRegisterOpen(true);
-                }
-              }}
-              className="h-8 text-xs"
-            >
-              <Plus className="h-3.5 w-3.5 mr-1.5" />
-              {search || selectedType ? t("instruments.resetFilters") : t("instruments.registerFirst")}
-            </Button>
+                }}
+                className="h-8 text-xs font-semibold"
+              >
+                <Plus className="h-3.5 w-3.5 mr-1.5" />
+                {t("instruments.resetFilters")}
+              </Button>
+            ) : user?.role === Role.CONSUMER ? (
+              <Button
+                size="sm"
+                onClick={() => setIsRegisterOpen(true)}
+                className="h-8 text-xs font-semibold shrink-0 bg-[#0B2545] hover:bg-[#0B2545]/90 text-white shadow-xs"
+              >
+                <Plus className="h-3.5 w-3.5 mr-1.5" />
+                {t("instruments.registerFirst")}
+              </Button>
+            ) : null
           }
         />
       ) : (
@@ -310,12 +317,14 @@ export function InstrumentListPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-7 text-xs font-medium px-2.5 shadow-2xs"
+                          className="h-7 text-xs font-medium px-2.5 shadow-2xs inline-flex items-center gap-1.5 whitespace-nowrap"
                         >
-                          <FileCheck2 className="h-3 w-3 mr-1 text-emerald-600 dark:text-emerald-400" />
-                          {user?.role === Role.CONSUMER
-                            ? t("instruments.table.apply")
-                            : t("instruments.table.viewApplications")}
+                          <FileCheck2 className="h-3 w-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                          <span>
+                            {user?.role === Role.CONSUMER
+                              ? t("instruments.table.apply")
+                              : t("instruments.table.viewApplications")}
+                          </span>
                         </Button>
                       </Link>
                     </TableCell>
@@ -327,8 +336,10 @@ export function InstrumentListPage() {
         </div>
       )}
 
-      {/* Registration Dialog */}
-      <RegisterInstrumentDialog open={isRegisterOpen} onOpenChange={setIsRegisterOpen} />
+      {/* Registration Dialog (Consumer Only) */}
+      {user?.role === Role.CONSUMER && (
+        <RegisterInstrumentDialog open={isRegisterOpen} onOpenChange={setIsRegisterOpen} />
+      )}
     </div>
   );
 }

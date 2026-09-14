@@ -4,7 +4,23 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/jpeg" href="/emblem.jpeg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>eLMV — Legal Metrology Verification System</title>
+    <title>eLMV</title>
+    <script>
+      (function() {
+        try {
+          var p = window.location.port;
+          var h = window.location.hostname.toLowerCase();
+          var path = window.location.pathname.toLowerCase();
+          if (p === '5174' || h.startsWith('admin.') || path.startsWith('/admin') || path.startsWith('/gatc') || path.startsWith('/agency')) {
+            document.title = 'eLMV | admin';
+          } else if (p === '5175' || h.startsWith('field.') || path.startsWith('/field') || path.startsWith('/roster') || path.startsWith('/officer') || path.startsWith('/inspectors')) {
+            document.title = 'eLMV | field';
+          } else {
+            document.title = 'eLMV';
+          }
+        } catch(e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

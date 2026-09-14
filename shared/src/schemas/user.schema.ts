@@ -74,6 +74,19 @@ export const createGatcAgencySchema = z.object({
 
 export type CreateGatcAgencyInput = z.infer<typeof createGatcAgencySchema>;
 
+// Admin updates an existing GATC Agency
+export const updateGatcAgencySchema = z.object({
+  agencyName: z.string().trim().min(2, "Agency / Laboratory name is required").optional(),
+  notificationRefNumber: z.string().trim().optional().nullable(),
+  authorizedScope: z.array(z.string()).min(1, "At least one scope must be selected").optional(),
+  validUntil: z.string().datetime("Valid ISO datetime required").or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
+  district: z.string().trim().min(2, "District is required").optional(),
+  state: z.string().trim().min(2, "State is required").optional(),
+  address: z.string().trim().min(5, "Address is required").optional(),
+});
+
+export type UpdateGatcAgencyInput = z.infer<typeof updateGatcAgencySchema>;
+
 // GATC Agency Admin creates an in-house Field Inspector
 export const createGatcInspectorSchema = z.object({
   name: z.string().trim().min(2, "Inspector name is required"),

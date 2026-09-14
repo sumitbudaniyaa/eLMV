@@ -3,6 +3,269 @@
 All notable changes to the **Online Verification System for Weighing & Measuring Instruments** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), adhering strictly to zero-omission rules.
 
+## [1.9.56] - Hero Image Hover Clean & Removal of Blue Badges from Footer Pages — 2026-09-14
+
+- **Landing Page Hero Visual Asset Clean-up**:
+  - In [`ConsumerLandingPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/consumer/pages/ConsumerLandingPage.tsx): Removed the overlay status badge pill (*"Legal Metrology Verified"* / *"विधिक मापविज्ञान सत्यापन"*).
+  - Removed all scale animations, ambient glow transitions, and hover zoom effects from the hero image container to keep it completely static, clean, and unobtrusive.
+- **Removal of Blue Text Badges across all Footer Pages**:
+  - In [`PublicPageLayout.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/PublicPageLayout.tsx): Removed the `badge` prop rendering (`bg-blue-50 text-blue-700 border-blue-200`) adjacent to the page title.
+  - In [`WebsitePoliciesPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/WebsitePoliciesPage.tsx): Removed the *"DPDP Act, 2023 & GIGW Compliant"* blue badge and harmonized icons with the theme.
+  - In [`TermsConditionsPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/TermsConditionsPage.tsx): Removed the *"Act No. 1 of 2010"* blue badge.
+  - In [`HelpFaqPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/HelpFaqPage.tsx): Removed the *"Citizen & Trader Knowledge Base"* blue badge.
+  - In [`ContactUsPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/ContactUsPage.tsx): Removed the *"Official Directory"* blue badge and harmonized icon containers to slate.
+- **Verification**:
+  - `npm run build --workspace=@sih/client`: passed with 0 errors (clean build in 2.27s).
+  - `npm run build --workspace=@sih/server`: passed with 0 errors.
+  - `npm run typecheck --workspace=@sih/mobile`: passed with 0 errors.
+
+## [1.9.55] - Remove New Application Option from Admin/GATC & Simplify Contact Us Email — 2026-09-14
+
+- **Remove New Application Option from Admin & GATC**:
+  - In [`ApplicationListPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/applications/ApplicationListPage.tsx): Restricted top "New Application" button, empty-state "Submit New Application" button, and `<SubmitApplicationDialog />` strictly to commercial traders (`Role.CONSUMER`). Admin, GATC Admin, and Inspectors can no longer initiate new applications.
+  - In [`GlobalSearchDialog.tsx`](file:///Users/Sumit/Desktop/sih/client/src/components/layout/GlobalSearchDialog.tsx): Restricted "Register New Instrument" and "Submit Verification Application" quick actions in Omnisearch command palette exclusively to `Role.CONSUMER`.
+  - In [`applications.routes.ts`](file:///Users/Sumit/Desktop/sih/server/src/modules/applications/applications.routes.ts): Locked down `POST /applications` API endpoint with `requireRole([Role.CONSUMER])`.
+- **Contact Us Email Support Simplification**:
+  - In [`ContactUsPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/ContactUsPage.tsx): Simplified the email section by removing the multi-desk selector, subject pre-fill dropdowns, textarea notes, and SLA notes.
+  - Replaced with a clean, official support box displaying `support-elmv@gov.in`, a copy button, and a prominent, direct **"Email Us"** (`mailto:support-elmv@gov.in`) action button.
+- **Verification**:
+  - `npm run build --workspace=@sih/client`: passed with 0 errors (clean build in 2.70s).
+  - `npm run build --workspace=@sih/server`: passed with 0 errors.
+  - `npm run typecheck --workspace=@sih/mobile`: passed with 0 errors.
+
+## [1.9.54] - Legal Metrology Verification Service Visual Asset in Hero Section — 2026-09-14
+
+- **Hero Section Whitespace Enhancement**:
+  - In [`ConsumerLandingPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/consumer/pages/ConsumerLandingPage.tsx), utilized the previously empty right-hand space in the hero section (`lg:col-span-5`) without altering any existing headings, descriptions, pillars, or statutory features.
+  - Placed an official 3D legal metrology service visual asset depicting:
+    - High-precision analytical laboratory scale with digital verification readout ("LEGAL METROLOGY VERIFIED 25.000 g").
+    - Standard brass calibration weights with precision tweezers.
+    - Digital tablet displaying the official Certificate of Verification with QR code validation badge.
+    - Official green-and-silver verification shield badge ("LEGAL METROLOGY VERIFIED & CERTIFIED").
+    - Bilingual reactive status badge (*विधिक मापविज्ञान सत्यापन* / *Legal Metrology Verified*) with pulsing status indicator.
+- **Verification**:
+  - `npm run build --workspace=@sih/client`: passed with 0 errors (clean build in 2.38s).
+  - `npm run typecheck --workspace=@sih/mobile`: passed with 0 errors.
+
+## [1.9.53] - Full Bilingual Hindi Support Across All Public Statutory Pages — 2026-09-14
+
+- **Complete Hindi Translation across Public Statutory Knowledge Base**:
+  - Implemented comprehensive bilingual rendering across all 4 public portal pages and shared layouts when the language is toggled to Hindi:
+    - **Shared Public Layout ([`PublicPageLayout.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/PublicPageLayout.tsx))**:
+      - Bilingual sub-navigation bar (*वेबसाइट नीतियां, नियम एवं शर्तें, सहायता व अक्सर पूछे जाने वाले प्रश्न, संपर्क करें*).
+      - Bilingual breadcrumb indicators and header titles.
+      - Statutory footer support & helpline labels (*सहायता एवं हेल्पलाइन*, *राष्ट्रीय उपभोक्ता टोल-फ्री हेल्पलाइन: 1915*, *कार्य समय: प्रातः 09:30 से सायं 05:30*).
+    - **Website Policies ([`WebsitePoliciesPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/WebsitePoliciesPage.tsx))**:
+      - Fully translated 4 policy tabs into official legal terminology: *गोपनीयता नीति* (Privacy Policy under DPDP Act 2023), *हाइपरलिंकिंग नीति* (Hyperlinking Policy), *कॉपीराइट नीति* (Copyright Policy), and *सुरक्षा व क्रिप्टोग्राफी* (Security & Cryptography).
+    - **Terms & Conditions ([`TermsConditionsPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/TermsConditionsPage.tsx))**:
+      - Complete Hindi statutory text covering preamble notices, Section 24(1) verification mandate, commercial trader obligations, Schedule XI fees, Section 30/31 penal provisions, and judicial jurisdiction.
+    - **Help & FAQs ([`HelpFaqPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/HelpFaqPage.tsx))**:
+      - Bilingual search bar placeholder and category filter chips (*सभी विषय, सामान्य मुद्रांकन, व्यापारी एवं प्रतिष्ठान, अधिकारी निरीक्षण व MPE, जीएटीसी प्रयोगशालाएं, क्यूआर कोड व प्रमाण पत्र*).
+      - All 8 comprehensive FAQs with questions and in-depth answers rendered in Hindi.
+    - **Contact Us & Directory ([`ContactUsPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/ContactUsPage.tsx))**:
+      - Bilingual headquarters coordinates, State Metrology Enforcement Cells, departmental email desks (*eLMV तकनीकी हेल्पडेस्क, विधिक मापविज्ञान केंद्रीय प्रकोष्ठ, निदेशालय शिकायत निवारण*), subject selectors, and direct mail dispatch actions.
+    - **Consumer Landing Footer ([`ConsumerLandingPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/consumer/pages/ConsumerLandingPage.tsx))**:
+      - Aligned helpline labels and working hours to render dynamically in Hindi.
+- **Verification**:
+  - `npm run build --workspace=@sih/client`: passed with 0 errors (clean build in 2.27s).
+  - `npm run typecheck --workspace=@sih/mobile`: passed with 0 errors.
+
+## [1.9.52] - Remove Feedback Section, Routes & Navigation — 2026-09-14
+
+- **Feedback Section Removal**:
+  - Removed the **Feedback** link from the statutory footers in [`ConsumerLandingPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/consumer/pages/ConsumerLandingPage.tsx) and [`PublicPageLayout.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/PublicPageLayout.tsx).
+  - Removed `Feedback` from the official public sub-navigation tabs in [`PublicPageLayout.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/PublicPageLayout.tsx).
+  - Removed `/feedback` routes and component imports from [`ConsumerApp.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/consumer/ConsumerApp.tsx), [`AdminApp.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/admin/AdminApp.tsx), and [`FieldApp.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/field/FieldApp.tsx).
+  - Deleted `FeedbackPage.tsx`.
+- **Verification**:
+  - `npm run build --workspace=@sih/client`: passed with 0 errors.
+  - `npm run typecheck --workspace=@sih/mobile`: passed with 0 errors.
+
+## [1.9.51] - Official Email Desks & Direct Send Email Actions on Contact Us Page — 2026-09-14
+
+- **Contact Us Electronic Mail Redesign**:
+  - In [`ContactUsPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/ContactUsPage.tsx), removed the generic "Send an Official Inquiry" form (fields for Name, Email, Mobile Number, Subject / Department, and Inquiry Details).
+  - Replaced it with an interactive **Official Electronic Mail Support** center:
+    - **Departmental Email Desks**: Choice between `support-elmv@gov.in` (Helpdesk & Scheduling), `legal-metrology@nic.in` (Statutory Policy & Directorate), and `dir-lm@nic.in` (Grievance Redressal Officer).
+    - **Topic / Subject Pre-fill**: Dropdown of pre-configured subject lines (e.g. Verification scheduling, QR validation, model approval) plus custom subject input.
+    - **Inquiry Brief**: Optional query details / application number pre-filled in message body.
+    - **Direct Email Dispatch**: One-click **Send Email (Default Mail App)** via `mailto:`, **Open in Gmail** for webmail users, and **Copy Address** with visual copied confirmation.
+    - Statutory SLA guarantees per desk under Citizen's Charter guidelines.
+- **Verification**:
+  - `npm run build --workspace=@sih/client`: passed with 0 errors.
+  - `npm run typecheck --workspace=@sih/mobile`: passed with 0 errors.
+
+## [1.9.50] - Single-Line Layout for National Consumer Toll-Free Helpline (1915) — 2026-09-14
+
+- **Footer Helpline Alignment**:
+  - Enforced strict single-line horizontal alignment for the National Consumer Helpline in both [`ConsumerLandingPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/consumer/pages/ConsumerLandingPage.tsx) and [`PublicPageLayout.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/PublicPageLayout.tsx).
+  - Replaced `flex-wrap` with `whitespace-nowrap flex items-center md:justify-end gap-2 text-xs` and added `shrink-0` to the amber `1915` badge so "National Consumer Toll-Free Helpline:" and "1915" never wrap onto separate rows.
+- **Verification**:
+  - `npm run build --workspace=@sih/client`: passed with 0 errors.
+  - `npm run typecheck --workspace=@sih/mobile`: passed with 0 errors.
+
+## [1.9.49] - Relocating Digital India Emblem to Right Side of Statutory Footer — 2026-09-14
+
+- **Footer Layout & Branding Realignment**:
+  - Relocated the official **Digital India** brand emblem (`/digi-india.png`) to the right-hand column of the official statutory footers in [`ConsumerLandingPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/consumer/pages/ConsumerLandingPage.tsx) and [`PublicPageLayout.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/PublicPageLayout.tsx).
+  - Left column preserves the official State Emblem of India (`/emblem.jpeg`) with ministry titles and statutory disclaimer.
+  - Right column now houses the Digital India emblem badge alongside the National Consumer Toll-Free Helpline (1915).
+- **Verification**:
+  - `npm run build --workspace=@sih/client`: passed with 0 errors.
+  - `npm run build --workspace=@sih/server`: passed with 0 errors.
+
+## [1.9.48] - Dynamic Chrome Browser Tab Title (Admin, Field, User) — 2026-09-14
+
+- **Browser Document Title Dynamic Personalization**:
+  - Implemented automatic Chrome browser tab title customization across all portals, user roles, and routes:
+    - **Admin & GATC (`Role.ADMIN`, `Role.GATC_ADMIN`, port 5174, `admin.*` subdomain, or `/admin/*`, `/agency/*`, `/gatc/*`)**: `eLMV | admin`
+    - **Inspector & Field (`Role.LMO`, `Role.GATC_INSPECTOR`, port 5175, `field.*` subdomain, or `/field/*`, `/roster/*`, `/inspectors/*`, `/officer/*`)**: `eLMV | field`
+    - **User / Citizen / Trader (`Role.CONSUMER`, port 5173, `consumer.*` subdomain, or public landing/dashboard)**: `eLMV`
+  - Added pre-hydration script in [`client/index.html`](file:///Users/Sumit/Desktop/sih/client/index.html) to set the tab title immediately on page load prior to bundle execution, preventing any title flicker.
+  - Added reactive title observer in [`client/src/App.tsx`](file:///Users/Sumit/Desktop/sih/client/src/App.tsx) that continuously syncs `document.title` on route changes and authentication state updates.
+- **Verification**:
+  - `npm run typecheck --workspace=@sih/mobile`: passed with 0 errors.
+  - `npm run build --workspace=@sih/client`: passed with 0 errors.
+  - `npm run build --workspace=@sih/server`: passed with 0 errors.
+
+## [1.9.47] - Inline Icon Alignment on Certified & Stamped Badges and Action Controls — 2026-09-14
+
+- **Badge & Button Flex Centering and Inline Icon Alignment**:
+  - **Core Web Badge Component ([`client/src/components/ui/badge.tsx`](file:///Users/Sumit/Desktop/sih/client/src/components/ui/badge.tsx))**:
+    - Removed the nested non-flex `<span>{children}</span>` wrapper so all children are direct flex items of the `inline-flex items-center gap-1.5` container. This eliminates the CSS baseline offset that caused SVG icons to sit higher or misaligned with adjacent text.
+  - **Core Web Button Component ([`client/src/components/ui/button.tsx`](file:///Users/Sumit/Desktop/sih/client/src/components/ui/button.tsx))**:
+    - Added `gap-1.5` to `buttonVariants` to ensure icons and text inside buttons automatically maintain vertical and horizontal centering.
+  - **Field Inspection Roster ([`client/src/portals/field/pages/FieldRosterPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/field/pages/FieldRosterPage.tsx))**:
+    - Refactored **"Certified & Stamped"** badge with `<CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />`, `whitespace-nowrap`, and `gap-1.5`.
+    - Aligned **"Rejected (Exceeds MPE)"** badge with `<XCircle>`, "View Certificate" with `<QrCode>`, and "Start MPE Test" with `<Play>`.
+    - Added `shrink-0` and `gap-1.5` to all metadata icons (`<Scale>`, `<Building>`, `<MapPin>`, `<Phone>`, `<Calendar>`).
+  - **Applications, Instruments, Consumer & Admin Portals**:
+    - Aligned filter pills and action buttons across [`ApplicationListPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/applications/ApplicationListPage.tsx), [`InstrumentListPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/instruments/InstrumentListPage.tsx), [`ConsumerLandingPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/consumer/pages/ConsumerLandingPage.tsx), [`ConsumerDashboardPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/consumer/pages/ConsumerDashboardPage.tsx), [`AuditLogPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/audit/AuditLogPage.tsx), and [`GatcDashboardPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/admin/pages/GatcDashboardPage.tsx).
+  - **Mobile React Native Workstation ([`mobile/src/components/`](file:///Users/Sumit/Desktop/sih/mobile/src/components/))**:
+    - Configured `iconContainer` centering with `includeFontPadding: false` and `textAlignVertical: "center"` in [`mobile/src/components/ui/badge.tsx`](file:///Users/Sumit/Desktop/sih/mobile/src/components/ui/badge.tsx).
+    - Integrated clean inline status icons into [`RosterCard.tsx`](file:///Users/Sumit/Desktop/sih/mobile/src/components/officer/RosterCard.tsx) and [`ApplicationDrawer.tsx`](file:///Users/Sumit/Desktop/sih/mobile/src/components/officer/ApplicationDrawer.tsx).
+- **Verification**:
+  - `npm run typecheck --workspace=@sih/mobile`: passed with 0 errors.
+  - `npm run build --workspace=@sih/client`: passed with 0 errors.
+  - `npm run build --workspace=@sih/server`: passed with 0 errors.
+
+## [1.9.46] - Mobile App Registry Multi-Criteria Statutory Filtering — 2026-09-14
+
+- **Mobile Officer Workstation Equipment Registry Multi-Criteria Filters**:
+  - Enhanced [`mobile/src/screens/RegistryScreen.tsx`](file:///Users/Sumit/Desktop/sih/mobile/src/screens/RegistryScreen.tsx) with multi-criteria statutory filtering:
+    - **Instrument Type Filter Row**: Horizontal `ScrollView` of pill chips across all Rule 14 classes (`All Types`, `NAWI`, `AWI`, `Fuel`, `Tanks`, `Length`, `Capacity`, `Specialized`) with live dynamic counts computed against active criteria.
+    - **Accuracy Class Filter Panel**: Expandable panel toggled via `Icons.Sliders` with active amber indicator dot, supporting `All Classes`, `Class I`, `Class II`, `Class III`, and `Class IV` with live counts.
+    - **Active Filter Badges**: Compact summary bar showing match count (e.g. "Showing 4 of 6 equipment"), dismissible chips with tap-to-remove `✕` for active types/classes/search strings, and a "Clear all" button.
+    - **Equipment Cards & Inspection Details Modal**: Added statutory instrument type badge alongside the accuracy class badge on every card. Tapping any card opens an inspection detail modal with full technical specs, verification interval, trader establishment coordinates, and legal compliance seal.
+    - **Offline Fallback Resilience**: Added rich statutory fallback instruments for uninterrupted offline demonstrations.
+  - Added bilingual translations in [`mobile/src/i18n/locales/en.json`](file:///Users/Sumit/Desktop/sih/mobile/src/i18n/locales/en.json) and [`mobile/src/i18n/locales/hi.json`](file:///Users/Sumit/Desktop/sih/mobile/src/i18n/locales/hi.json).
+- **Verification**:
+  - `npm run typecheck --workspace=@sih/mobile`: passed with 0 errors.
+  - `npm run build --workspace=@sih/client`: passed with 0 errors.
+  - `npm run build --workspace=@sih/server`: passed with 0 errors.
+
+## [1.9.45] - Restricting Instrument Registration to Commercial Consumers/Traders Only — 2026-09-14
+
+- **Enforcement of Legal Metrology Asset Registry Boundaries**:
+  - Removed "Register Instrument" option from Admin and GATC roles across frontend views and backend endpoints:
+    - [`client/src/features/instruments/InstrumentListPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/instruments/InstrumentListPage.tsx):
+      - Header "Register Instrument" button restricted strictly to `user?.role === Role.CONSUMER`. Admin viewing "State Registry" and GATC viewing instruments no longer see a registration trigger.
+      - Empty state action updated: only Consumers see "Register your first instrument"; Admin/GATC roles see "Reset filters" when filters are applied, and no registration button when no records exist.
+      - `<RegisterInstrumentDialog>` conditionally mounted only for `Role.CONSUMER`.
+    - [`server/src/modules/instruments/instruments.routes.ts`](file:///Users/Sumit/Desktop/sih/server/src/modules/instruments/instruments.routes.ts):
+      - Added `requireRole([Role.CONSUMER])` to `POST /api/v1/instruments` to reject unauthorized instrument creation attempts by Admin or GATC roles with 403 Forbidden.
+- **Verification**:
+  - `npm run build --workspace=@sih/client`: passed with 0 errors.
+  - `npm run build --workspace=@sih/server`: passed with 0 errors.
+
+## [1.9.44] - Dedicated Statutory & Citizen Public Information Pages — 2026-09-14
+
+- **Dedicated Public Pages & Routing Architecture**:
+  - Implemented the official Government of India public layout [`PublicPageLayout.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/PublicPageLayout.tsx) featuring national tricolor header band, Government of India utility bar with Hindi/English language toggle, state emblem header, active page navigation strip, breadcrumbs, and official statutory footer with toll-free 1915 helpline and copyright notice.
+  - Built 5 dedicated, rich statutory and citizen services pages under `client/src/features/public/`:
+    1. **Website Policies** ([`WebsitePoliciesPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/WebsitePoliciesPage.tsx) at `/policies`, `/website-policies`, `/privacy`): Privacy Policy under DPDP Act 2023, Hyperlinking Policy, Copyright Policy, and Security/ECDSA Cryptography Standards.
+    2. **Terms & Conditions** ([`TermsConditionsPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/TermsConditionsPage.tsx) at `/terms`, `/terms-and-conditions`): Legal framework under Legal Metrology Act 2009, Section 24 mandatory stamping, user obligations, fee payment terms, and Section 30/31 strict penal liabilities.
+    3. **Help & FAQs** ([`HelpFaqPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/HelpFaqPage.tsx) at `/help`, `/faq`, `/faqs`): Interactive accordion FAQ knowledge base with keyword search, category filters (General, Traders, LMO Inspections, GATC Labs, QR Certificates), and toll-free helpline banner.
+    4. **Feedback** ([`FeedbackPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/FeedbackPage.tsx) at `/feedback`): Citizen & Trader experience feedback form with interactive 1-5 star ratings, feedback categories, stakeholder persona selector, and confirmation receipt with simulated reference ticket number.
+    5. **Contact Us** ([`ContactUsPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/public/ContactUsPage.tsx) at `/contact`, `/contact-us`): Directorate of Legal Metrology central coordinates (Krishi Bhawan, New Delhi), 1915 Helpline, state enforcement cells directory, and official inquiry dispatch form.
+  - Mounted routes across all portal routers (`ConsumerApp.tsx`, `AdminApp.tsx`, and `FieldApp.tsx`).
+  - Linked all footer items in [`ConsumerLandingPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/consumer/pages/ConsumerLandingPage.tsx) using React Router `<Link>` to the respective pages.
+  - Relocated `digi-india.png` into static directory [`client/public/digi-india.png`](file:///Users/Sumit/Desktop/sih/client/public/digi-india.png) and integrated the official Digital India brand mark in the footers of both the Consumer Landing Page and Public Page Layout alongside the State Emblem of India.
+- **Verification**:
+  - `npm run build --workspace=@sih/client`: passed with 0 errors.
+  - `npm run build --workspace=@sih/server`: passed with 0 errors.
+
+## [1.9.43] - Persona-Specific Button Color Discrimination (Admin Black vs. Consumer Bluish) — 2026-09-14
+
+- **Differentiated Button Color Theme by Persona (Admin vs. User / Consumer App)**:
+  - Ensured that buttons in the User / Consumer App ("Applications", "My Instruments", and "Dashboard") strictly use the official consumer bluish theme (`bg-[#0B2545] hover:bg-[#0B2545]/90 text-white shadow-xs`).
+  - Ensured that buttons in the Admin Portal ("All Applications", "State Registry", "Officers", "Agencies") strictly use the regulatory pure black theme (`bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900`).
+  - Updated shared view components:
+    - [`client/src/features/applications/ApplicationListPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/applications/ApplicationListPage.tsx):
+      - Header "New Application" button conditionally styles for `Role.CONSUMER` (`bg-[#0B2545]`) vs. `Role.ADMIN` (`bg-slate-900`).
+      - Empty state "Submit New" button conditionally styles for `Role.CONSUMER` (`bg-[#0B2545]`) vs. `Role.ADMIN` (`bg-slate-900`).
+    - [`client/src/features/instruments/InstrumentListPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/instruments/InstrumentListPage.tsx):
+      - Header "Register Instrument" button conditionally styles for `Role.CONSUMER` (`bg-[#0B2545]`) vs. `Role.ADMIN` (`bg-slate-900`).
+      - Empty state action button conditionally styles for `Role.CONSUMER` (`bg-[#0B2545]`) vs. `Role.ADMIN` (`bg-slate-900`).
+    - [`client/src/portals/consumer/pages/ConsumerDashboardPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/consumer/pages/ConsumerDashboardPage.tsx):
+      - "Apply for Stamping" action button styled with `bg-[#0B2545] hover:bg-[#0B2545]/90 text-white shadow-xs`.
+    - [`client/src/features/dashboard/DashboardPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/dashboard/DashboardPage.tsx):
+      - "Apply Renewal" action button in the consumer dashboard expiring devices table styled with `bg-[#0B2545] hover:bg-[#133966] text-white shadow-xs`.
+- **Verification**:
+  - `npm run build --workspace=@sih/client`: passed with 0 errors.
+  - `npm run build --workspace=@sih/server`: passed with 0 errors.
+
+## [1.9.42] - Statutory Scope Multi-Select Provisioning & Strict GATC Scope-Isolated Testing Queues — 2026-09-14
+
+- **GATC Institutional Statutory Scopes Provisioning & Management**:
+  - Upgraded the Provision GATC Agency and Edit GATC Agency modals to wide layout (`max-w-3xl sm:max-w-4xl max-h-[92vh] overflow-y-auto p-6 sm:p-7`), eliminating vertical crowding and giving fields ample breathing room.
+  - Redesigned the statutory scope selector into rich, responsive **Selectable Cards** (`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5`) across all 7 statutory instrument scopes under Rule 14:
+    1. `NON_AUTOMATIC_WEIGHING_INSTRUMENT` (Non-Automatic Weighing Instruments - NAWI) with `Scale` icon
+    2. `AUTOMATIC_WEIGHING_INSTRUMENT` (Automatic Weighing Instruments - AWI) with `Gauge` icon
+    3. `FUEL_DISPENSER` (Fuel & Flow Dispensers) with `Fuel` icon
+    4. `STORAGE_TANK` (Storage Tanks & Vats) with `Building2` bulk storage icon
+    5. `LENGTH_MEASURE` (Length & Linear Measures) with `Ruler` icon
+    6. `CAPACITY_MEASURE` (Capacity Measures) with `FlaskConical` liquid volume icon
+    7. `OTHER` (Other Specialized Measures) with `Compass` specialized measures icon
+  - Each card displays interactive checkmark indicators, category tags, bold statutory titles, and descriptive instrument examples.
+  - Organized form fields into 3 clean, structured sections (Laboratory Identity & Accreditation, Authorized Statutory Testing Scopes, and Administrative Credentials).
+  - Added an "Edit" action button and modal with the identical wide layout and card selector allowing administrators to update statutory scopes, accreditation validity dates, lab address, and gazette notification references on existing agencies.
+- **Backend Agency Scope Updates**:
+  - Added `updateGatcAgencySchema` and `UpdateGatcAgencyInput` in [`shared/src/schemas/user.schema.ts`](file:///Users/Sumit/Desktop/sih/shared/src/schemas/user.schema.ts).
+  - Added `PATCH /api/v1/admin/gatc-agencies/:id` endpoint in [`server/src/modules/admin/admin.routes.ts`](file:///Users/Sumit/Desktop/sih/server/src/modules/admin/admin.routes.ts), [`admin.controller.ts`](file:///Users/Sumit/Desktop/sih/server/src/modules/admin/admin.controller.ts), and [`admin.service.ts`](file:///Users/Sumit/Desktop/sih/server/src/modules/admin/admin.service.ts) with audit logging.
+- **Strict Scope-Based Application & Pipeline Isolation**:
+  - Updated [`applications.service.ts`](file:///Users/Sumit/Desktop/sih/server/src/modules/applications/applications.service.ts):
+    - `listApplications`: GATC Administrators and GATC Field Inspectors are strictly constrained to applications whose `instrument.type` is within their agency's or personal authorized scopes (`{ instrument: { type: { in: scopes } } }`).
+    - `getApplicationById`: Implemented 403 Forbidden statutory enforcement preventing unauthorized GATC inspection of applications outside authorized scopes.
+  - Updated [`dashboard.service.ts`](file:///Users/Sumit/Desktop/sih/server/src/modules/dashboard/dashboard.service.ts):
+    - Scoped `pendingInspections`, `completedInspections`, `certifiedCount`, and `upcomingSchedule` queries for both `Role.GATC_ADMIN` and `Role.GATC_INSPECTOR` to their authorized scopes.
+  - Updated [`gatc.service.ts`](file:///Users/Sumit/Desktop/sih/server/src/modules/gatc/gatc.service.ts):
+    - `delegateApplication`: Verifies that the application instrument type is within the GATC agency's authorized scope and within the assigned inspector's scope before delegation.
+  - Updated [`auth.service.ts`](file:///Users/Sumit/Desktop/sih/server/src/modules/auth/auth.service.ts):
+    - Included `authorizedScope: true` in `gatcAgency` selection under `getMe` for seamless client-side role synchronization.
+- **Frontend GATC Pipeline & Queue Visualization**:
+  - In [`GatcDashboardPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/admin/pages/GatcDashboardPage.tsx): Displays live authorized scopes dynamically with statutory badges and shows instrument type tags on upcoming test bench pipeline rows.
+  - In [`ApplicationListPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/applications/ApplicationListPage.tsx): Added a prominent "Statutory Scope Restricted Testing Queue" notice for GATC roles displaying their active testing scopes and added instrument type badges to the application table.
+- **Header & Sidebar Chrome Streamlining**:
+  - Removed the settings icon button from the header navigation bar ([`TopBar.tsx`](file:///Users/Sumit/Desktop/sih/client/src/components/layout/TopBar.tsx)).
+  - Removed the redundant settings icon button from both the desktop sidebar bottom user card and the mobile navigation drawer footer ([`Sidebar.tsx`](file:///Users/Sumit/Desktop/sih/client/src/components/layout/Sidebar.tsx)), leaving a single, focused logout action while maintaining the main navigation link.
+- **Cross-Platform Instrument Type Filtering for Applications (Web & Mobile)**:
+  - **Backend API**: Added `instrumentType` query parameter support in `GET /applications` via [`applications.controller.ts`](file:///Users/Sumit/Desktop/sih/server/src/modules/applications/applications.controller.ts) and [`applications.service.ts`](file:///Users/Sumit/Desktop/sih/server/src/modules/applications/applications.service.ts), querying `{ instrument: { type: options.instrumentType } }` with seamless composition alongside status, search, and GATC scope restrictions.
+  - **Web Client ([`ApplicationListPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/applications/ApplicationListPage.tsx))**:
+    - Integrated an **Instrument Type** filter dropdown alongside the Status filter, supporting all 7 statutory classes under Rule 14 (NAWI, AWI, Fuel Dispensers, Storage Tanks, Length Measures, Capacity Measures, Specialized Measures).
+    - Added dynamic active filter badges with individual dismiss controls and a "Reset all" quick action.
+    - Added instrument type to query cache keys and query params for reactive instant filtering across Consumer, LMO, GATC, and Admin portals.
+  - **Mobile App ([`RosterScreen.tsx`](file:///Users/Sumit/Desktop/sih/mobile/src/screens/RosterScreen.tsx) & [`RosterCard.tsx`](file:///Users/Sumit/Desktop/sih/mobile/src/components/officer/RosterCard.tsx))**:
+    - Added an ergonomic, horizontally scrollable **Instrument Type Chips Bar** with live counter badges for each statutory instrument class.
+    - Integrated multi-dimensional filtering across status tabs, text search, and instrument types with client-side fallback and server query param sync.
+    - Added instrument type badges (e.g. `NAWI`, `Fuel`, `AWI`, `Tank`) directly onto `RosterCard` headers next to the status badge for instant visual recognition.
+- **Sidebar Chrome Navigation Refinement**:
+  - Renamed the admin sidebar navigation item from "Command Center" to "Dashboard" via `t("nav.dashboard")`, maintaining naming parity across all roles.
+- **Verification**:
+  - Monorepo compilation, client production build (`npm run build --workspace=@sih/client`), server build (`npm run build --workspace=@sih/server`), and mobile typecheck (`npm run typecheck --workspace=@sih/mobile`) pass cleanly with 0 errors.
+
+---
+
 ## [1.9.41] - Universal In-Page Statutory Certificate Modal Dialog Across All Web Apps — 2026-09-14
 
 - **Zero External Tabs / Popups for Certificate Viewing**:

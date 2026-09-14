@@ -129,11 +129,32 @@ export const ApplicationDrawer: React.FC<ApplicationDrawerProps> = ({
   const getStatusBadge = () => {
     switch (status) {
       case ApplicationStatus.CERTIFIED:
-        return <Badge variant="certified">Certified & Stamped</Badge>;
+        return (
+          <Badge
+            variant="certified"
+            icon={<Icons.CheckCircle2 size={12} color="#059669" />}
+          >
+            Certified & Stamped
+          </Badge>
+        );
       case ApplicationStatus.SCHEDULED:
-        return <Badge variant="scheduled">Scheduled Visit</Badge>;
+        return (
+          <Badge
+            variant="scheduled"
+            icon={<Icons.Clock size={12} color="#0284c7" />}
+          >
+            Scheduled Visit
+          </Badge>
+        );
       case ApplicationStatus.REJECTED:
-        return <Badge variant="rejected">Rejected (Exceeds MPE)</Badge>;
+        return (
+          <Badge
+            variant="rejected"
+            icon={<Icons.XCircle size={12} color="#e11d48" />}
+          >
+            Rejected (Exceeds MPE)
+          </Badge>
+        );
       case ApplicationStatus.SUBMITTED:
       default:
         return <Badge variant="secondary">Submitted</Badge>;

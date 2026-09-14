@@ -17,6 +17,10 @@ import { AdminInstrumentsPage } from "./pages/AdminInstrumentsPage";
 import { AdminAnalyticsPage } from "./pages/AdminAnalyticsPage";
 import { AdminAuditPage } from "./pages/AdminAuditPage";
 import { SettingsPage } from "@/features/settings/SettingsPage";
+import { WebsitePoliciesPage } from "@/features/public/WebsitePoliciesPage";
+import { TermsConditionsPage } from "@/features/public/TermsConditionsPage";
+import { HelpFaqPage } from "@/features/public/HelpFaqPage";
+import { ContactUsPage } from "@/features/public/ContactUsPage";
 
 function AdminRoot() {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
@@ -58,6 +62,18 @@ export function AdminApp() {
         <Route path="/login" element={<AdminLoginPage />} />
         <Route path="/verify" element={<PublicVerificationPage />} />
       </Route>
+
+      {/* Public Statutory Information & Citizen Service Pages */}
+      <Route path="/policies" element={<WebsitePoliciesPage />} />
+      <Route path="/website-policies" element={<WebsitePoliciesPage />} />
+      <Route path="/privacy" element={<WebsitePoliciesPage />} />
+      <Route path="/terms" element={<TermsConditionsPage />} />
+      <Route path="/terms-and-conditions" element={<TermsConditionsPage />} />
+      <Route path="/help" element={<HelpFaqPage />} />
+      <Route path="/faq" element={<HelpFaqPage />} />
+      <Route path="/faqs" element={<HelpFaqPage />} />
+      <Route path="/contact" element={<ContactUsPage />} />
+      <Route path="/contact-us" element={<ContactUsPage />} />
 
       {/* Authenticated Regulatory & Agency Shell */}
       <Route

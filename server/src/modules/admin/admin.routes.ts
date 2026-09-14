@@ -3,7 +3,7 @@ import { adminController } from "./admin.controller";
 import { requireAuth } from "../../middleware/auth";
 import { requireRole } from "../../middleware/roles";
 import { validate } from "../../middleware/validate";
-import { createOfficerSchema, createGatcAgencySchema, Role } from "@sih/shared";
+import { createOfficerSchema, createGatcAgencySchema, updateGatcAgencySchema, Role } from "@sih/shared";
 
 export const adminRouter = Router();
 
@@ -25,3 +25,8 @@ adminRouter.post(
   adminController.createGatcAgency
 );
 adminRouter.get("/gatc-agencies", adminController.listGatcAgencies);
+adminRouter.patch(
+  "/gatc-agencies/:id",
+  validate({ body: updateGatcAgencySchema }),
+  adminController.updateGatcAgency
+);

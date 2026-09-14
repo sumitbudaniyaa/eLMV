@@ -1,16 +1,18 @@
 import { Router } from "express";
 import { instrumentsController } from "./instruments.controller";
 import { requireAuth } from "../../middleware/auth";
+import { requireRole } from "../../middleware/roles";
 import { validate } from "../../middleware/validate";
-import { createInstrumentSchema, updateInstrumentSchema } from "@sih/shared";
+import { createInstrumentSchema, updateInstrumentSchema, Role } from "@sih/shared";
 
 export const instrumentsRouter = Router();
 
 instrumentsRouter.use(requireAuth);
 
-// Register instrument
+// Register instrument (Consumers / Traders only)
 instrumentsRouter.post(
   "/",
+  requireRole([Role.CONSUMER]),
   validate({ body: createInstrumentSchema }),
   instrumentsController.create
 );
