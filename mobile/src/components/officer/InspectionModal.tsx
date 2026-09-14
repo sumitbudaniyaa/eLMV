@@ -7,10 +7,10 @@ import {
   Alert,
   Image,
   Modal as RNModal,
-  SafeAreaView,
   Platform,
   StatusBar,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { InspectionResult } from "@sih/shared";
 import { mobileApi } from "../../lib/api";
@@ -36,6 +36,7 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
   application,
   onInspectionComplete,
 }) => {
+  const insets = useSafeAreaInsets();
   const isHi = i18n.language === "hi";
   const [mpe, setMpe] = useState<string>("1.5");
   const [actualError, setActualError] = useState<string>("");
@@ -439,7 +440,7 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
         animationType="slide"
         onRequestClose={() => setIsCameraOpen(false)}
       >
-        <SafeAreaView style={styles.cameraModalContainer}>
+        <View style={[styles.cameraModalContainer, { paddingTop: insets.top }]}>
           <View style={styles.cameraHeader}>
             <TouchableOpacity
               onPress={() => setIsCameraOpen(false)}
@@ -497,7 +498,7 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
               <View style={styles.shutterInnerCircle} />
             </TouchableOpacity>
           </View>
-        </SafeAreaView>
+        </View>
       </RNModal>
     </Modal>
   );
@@ -699,7 +700,6 @@ const styles = StyleSheet.create({
   cameraModalContainer: {
     flex: 1,
     backgroundColor: "#000000",
-    paddingTop: Platform.OS === "android" ? (StatusBar.currentHeight || 24) : 0,
   },
   cameraHeader: {
     flexDirection: "row",

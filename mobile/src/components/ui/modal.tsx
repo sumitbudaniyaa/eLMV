@@ -8,7 +8,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  SafeAreaView,
   Animated,
   Dimensions,
   Easing,
@@ -103,7 +102,7 @@ export const Modal: React.FC<ModalProps> = ({
           />
         </Animated.View>
         <Animated.View style={[styles.sheetContainer, { transform: [{ translateY }] }]}>
-          <SafeAreaView style={{ maxHeight: "100%" }}>
+          <View style={{ maxHeight: "100%" }}>
             <View style={styles.header}>
               <View style={{ flex: 1, paddingRight: 10 }}>
                 <Text style={styles.title}>{title}</Text>
@@ -123,7 +122,7 @@ export const Modal: React.FC<ModalProps> = ({
             </ScrollView>
 
             {footer ? <View style={styles.footer}>{footer}</View> : null}
-          </SafeAreaView>
+          </View>
         </Animated.View>
       </KeyboardAvoidingView>
     </RNModal>

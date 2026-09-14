@@ -4,13 +4,14 @@ import {
   View,
   Text,
   TouchableOpacity,
-  SafeAreaView,
   StatusBar,
   ActivityIndicator,
   Animated,
   Modal,
   Platform,
+  LogBox,
 } from "react-native";
+import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "./src/lib/auth";
 import { theme } from "./src/components/ui/theme";
 import { Icons } from "./src/components/ui/icons";
@@ -22,9 +23,12 @@ import { RegistryScreen } from "./src/screens/RegistryScreen";
 import { SettingsScreen } from "./src/screens/SettingsScreen";
 import i18n from "./src/i18n";
 
+LogBox.ignoreLogs(["SafeAreaView has been deprecated"]);
+
 type MainNavTab = "roster" | "verify" | "registry";
 
 function MainApp() {
+  const insets = useSafeAreaInsets();
   const { user, isLoading } = useAuth();
   const [currentTab, setCurrentTab] = useState<MainNavTab>("roster");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -98,7 +102,7 @@ function MainApp() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" translucent={true} />
 
       {/* Officer Header */}
@@ -116,7 +120,12 @@ function MainApp() {
       </Animated.View>
 
       {/* Bottom Navigation Bar (3 Core Operational Tabs) */}
-      <View style={styles.bottomNav}>
+      <View
+        style={[
+          styles.bottomNav,
+          { paddingBottom: Math.max(insets.bottom, Platform.OS === "android" ? 24 : 8) },
+        ]}
+      >
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={() => handleSwitchTab("roster")}
@@ -191,15 +200,17 @@ function MainApp() {
           />
         )}
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 
 export default function App() {
   return (
-    <AuthProvider>
-      <MainApp />
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <MainApp />
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }
 
@@ -207,7 +218,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#ffffff",
-    paddingTop: Platform.OS === "android" ? (StatusBar.currentHeight || 24) : 0,
   },
   modalSafeArea: {
     flex: 1,
@@ -236,7 +246,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#f4f4f5",
     paddingTop: 8,
-    paddingBottom: Platform.OS === "android" ? 34 : 6,
     paddingHorizontal: 8,
   },
   navItem: {

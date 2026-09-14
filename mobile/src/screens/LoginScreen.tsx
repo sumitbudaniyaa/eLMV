@@ -4,7 +4,6 @@ import {
   Text,
   Image,
   StyleSheet,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -16,6 +15,7 @@ import {
   Easing,
   StatusBar,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../lib/auth";
 import { Icons } from "../components/ui/icons";
 import i18n from "../i18n";
@@ -29,6 +29,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   currentLanguage = "en",
   onToggleLanguage,
 }) => {
+  const insets = useSafeAreaInsets();
   const { login } = useAuth();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -103,7 +104,12 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View
+      style={[
+        styles.safeArea,
+        { paddingTop: insets.top, paddingBottom: Math.max(insets.bottom, 16) },
+      ]}
+    >
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" translucent={true} />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -259,7 +265,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           </Text>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -267,8 +273,6 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: "#ffffff",
-    paddingTop: Platform.OS === "android" ? (StatusBar.currentHeight || 24) : 0,
-    paddingBottom: Platform.OS === "android" ? 24 : 0,
   },
   container: {
     flex: 1,

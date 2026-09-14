@@ -10,11 +10,11 @@ import {
   Animated,
   Image,
   Modal,
-  SafeAreaView,
   Easing,
   Platform,
   StatusBar,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CameraView, useCameraPermissions, type BarcodeScanningResult } from "expo-camera";
 import { mobileApi } from "../lib/api";
 import { Icons } from "../components/ui/icons";
@@ -24,6 +24,7 @@ import { CertificateModal } from "../components/officer/CertificateModal";
 import i18n from "../i18n";
 
 export const VerifyScreen: React.FC<{ currentLanguage?: string }> = ({ currentLanguage }) => {
+  const insets = useSafeAreaInsets();
   const isHi = currentLanguage === "hi" || i18n.language === "hi";
   const [query, setQuery] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -679,7 +680,7 @@ export const VerifyScreen: React.FC<{ currentLanguage?: string }> = ({ currentLa
       presentationStyle="fullScreen"
       onRequestClose={() => setIsScannerOpen(false)}
     >
-      <SafeAreaView style={styles.scannerContainer}>
+      <View style={[styles.scannerContainer, { paddingTop: insets.top }]}>
         {/* Top Header */}
         <View style={styles.scannerHeader}>
           <TouchableOpacity
@@ -778,7 +779,7 @@ export const VerifyScreen: React.FC<{ currentLanguage?: string }> = ({ currentLa
             </View>
           )}
         </View>
-      </SafeAreaView>
+      </View>
     </Modal>
 
     {/* 2. Official Schedule XI Certificate Drawer */}
@@ -1269,7 +1270,6 @@ const styles = StyleSheet.create({
   scannerContainer: {
     flex: 1,
     backgroundColor: "#000000",
-    paddingTop: Platform.OS === "android" ? (StatusBar.currentHeight || 24) : 0,
   },
   scannerHeader: {
     flexDirection: "row",

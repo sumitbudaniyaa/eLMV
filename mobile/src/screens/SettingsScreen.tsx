@@ -12,10 +12,10 @@ import {
   PanResponder,
   Dimensions,
   Easing,
-  SafeAreaView,
   StatusBar,
   Platform,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 import { useAuth } from "../lib/auth";
@@ -39,6 +39,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   currentLanguage,
   onClose,
 }) => {
+  const insets = useSafeAreaInsets();
   const { user, logout, refreshProfile } = useAuth();
   const isHindi = currentLanguage === "hi";
 
@@ -394,7 +395,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         {...panResponder.panHandlers}
       >
         {/* Top Header Section with Matching White Status Bar Extension */}
-        <SafeAreaView style={styles.headerSafeArea}>
+        <View style={[styles.headerSafeArea, { paddingTop: insets.top }]}>
           <View
             style={styles.topHeader}
             onTouchStart={handleTouchStart}
@@ -417,7 +418,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               {isHindi ? "प्रोफ़ाइल" : "Profile"}
             </Text>
           </View>
-        </SafeAreaView>
+        </View>
 
         {/* Scrollable Content Body */}
         <View style={styles.contentBody}>
@@ -888,7 +889,6 @@ const styles = StyleSheet.create({
   },
   headerSafeArea: {
     backgroundColor: "#ffffff",
-    paddingTop: Platform.OS === "android" ? (StatusBar.currentHeight || 24) : 0,
     borderBottomWidth: 1,
     borderBottomColor: "#e4e4e7",
   },

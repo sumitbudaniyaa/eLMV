@@ -8,7 +8,6 @@ import {
   Alert,
   ActivityIndicator,
   ScrollView,
-  SafeAreaView,
   Animated,
   PanResponder,
   Dimensions,
@@ -235,7 +234,7 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
             },
           ]}
         >
-          <SafeAreaView style={styles.drawerInner}>
+          <View style={styles.drawerInner}>
             {/* Top Handle with PanResponder */}
             <View {...panResponder.panHandlers} style={styles.handleWrapper}>
               <View style={styles.handle} />
@@ -594,7 +593,7 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
                 {isHi ? "प्रमाणपत्र बंद करें" : "Close Certificate"}
               </Button>
             </View>
-          </SafeAreaView>
+          </View>
         </Animated.View>
       </View>
     </RNModal>

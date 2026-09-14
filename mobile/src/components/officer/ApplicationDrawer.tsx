@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   Animated,
   PanResponder,
   Dimensions,
@@ -188,7 +187,7 @@ export const ApplicationDrawer: React.FC<ApplicationDrawerProps> = ({
             },
           ]}
         >
-          <SafeAreaView style={styles.drawerInner}>
+          <View style={styles.drawerInner}>
             {/* Drag Handle with PanResponder */}
             <View {...panResponder.panHandlers} style={styles.handleWrapper}>
               <View style={styles.handle} />
@@ -370,7 +369,7 @@ export const ApplicationDrawer: React.FC<ApplicationDrawerProps> = ({
                 </Button>
               ) : null}
             </View>
-          </SafeAreaView>
+          </View>
         </Animated.View>
       </View>
     </RNModal>
