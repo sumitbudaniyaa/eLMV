@@ -505,7 +505,7 @@ export function ConsumerLandingPage() {
                   <img
                     src="/pj.jpeg"
                     alt={t("consumerLanding.leadership.ministerName")}
-                    className="w-40 h-48 object-cover object-top rounded-xl shadow-sm border border-border bg-muted"
+                    className="w-48 h-56 sm:w-52 sm:h-60 object-cover object-top rounded-xl shadow-sm border border-border bg-white"
                     onError={(e) => {
                       const target = e.currentTarget;
                       target.src = "/emblem.jpeg";
