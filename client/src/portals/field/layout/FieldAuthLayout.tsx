@@ -37,7 +37,7 @@ export function FieldAuthLayout() {
       <div className="fixed top-4 right-4 flex items-center space-x-2 z-50">
         <button
           onClick={toggleLanguage}
-          className="px-2.5 py-1 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center space-x-1.5 border border-border bg-card shadow-2xs"
+          className="h-8 px-2.5 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center space-x-1.5 border border-border bg-card shadow-2xs"
           title={isHindi ? "Switch to English" : "हिन्दी में देखें"}
         >
           <Globe className="h-3.5 w-3.5 text-primary" />
@@ -46,7 +46,7 @@ export function FieldAuthLayout() {
 
         <button
           onClick={() => setIsDark(!isDark)}
-          className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors border border-border bg-card shadow-2xs"
+          className="h-8 w-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center justify-center border border-border bg-card shadow-2xs"
           aria-label="Toggle theme"
           title={isDark ? "Switch to light mode" : "Switch to dark mode"}
         >
