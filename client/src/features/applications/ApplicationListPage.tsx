@@ -22,6 +22,7 @@ import {
 import { SubmitApplicationDialog } from "./SubmitApplicationDialog";
 import { ScheduleInspectionDialog } from "./ScheduleInspectionDialog";
 import { RecordInspectionDialog } from "../inspections/RecordInspectionDialog";
+import { CertificateDialog } from "@/components/common/CertificateDialog";
 import {
   FileText,
   Plus,
@@ -48,6 +49,7 @@ export function ApplicationListPage() {
   // Dialog states for officer workflows
   const [scheduleTarget, setScheduleTarget] = useState<any | null>(null);
   const [inspectionTarget, setInspectionTarget] = useState<any | null>(null);
+  const [viewCertNumber, setViewCertNumber] = useState<string | null>(null);
 
   const handleIssueCertificate = async (app: any) => {
     try {
@@ -423,13 +425,8 @@ export function ApplicationListPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-7 text-xs font-medium px-2.5 shadow-2xs border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
-                        onClick={() =>
-                          window.open(
-                            `/verify?cert=${app.certificate.certificateNumber}`,
-                            "_blank"
-                          )
-                        }
+                        className="h-7 text-xs font-medium px-2.5 shadow-2xs border-emerald-500/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                        onClick={() => setViewCertNumber(app.certificate.certificateNumber)}
                       >
                         <Award className="h-3 w-3 mr-1" />
                         {t("applications.table.certificate")}
@@ -464,6 +461,12 @@ export function ApplicationListPage() {
           instrumentSerialNumber={inspectionTarget.instrument?.serialNumber || ""}
         />
       )}
+
+      <CertificateDialog
+        certificateNumber={viewCertNumber}
+        open={!!viewCertNumber}
+        onOpenChange={(open) => !open && setViewCertNumber(null)}
+      />
     </div>
   );
 }

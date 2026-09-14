@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { GlobalSearchDialog } from "./GlobalSearchDialog";
+import { CertificateDialog } from "@/components/common/CertificateDialog";
 import {
   Menu,
   Sun,
@@ -27,6 +28,7 @@ export function TopBar({ onToggleMobileMenu, isDark, onToggleTheme }: TopBarProp
   const location = useLocation();
   const { user, isAuthenticated } = useAuth();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [viewCertNumber, setViewCertNumber] = useState<string | null>(null);
 
   const isHindi = (i18n.resolvedLanguage || i18n.language || "en").toLowerCase().startsWith("hi");
 
@@ -195,6 +197,17 @@ export function TopBar({ onToggleMobileMenu, isDark, onToggleTheme }: TopBarProp
         onOpenChange={setIsSearchOpen}
         onToggleTheme={onToggleTheme}
         isDark={isDark}
+        onSelectCertificate={(certNumber) => {
+          setIsSearchOpen(false);
+          setViewCertNumber(certNumber);
+        }}
+      />
+
+      {/* In-Page Statutory Certificate Modal */}
+      <CertificateDialog
+        certificateNumber={viewCertNumber}
+        open={!!viewCertNumber}
+        onOpenChange={(open) => !open && setViewCertNumber(null)}
       />
     </header>
   );

@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { CertificateDialog } from "@/components/common/CertificateDialog";
 import {
   ClipboardCheck,
   CheckCircle2,
@@ -33,6 +33,7 @@ export function FieldRosterPage() {
     number: string;
     serial: string;
   } | null>(null);
+  const [viewCertNumber, setViewCertNumber] = useState<string | null>(null);
 
   const { data: applications = [], isLoading } = useQuery({
     queryKey: ["fieldApplications"],
@@ -273,12 +274,15 @@ export function FieldRosterPage() {
                           {t("roster.certifiedStampedTab", { defaultValue: "Certified & Stamped" })}
                         </Badge>
                         {app.certificate?.certificateNumber && (
-                          <Link to={`/verify?cert=${encodeURIComponent(app.certificate.certificateNumber)}`}>
-                            <Button variant="outline" size="sm" className="h-8 text-xs font-semibold shadow-2xs">
-                              <QrCode className="h-3.5 w-3.5 mr-1 text-emerald-600" />
-                              {t("roster.viewCertificate", { defaultValue: "View Certificate" })}
-                            </Button>
-                          </Link>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs font-semibold shadow-2xs hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800"
+                            onClick={() => setViewCertNumber(app.certificate.certificateNumber)}
+                          >
+                            <QrCode className="h-3.5 w-3.5 mr-1 text-emerald-600" />
+                            {t("roster.viewCertificate", { defaultValue: "View Certificate" })}
+                          </Button>
                         )}
                       </div>
                     ) : app.status === ApplicationStatus.REJECTED ? (
@@ -309,6 +313,13 @@ export function FieldRosterPage() {
           instrumentSerialNumber={inspectionTarget.serial}
         />
       )}
+
+      {/* Certificate Viewer Modal */}
+      <CertificateDialog
+        certificateNumber={viewCertNumber}
+        open={!!viewCertNumber}
+        onOpenChange={(open) => !open && setViewCertNumber(null)}
+      />
     </div>
   );
 }

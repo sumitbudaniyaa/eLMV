@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -19,17 +19,18 @@ import {
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { CertificateDialog } from "@/components/common/CertificateDialog";
 
 export function LandingPage() {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
   const [quickSearch, setQuickSearch] = useState("");
+  const [viewCertNumber, setViewCertNumber] = useState<string | null>(null);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!quickSearch.trim()) return;
-    navigate(`/verify?cert=${encodeURIComponent(quickSearch.trim())}`);
+    setViewCertNumber(quickSearch.trim());
   };
 
   return (
@@ -212,6 +213,13 @@ export function LandingPage() {
           </div>
         </div>
       </div>
+
+      {/* Statutory Certificate Viewer Modal */}
+      <CertificateDialog
+        certificateNumber={viewCertNumber}
+        open={!!viewCertNumber}
+        onOpenChange={(open) => !open && setViewCertNumber(null)}
+      />
     </div>
   );
 }

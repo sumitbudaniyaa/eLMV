@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { api } from "@/lib/api";
 import { ApiResponse } from "@sih/shared";
 import { formatDate } from "@/lib/utils";
+import { downloadCertificatePdf } from "@/lib/certificateUtils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -42,6 +43,7 @@ export function PublicVerificationPage() {
   // Camera QR Scanner states
   const [cameraStatus, setCameraStatus] = useState<"idle" | "starting" | "scanning" | "error">("idle");
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [cameras, setCameras] = useState<Array<{ id: string; label: string }>>([]);
   const [selectedCameraId, setSelectedCameraId] = useState<string>("");
   const qrScannerRef = useRef<Html5Qrcode | null>(null);
@@ -696,13 +698,30 @@ export function PublicVerificationPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => {
-                window.open(`/api/v1/verification/pdf/${result.certificate.certificateNumber}`, "_blank");
+              disabled={isDownloading}
+              onClick={async () => {
+                try {
+                  setIsDownloading(true);
+                  await downloadCertificatePdf(result.certificate.certificateNumber);
+                } catch (err) {
+                  console.error("PDF download failed:", err);
+                  alert("Failed to download PDF. Please try again.");
+                } finally {
+                  setIsDownloading(false);
+                }
               }}
               className="h-8 text-xs font-medium w-full sm:w-auto justify-center shadow-2xs"
             >
-              <Download className="h-3.5 w-3.5 mr-1.5 shrink-0" />
-              <span>{t("verification.downloadPdf", { defaultValue: "Download PDF" })}</span>
+              {isDownloading ? (
+                <Loader2 className="h-3.5 w-3.5 mr-1.5 shrink-0 animate-spin" />
+              ) : (
+                <Download className="h-3.5 w-3.5 mr-1.5 shrink-0" />
+              )}
+              <span>
+                {isDownloading
+                  ? "Downloading..."
+                  : t("verification.downloadPdf", { defaultValue: "Download PDF" })}
+              </span>
             </Button>
             <Button
               variant="outline"

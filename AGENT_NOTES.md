@@ -667,3 +667,26 @@
   - React Native 0.86+ deprecated `<SafeAreaView>` because it never supported Android insets and relied on outdated iOS-only UIKit heuristics. `react-native-safe-area-context` reads native insets directly from the platform WindowInsets API, delivering exact pixel-perfect measurements across all Android screen aspect ratios.
   - Artificial opacity fades on tab changes cause visual jarring because Android hardware renders the intermediate blank state during Hermes layout recalculation. Persistent views with CSS `display` toggling preserve scroll offsets, filter inputs, and component state while delivering instantaneous, native-speed tab navigation.
 
+### ADR-059: Universal In-Page Statutory Certificate Modal Dialog Across All Web Apps
+- **Decision**:
+  1. Mandate zero external browser tabs (`window.open(..., "_blank")`, `target="_blank"`, `<Link to="/verify?cert=...">`) when clicking or viewing verification certificates anywhere in the web ecosystem.
+  2. Implement a reusable statutory modal dialog component `CertificateDialog.tsx`:
+     - Rendered within an enhanced `Dialog` container supporting `className` overrides (`max-w-3xl sm:max-w-4xl max-h-[92vh] overflow-y-auto`).
+     - Directly queries `/api/v1/verification/verify/:identifier` using React Query with automatic cache reuse and loading skeletons.
+     - Formatted per Schedule XI of the Legal Metrology Rules, 2011: National Emblem (`/emblem.jpeg`), statutory header, dynamic validity badge (VALID & ACTIVE, EXPIRED, INVALID), Level-H SVG QR code (`QRCodeSVG`), instrument specifications, MPE test gauges, officer seal, and ECDSA NIST P-256 digital signature stamp.
+  3. Implement clean in-page PDF download and print utilities in `client/src/lib/certificateUtils.ts`:
+     - `downloadCertificatePdf(certificateNumber)`: streams binary PDF as a blob via Axios and simulates an in-memory anchor click (`URL.createObjectURL`), delivering the certificate directly to the user's downloads folder without launching empty browser windows.
+     - `printCertificateElement(target)`: clones the certificate markup into a hidden off-screen `<iframe>`, copies stylesheets, and triggers native `window.print()` isolated to the document card.
+  4. Wire `CertificateDialog` across all applications:
+     - `ApplicationListPage.tsx` (Consumer, Field Officer, and Admin application queues).
+     - `FieldRosterPage.tsx` (Field Officer daily roster).
+     - `ConsumerLandingPage.tsx` (Citizen tracking card).
+     - `ConsumerDashboardPage.tsx` (Commercial Trader recent filings).
+     - `LandingPage.tsx` (Hero certificate quick search).
+     - `TopBar.tsx` / `GlobalSearchDialog.tsx` (Direct certificate lookup shortcut across all portals).
+     - `PublicVerificationPage.tsx` (Replaced `window.open` PDF download with in-page blob stream).
+- **Rationale**:
+  - Forcing users to open new browser tabs or navigating them to a public verification URL fragments their operational context (e.g. an inspector on a field visit losing their roster place or a trader losing their application pagination).
+  - Browser popup blockers frequently suppress `window.open(..., "_blank")` calls initiated asynchronously from fetch callbacks. In-page blob downloads and hidden iframe printing eliminate popup blockers while keeping the user experience seamless, fast, and secure.
+
+

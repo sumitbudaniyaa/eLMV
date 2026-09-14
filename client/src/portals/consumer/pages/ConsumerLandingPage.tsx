@@ -9,10 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils";
 import { ApiResponse } from "@sih/shared";
+import { CertificateDialog } from "@/components/common/CertificateDialog";
 import {
   ShieldCheck,
   Scale,
   FileCheck2,
+  Award,
   Search,
   ArrowRight,
   Globe,
@@ -150,6 +152,7 @@ export function ConsumerLandingPage() {
   const [isTracking, setIsTracking] = useState(false);
   const [trackedApp, setTrackedApp] = useState<TrackedApplication | null>(null);
   const [trackError, setTrackError] = useState<string | null>(null);
+  const [viewCertNumber, setViewCertNumber] = useState<string | null>(null);
 
   // Fee Calculator State
   const [selectedCatId, setSelectedCatId] = useState(STATUTORY_CATEGORIES[1].id);
@@ -970,16 +973,27 @@ export function ConsumerLandingPage() {
 
                 {/* Certificate Details if Certified */}
                 {trackedApp.certificate && (
-                  <div className="p-4 rounded-xl border border-emerald-300 bg-emerald-50 flex items-center space-x-3 shadow-xs">
-                    <FileCheck2 className="h-6 w-6 text-emerald-600 shrink-0" />
-                    <div>
-                      <span className="text-xs sm:text-sm font-bold text-emerald-950 block">
-                        Certificate Issued: {trackedApp.certificate.certificateNumber}
-                      </span>
-                      <span className="text-[11px] text-muted-foreground">
-                        Valid until {formatDate(trackedApp.certificate.validUntil)} • Cryptographically Signed &amp; Sealed
-                      </span>
+                  <div className="p-4 rounded-xl border border-emerald-300 bg-emerald-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+                    <div className="flex items-center space-x-3">
+                      <FileCheck2 className="h-6 w-6 text-emerald-600 shrink-0" />
+                      <div>
+                        <span className="text-xs sm:text-sm font-bold text-emerald-950 block">
+                          Certificate Issued: {trackedApp.certificate.certificateNumber}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground">
+                          Valid until {formatDate(trackedApp.certificate.validUntil)} • Cryptographically Signed &amp; Sealed
+                        </span>
+                      </div>
                     </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 text-xs font-semibold bg-white border-emerald-400 text-emerald-800 hover:bg-emerald-100/60 shadow-2xs shrink-0"
+                      onClick={() => setViewCertNumber(trackedApp.certificate!.certificateNumber)}
+                    >
+                      <Award className="h-3.5 w-3.5 mr-1 text-emerald-600" />
+                      View Certificate
+                    </Button>
                   </div>
                 )}
               </CardContent>
@@ -1220,6 +1234,13 @@ export function ConsumerLandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* Statutory Certificate Viewer Modal */}
+      <CertificateDialog
+        certificateNumber={viewCertNumber}
+        open={!!viewCertNumber}
+        onOpenChange={(open) => !open && setViewCertNumber(null)}
+      />
     </div>
   );
 }

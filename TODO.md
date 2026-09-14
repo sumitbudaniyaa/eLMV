@@ -685,5 +685,33 @@ In accordance with hard project rules, every phase must be fully implemented, te
   - Implemented persistent tab containers using `display: "none"` / `display: "flex"` to preserve component state, scroll position, and search terms while achieving instantaneous zero-flicker transitions.
 - [x] Verified zero compilation regressions across monorepo (`npm run typecheck` exit code 0).
 
+## Phase 63: Universal In-Page Statutory Certificate Modal Dialog Across All Web Apps
+- [x] Eliminated all external browser tab opens (`window.open`, `target="_blank"`, and `<Link to="/verify?cert=...">`) when clicking and viewing certificates across the web applications.
+- [x] Enhanced `Dialog` component in `client/src/components/ui/dialog.tsx`:
+  - Added optional `className?: string` prop to `DialogProps` for custom width/height/scroll overrides (`max-w-3xl sm:max-w-4xl max-h-[92vh] overflow-y-auto`) while preserving full backward compatibility.
+- [x] Created `client/src/lib/certificateUtils.ts`:
+  - Implemented `downloadCertificatePdf(certificateNumber)`: streams PDF binary buffer as blob via `api.get(..., { responseType: 'blob' })` and triggers browser file save silently in-page without launching blank tabs.
+  - Implemented `printCertificateElement(target)`: injects printable styles and certificate markup into a hidden off-screen iframe, initiating the browser's native print modal in-page without disrupting portal navigation or popup blockers.
+- [x] Built reusable statutory `CertificateDialog.tsx` in `client/src/components/common/CertificateDialog.tsx` (re-exported via `client/src/features/verification/CertificateDialog.tsx`):
+  - Automatically queries live certificate verification details via `/api/v1/verification/verify/:identifier` if not pre-provided.
+  - Displays authentic Government of India Schedule XI Certificate format with `/emblem.jpeg` Ashoka Emblem, Department of Consumer Affairs header, and statutory Legal Metrology Act citations.
+  - Renders live cryptographic validity badge (VALID & ACTIVE in emerald, EXPIRED in amber, INVALID in rose).
+  - Embeds high-contrast Level-H SVG QR code (`QRCodeSVG`) with "Scan to Verify" badge.
+  - Formats complete verified instrument specifications: serial number, type/category, make, model, capacity, unit, accuracy class, location.
+  - Displays physical observation & MPE test evaluation gauge (Observed error vs Permissible MPE limit, PASS indicator).
+  - Includes inspecting officer seal, registered commercial trader details, and ECDSA NIST P-256 cryptographic signature block.
+  - Provides in-page "Download PDF", "Print", and "Close" actions.
+- [x] Integrated `CertificateDialog` across all web applications:
+  - `client/src/features/applications/ApplicationListPage.tsx`: Replaced `window.open` with `setViewCertNumber(app.certificate.certificateNumber)` (applies to Consumer, Admin, and Field Officer application tables).
+  - `client/src/portals/field/pages/FieldRosterPage.tsx`: Replaced `<Link to="/verify?cert=...">` with `setViewCertNumber(app.certificate.certificateNumber)` to view certificates directly within the officer roster.
+  - `client/src/portals/consumer/pages/ConsumerLandingPage.tsx`: Added interactive "View Certificate" button to the live application tracker card.
+  - `client/src/portals/consumer/pages/ConsumerDashboardPage.tsx`: Added "Certificate" button to the recent filings table.
+  - `client/src/features/home/LandingPage.tsx`: Updated hero quick search to open `CertificateDialog` in-place on search submit.
+  - `client/src/components/layout/GlobalSearchDialog.tsx`: Added `onSelectCertificate` callback so clicking "Direct Certificate Verification" opens `CertificateDialog` directly.
+  - `client/src/components/layout/TopBar.tsx`: Wired `onSelectCertificate` and mounted `CertificateDialog` in the portal topbar.
+  - `client/src/features/verification/PublicVerificationPage.tsx`: Replaced `window.open` on "Download PDF" with `downloadCertificatePdf`.
+- [x] Verified zero external tabs or blank windows opened, client production build succeeds (`npm run build --workspace=@sih/client`), and monorepo passes typecheck (`npm run typecheck` exit code 0).
+
+
 
 

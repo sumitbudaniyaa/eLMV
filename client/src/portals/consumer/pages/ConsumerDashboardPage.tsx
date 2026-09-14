@@ -18,12 +18,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RegisterInstrumentDialog } from "@/features/instruments/RegisterInstrumentDialog";
 import { SubmitApplicationDialog } from "@/features/applications/SubmitApplicationDialog";
+import { CertificateDialog } from "@/components/common/CertificateDialog";
 import { ApplicationStatus } from "@sih/shared";
 
 export function ConsumerDashboardPage() {
   const { user } = useAuth();
   const [registerOpen, setRegisterOpen] = useState(false);
   const [applyOpen, setApplyOpen] = useState(false);
+  const [viewCertNumber, setViewCertNumber] = useState<string | null>(null);
 
   const { data: dashboardData, isLoading } = useQuery({
     queryKey: ["consumerDashboard"],
@@ -222,12 +224,25 @@ export function ConsumerDashboardPage() {
                       </td>
                       <td className="p-3 text-muted-foreground">{new Date(app.submittedAt).toLocaleDateString()}</td>
                       <td className="p-3 text-right">
-                        <Link
-                          to="/consumer/applications"
-                          className="text-xs text-primary font-medium hover:underline"
-                        >
-                          View Details
-                        </Link>
+                        <div className="flex items-center justify-end gap-2">
+                          {app.status === ApplicationStatus.CERTIFIED && app.certificate?.certificateNumber && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-6 text-[11px] font-semibold px-2 text-emerald-700 dark:text-emerald-300 border-emerald-400/40 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                              onClick={() => setViewCertNumber(app.certificate.certificateNumber)}
+                            >
+                              <Award className="h-3 w-3 mr-1 text-emerald-600" />
+                              Certificate
+                            </Button>
+                          )}
+                          <Link
+                            to="/consumer/applications"
+                            className="text-xs text-primary font-medium hover:underline"
+                          >
+                            View Details
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -241,6 +256,11 @@ export function ConsumerDashboardPage() {
       {/* Modals */}
       <RegisterInstrumentDialog open={registerOpen} onOpenChange={setRegisterOpen} />
       <SubmitApplicationDialog open={applyOpen} onOpenChange={setApplyOpen} />
+      <CertificateDialog
+        certificateNumber={viewCertNumber}
+        open={!!viewCertNumber}
+        onOpenChange={(open) => !open && setViewCertNumber(null)}
+      />
     </div>
   );
 }

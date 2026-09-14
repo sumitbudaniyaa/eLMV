@@ -30,6 +30,7 @@ interface GlobalSearchDialogProps {
   onOpenChange: (open: boolean) => void;
   onToggleTheme?: () => void;
   isDark?: boolean;
+  onSelectCertificate?: (certNumber: string) => void;
 }
 
 export function GlobalSearchDialog({
@@ -37,6 +38,7 @@ export function GlobalSearchDialog({
   onOpenChange,
   onToggleTheme,
   isDark,
+  onSelectCertificate,
 }: GlobalSearchDialogProps) {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
@@ -274,7 +276,13 @@ export function GlobalSearchDialog({
           {isCertLookup && (
             <div className="pb-1">
               <div
-                onClick={() => handleSelect(`/verify?cert=${encodeURIComponent(query.trim())}`)}
+                onClick={() => {
+                  if (onSelectCertificate) {
+                    onSelectCertificate(query.trim());
+                  } else {
+                    handleSelect(`/verify?cert=${encodeURIComponent(query.trim())}`);
+                  }
+                }}
                 className="flex items-center justify-between p-2.5 rounded-lg border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20 hover:bg-emerald-100/50 dark:hover:bg-emerald-950/40 cursor-pointer transition-colors"
               >
                 <div className="flex items-center space-x-2.5">

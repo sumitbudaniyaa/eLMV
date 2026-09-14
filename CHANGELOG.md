@@ -3,6 +3,44 @@
 All notable changes to the **Online Verification System for Weighing & Measuring Instruments** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), adhering strictly to zero-omission rules.
 
+## [1.9.41] - Universal In-Page Statutory Certificate Modal Dialog Across All Web Apps — 2026-09-14
+
+- **Zero External Tabs / Popups for Certificate Viewing**:
+  - Eliminated all occurrences of `window.open(..., "_blank")`, `target="_blank"`, and `<Link to="/verify?cert=...">` when clicking or inspecting certificates throughout the entire web application ecosystem.
+  - Users remain strictly anchored to their current working view (Applications queue, Roster, Dashboard, or Landing page) with zero navigation interruptions.
+- **Enhanced `Dialog` Primitive with Custom Container Overrides**:
+  - Updated [`client/src/components/ui/dialog.tsx`](file:///Users/Sumit/Desktop/sih/client/src/components/ui/dialog.tsx) to accept an optional `className?: string` prop on the dialog wrapper.
+  - Enabled wide, document-grade layouts (`max-w-3xl sm:max-w-4xl max-h-[92vh] overflow-y-auto`) while preserving standard `max-w-lg` styling for all existing system modals.
+- **In-Page Download & Print Architecture**:
+  - Implemented [`client/src/lib/certificateUtils.ts`](file:///Users/Sumit/Desktop/sih/client/src/lib/certificateUtils.ts) with two self-contained utility functions:
+    - `downloadCertificatePdf(certificateNumber)`: streams the digitally signed PDF binary buffer via Axios `responseType: "blob"` and triggers a clean browser file save dialog in-page (`Certificate-${certNumber}.pdf`) without opening a blank browser tab.
+    - `printCertificateElement(target)`: copies printable styles and the certificate card markup into an off-screen, invisible iframe and triggers `iframe.contentWindow.print()` silently in-page.
+- **Statutory Schedule XI `CertificateDialog` Component**:
+  - Created [`client/src/components/common/CertificateDialog.tsx`](file:///Users/Sumit/Desktop/sih/client/src/components/common/CertificateDialog.tsx) (and re-exported via [`client/src/features/verification/CertificateDialog.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/verification/CertificateDialog.tsx)).
+  - Queries live certificate verification data from `/api/v1/verification/verify/:identifier` using React Query with automatic loading skeletons and error recovery.
+  - Formatted strictly according to Schedule XI of the Legal Metrology Rules, 2011:
+    - Government of India & Department of Consumer Affairs header with official National Emblem (`/emblem.jpeg`).
+    - Prominent cryptographic validity badge (VALID & ACTIVE, EXPIRED, or SIGNATURE INVALID) with NIST P-256 badge.
+    - Interactive Level-H SVG QR code (`QRCodeSVG`) with "Scan to Verify" badge.
+    - Summary metadata grid (Certificate No., Stamping Date, Validity Date, Affixed Seal No.).
+    - Verified instrument specifications: serial number, category/type, make/model, capacity, accuracy class, installed district and state.
+    - Physical observation and Maximum Permissible Error (MPE) evaluation gauge (Observed error vs Permissible MPE limit with statutory PASS indicator).
+    - Verification officer endorsement, registered commercial trader details, and ECDSA NIST P-256 signature block.
+    - Legal Metrology Act Section 24 statutory tamper warning notice.
+    - In-page "Download PDF", "Print", and "Close" controls.
+- **Cross-Portal Integration**:
+  - **Applications Management ([`ApplicationListPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/applications/ApplicationListPage.tsx))**: Clicking the "Certificate" button opens `CertificateDialog` in-page (benefits Consumer, Field Officer, and State Admin portals).
+  - **Field Officer Daily Roster ([`FieldRosterPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/field/pages/FieldRosterPage.tsx))**: Replaced route navigation with in-page `CertificateDialog` so officers never lose their daily inspection roster context.
+  - **Consumer Live Application Tracker ([`ConsumerLandingPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/consumer/pages/ConsumerLandingPage.tsx))**: Added "View Certificate" button to the certified tracking card.
+  - **Commercial Trader Dashboard ([`ConsumerDashboardPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/portals/consumer/pages/ConsumerDashboardPage.tsx))**: Added "Certificate" button to the recent filings table.
+  - **Hero Certificate Search ([`LandingPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/home/LandingPage.tsx))**: Quick search on the main portal hero opens `CertificateDialog` directly on the homepage.
+  - **Global Portal Search ([`TopBar.tsx`](file:///Users/Sumit/Desktop/sih/client/src/components/layout/TopBar.tsx) & [`GlobalSearchDialog.tsx`](file:///Users/Sumit/Desktop/sih/client/src/components/layout/GlobalSearchDialog.tsx))**: Clicking the direct certificate verification shortcut opens `CertificateDialog` without page reload.
+  - **Public Verification Page ([`PublicVerificationPage.tsx`](file:///Users/Sumit/Desktop/sih/client/src/features/verification/PublicVerificationPage.tsx))**: Replaced `window.open` with in-page blob download for PDF exports.
+- **Verification**:
+  - Zero compile or type errors across the monorepo (`npm run typecheck` and `npm run build --workspace=@sih/client` exited with code 0).
+
+---
+
 ## [1.9.40] - Admin/Inspector Minimalist Login Cards, Leadership Media Update & Mobile Safe Area Layout Engine — 2026-09-14
 
 - **Admin & Field Officer Login Portal Modernization**:
