@@ -7,8 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - **Horizontal Slide Navigation & Native Swipe-Right Dismissal Across Content & Header**:
   - Replaced native vertical slide-up modal with horizontal right-to-left push animation in [`SettingsScreen.tsx`](file:///Users/Sumit/Desktop/sih/mobile/src/screens/SettingsScreen.tsx) and [`App.tsx`](file:///Users/Sumit/Desktop/sih/mobile/App.tsx).
-  - Implemented interactive `PanResponder` with `onMoveShouldSetPanResponderCapture` to intercept horizontal rightward gestures before the native `ScrollView` claims touches, along with dynamic `scrollEnabled={scrollEnabled}` arbitration.
-  - Added an absolute left-edge gesture strip (`width: 28, zIndex: 99`) for instantaneous, native-feeling swipe-back across both the header and scrollable content body without blocking vertical scrolling.
+  - Implemented direct touch event tracking (`onTouchStart`, `onTouchMove`, `onTouchEnd`, `onTouchCancel`) wired directly onto `<ScrollView>` and `topHeader` with dynamic `scrollEnabled` locking, completely bypassing native `ScrollView` gesture consumption on the main content.
+  - Added an absolute left-edge swipe zone overlay (`width: 36, elevation: 20, zIndex: 999`) rendered in front of the ScrollView for instant, zero-latency swipe-to-dismiss.
 - **Header & Status Bar Color Synchronization**:
   - Integrated `<StatusBar barStyle="dark-content" backgroundColor="#ffffff" animated={true} />` and wrapped the header in `headerSafeArea` with Android `StatusBar.currentHeight` top inset, unifying the phone status bar area (clock, battery, Wi-Fi icons) with the white `#ffffff` header surface.
 - **Top Navigation Bar Header ("Profile" / "प्रोफ़ाइल")**:

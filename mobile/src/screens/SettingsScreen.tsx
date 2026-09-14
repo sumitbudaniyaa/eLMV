@@ -83,6 +83,67 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     });
   };
 
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+  const touchLastX = useRef(0);
+  const touchLastTime = useRef(0);
+  const isSwipingRight = useRef(false);
+
+  const handleTouchStart = (e: any) => {
+    if (isEditModalOpen || isPasswordModalOpen) return;
+    const pageX = e.nativeEvent.pageX || 0;
+    const pageY = e.nativeEvent.pageY || 0;
+    touchStartX.current = pageX;
+    touchStartY.current = pageY;
+    touchLastX.current = pageX;
+    touchLastTime.current = Date.now();
+    isSwipingRight.current = false;
+  };
+
+  const handleTouchMove = (e: any) => {
+    if (isEditModalOpen || isPasswordModalOpen) return;
+    const currentX = e.nativeEvent.pageX || 0;
+    const currentY = e.nativeEvent.pageY || 0;
+    const dx = currentX - touchStartX.current;
+    const dy = currentY - touchStartY.current;
+
+    if (!isSwipingRight.current) {
+      if (dx > 8 && Math.abs(dx) > Math.abs(dy) * 1.1) {
+        isSwipingRight.current = true;
+        setScrollEnabled(false);
+        translateX.stopAnimation();
+      }
+    }
+
+    if (isSwipingRight.current) {
+      touchLastX.current = currentX;
+      touchLastTime.current = Date.now();
+      translateX.setValue(Math.max(0, dx));
+    }
+  };
+
+  const handleTouchEnd = (e: any) => {
+    if (!isSwipingRight.current) return;
+    isSwipingRight.current = false;
+    setScrollEnabled(true);
+
+    const currentX = e.nativeEvent?.pageX || touchLastX.current;
+    const dx = currentX - touchStartX.current;
+    const elapsed = Math.max(1, Date.now() - touchLastTime.current);
+    const vx = (currentX - touchLastX.current) / elapsed;
+
+    if (dx > 50 || (dx > 15 && vx > 0.2)) {
+      handleDismiss();
+    } else {
+      Animated.spring(translateX, {
+        toValue: 0,
+        damping: 24,
+        stiffness: 240,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
+
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => false,
@@ -334,7 +395,13 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       >
         {/* Top Header Section with Matching White Status Bar Extension */}
         <SafeAreaView style={styles.headerSafeArea}>
-          <View style={styles.topHeader}>
+          <View
+            style={styles.topHeader}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchEnd}
+          >
             {onClose && (
               <TouchableOpacity
                 activeOpacity={0.7}
@@ -354,13 +421,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
         {/* Scrollable Content Body */}
         <View style={styles.contentBody}>
-          {/* Left Edge Gesture Strip for Instant Native-Like Swipe-Back */}
-          <View
-            style={styles.leftEdgeSwipeStrip}
-            {...panResponder.panHandlers}
-          />
-
           <ScrollView
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchEnd}
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
             scrollEnabled={scrollEnabled}
@@ -526,6 +591,15 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           {"\n"}Standardization under Legal Metrology Act, 2009 & Rules 2011
         </Text>
       </ScrollView>
+
+      {/* Left Edge Gesture Strip for Instant Native-Like Swipe-Back */}
+      <View
+        style={styles.leftEdgeSwipeStrip}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
+      />
     </View>
   </Animated.View>
 
@@ -836,8 +910,9 @@ const styles = StyleSheet.create({
     left: 0,
     top: 0,
     bottom: 0,
-    width: 28,
-    zIndex: 99,
+    width: 36,
+    zIndex: 999,
+    elevation: 20,
   },
   backButton: {
     width: 38,
