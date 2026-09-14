@@ -2,9 +2,9 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Role } from "@sih/shared";
 import { ProtectedRoute } from "@/routes/ProtectedRoute";
-import { AuthLayout } from "@/components/layout/AuthLayout";
+import { FieldAuthLayout } from "./layout/FieldAuthLayout";
 import { AppShell } from "@/components/layout/AppShell";
-import { LoginPage } from "@/features/auth/LoginPage";
+import { FieldLoginPage } from "./pages/FieldLoginPage";
 import { PublicVerificationPage } from "@/features/verification/PublicVerificationPage";
 import { DashboardPage } from "@/features/dashboard/DashboardPage";
 import { ApplicationListPage } from "@/features/applications/ApplicationListPage";
@@ -39,8 +39,8 @@ export function FieldApp() {
       <Route path="/" element={<FieldRoot />} />
 
       {/* Public & Auth Routes */}
-      <Route element={<AuthLayout />}>
-        <Route path="/login" element={<LoginPage />} />
+      <Route element={<FieldAuthLayout />}>
+        <Route path="/login" element={<FieldLoginPage />} />
         <Route path="/verify" element={<PublicVerificationPage />} />
       </Route>
 

@@ -2,9 +2,9 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Role } from "@sih/shared";
 import { ProtectedRoute } from "@/routes/ProtectedRoute";
-import { AuthLayout } from "@/components/layout/AuthLayout";
+import { AdminAuthLayout } from "./layout/AdminAuthLayout";
 import { AppShell } from "@/components/layout/AppShell";
-import { LoginPage } from "@/features/auth/LoginPage";
+import { AdminLoginPage } from "./pages/AdminLoginPage";
 import { PublicVerificationPage } from "@/features/verification/PublicVerificationPage";
 import { StateAdminDashboardPage } from "./pages/StateAdminDashboardPage";
 import { OfficerManagementPage } from "./pages/OfficerManagementPage";
@@ -58,8 +58,8 @@ export function AdminApp() {
       <Route path="/" element={<AdminRoot />} />
 
       {/* Public & Auth Routes */}
-      <Route element={<AuthLayout />}>
-        <Route path="/login" element={<LoginPage />} />
+      <Route element={<AdminAuthLayout />}>
+        <Route path="/login" element={<AdminLoginPage />} />
         <Route path="/verify" element={<PublicVerificationPage />} />
       </Route>
 
