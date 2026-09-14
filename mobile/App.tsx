@@ -34,7 +34,6 @@ function MainApp() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [lang, setLang] = useState<string>("en");
 
-  const tabFadeAnim = useRef(new Animated.Value(1)).current;
   const rosterScale = useRef(new Animated.Value(1)).current;
   const verifyScale = useRef(new Animated.Value(1)).current;
   const registryScale = useRef(new Animated.Value(1)).current;
@@ -57,29 +56,18 @@ function MainApp() {
     Animated.sequence([
       Animated.timing(targetScale, {
         toValue: 0.85,
-        duration: 70,
+        duration: 60,
         useNativeDriver: true,
       }),
       Animated.spring(targetScale, {
         toValue: 1,
-        tension: 100,
+        tension: 120,
         friction: 6,
         useNativeDriver: true,
       }),
     ]).start();
 
-    Animated.timing(tabFadeAnim, {
-      toValue: 0,
-      duration: 70,
-      useNativeDriver: true,
-    }).start(() => {
-      setCurrentTab(newTab);
-      Animated.timing(tabFadeAnim, {
-        toValue: 1,
-        duration: 140,
-        useNativeDriver: true,
-      }).start();
-    });
+    setCurrentTab(newTab);
   };
 
   if (isLoading) {
@@ -112,12 +100,18 @@ function MainApp() {
         onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
-      {/* Screen Viewport with smooth crossfade */}
-      <Animated.View style={[styles.viewport, { opacity: tabFadeAnim }]}>
-        {currentTab === "roster" && <RosterScreen key={lang} currentLanguage={lang} />}
-        {currentTab === "verify" && <VerifyScreen key={lang} currentLanguage={lang} />}
-        {currentTab === "registry" && <RegistryScreen key={lang} currentLanguage={lang} />}
-      </Animated.View>
+      {/* Screen Viewport with stable persistent tabs */}
+      <View style={styles.viewport}>
+        <View style={[styles.tabScreen, currentTab !== "roster" && styles.hiddenScreen]}>
+          <RosterScreen key={lang} currentLanguage={lang} />
+        </View>
+        <View style={[styles.tabScreen, currentTab !== "verify" && styles.hiddenScreen]}>
+          <VerifyScreen key={lang} currentLanguage={lang} />
+        </View>
+        <View style={[styles.tabScreen, currentTab !== "registry" && styles.hiddenScreen]}>
+          <RegistryScreen key={lang} currentLanguage={lang} />
+        </View>
+      </View>
 
       {/* Bottom Navigation Bar (3 Core Operational Tabs) */}
       <View
@@ -237,6 +231,12 @@ const styles = StyleSheet.create({
   viewport: {
     flex: 1,
     backgroundColor: theme.colors.background,
+  },
+  tabScreen: {
+    flex: 1,
+  },
+  hiddenScreen: {
+    display: "none",
   },
   bottomNav: {
     flexDirection: "row",
