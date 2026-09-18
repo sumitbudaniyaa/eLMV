@@ -3,6 +3,58 @@
 All notable changes to the **Online Verification System for Weighing & Measuring Instruments** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), adhering strictly to zero-omission rules.
 
+## [1.9.58] - Mobile Network Diagnostics & Personal ngrok Restoration — 2026-09-18
+
+- **Personal ngrok Domain Restoration**:
+  - Saved user's personal ngrok authtoken to system config (`~/.ngrok/ngrok.yml`), resolving `ERR_NGROK_320` account mismatch.
+  - Successfully bound backend API port 5001 to static domain: `https://vapouringly-nonallegoric-teodora.ngrok-free.dev`.
+  - Restored `scripts/start-tunnel.js` to automatically spawn ngrok with the verified personal static domain.
+- **Mobile Network Diagnostics & Configuration Alignment ([`api.ts`](file:///Users/Sumit/Desktop/sih/mobile/src/lib/api.ts), [`config.ts`](file:///Users/Sumit/Desktop/sih/mobile/src/lib/config.ts))**:
+  - Added request/response logging in `mobile/src/lib/api.ts` to diagnose AP Client Isolation vs public tunnel reachability.
+  - Enhanced timeout error messages to report the exact destination URL (`Connection timed out (15s) reaching: ...`).
+  - Fixed `scripts/start-mobile.js` and `mobile/src/lib/config.ts` to route all mobile traffic through the live authenticated ngrok endpoint.
+- **Auth Initialization Stabilization ([`auth.tsx`](file:///Users/Sumit/Desktop/sih/mobile/src/lib/auth.tsx))**:
+  - Silently caught 401 and 404 response codes during initial profile bootstrap, clearing outdated tokens and returning to sign-in screen without noisy warning toasts or console crashes.
+- **Verification**:
+  - Mobile TypeScript build: 0 errors (`tsc --noEmit`).
+  - Monorepo compilation (`shared`, `server`, `client`): 0 errors.
+  - Live ngrok endpoint `GET /api/v1/` and `POST /api/v1/auth/login` verified returning 200 OK payloads.
+
+## [1.9.57] - Comprehensive Enterprise Security Hardening & Zero-Vulnerability Architecture — 2026-09-17
+
+- **Sliding-Window Rate Limiting Engine ([`rateLimiter.ts`](file:///Users/Sumit/Desktop/sih/server/src/middleware/rateLimiter.ts))**:
+  - Implemented high-performance, in-memory sliding-window rate limiter with RFC headers (`RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset`, `Retry-After`).
+  - Added dedicated limiters across all threat surfaces:
+    - `/auth/login`: 5 attempts / 15 minutes per IP (`authLoginLimiter`)
+    - `/auth/register`: 5 attempts / 1 hour per IP (`authRegisterLimiter`)
+    - `/auth/refresh`: 20 calls / 15 minutes per IP (`authRefreshLimiter`)
+    - `/inspections/upload-photo`: 15 uploads / 10 minutes per IP (`uploadLimiter`)
+    - Global API `/api/v1/*`: 300 requests / 1 minute per IP (`globalApiLimiter`)
+  - Added `ErrorCode.RATE_LIMIT_EXCEEDED` to `@sih/shared`.
+- **Production Environment Secrets Enforcement ([`env.ts`](file:///Users/Sumit/Desktop/sih/server/src/config/env.ts))**:
+  - Added Zod `.superRefine()` refusing to start in production if fallback test secrets (`JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `PKI_KEY_ENCRYPTION_SECRET`, `DATABASE_URL`, or `CLOUDINARY_API_SECRET`) are detected.
+  - Enforced minimum 32-character high-entropy secrets for cryptographic signing and key encryption in production environments.
+- **Account Enumeration & Timing Attack Elimination ([`auth.service.ts`](file:///Users/Sumit/Desktop/sih/server/src/modules/auth/auth.service.ts))**:
+  - Unified failed login error messages to `"Invalid email or password. Please check your credentials and try again."` for both non-existent users and bad passwords.
+  - Executed precomputed bcrypt cost 12 dummy comparison (`DUMMY_HASH`) when the user email does not exist, equalizing execution latency (~100ms) to foil side-channel timing analysis.
+- **IDOR Lockdown on User Endpoints ([`users.controller.ts`](file:///Users/Sumit/Desktop/sih/server/src/modules/users/users.controller.ts))**:
+  - Restricted `GET /users/:id` strictly to the authenticated user's own profile (`targetId === req.user.id`) or administrators (`Role.ADMIN`), rejecting cross-tenant user scraping with 403 Forbidden.
+- **File Upload Bounds & Binary Magic-Byte Verification ([`inspections.controller.ts`](file:///Users/Sumit/Desktop/sih/server/src/modules/inspections/inspections.controller.ts))**:
+  - Enforced a hard 5MB limit on decoded base64 inspection photo uploads.
+  - Verified binary magic-byte signatures for JPEG (`FF D8 FF`), PNG (`89 50 4E 47`), and WebP (`RIFF...WEBP`).
+  - Strictly rejected vector SVGs, HTML, and script payloads to eliminate Stored XSS threat vectors.
+  - Sanitized file identifiers against alphanumeric characters (`/^[a-zA-Z0-9_-]+$/`).
+- **Cryptographic Hashing of Refresh Tokens at Rest ([`auth.service.ts`](file:///Users/Sumit/Desktop/sih/server/src/modules/auth/auth.service.ts))**:
+  - Stored only SHA-256 digests (`hashToken()`) in the database `RefreshToken` table.
+  - Query lookups, rotations, and revocations compare SHA-256 hashes, ensuring database disclosures cannot lead to valid JWT refresh tokens.
+- **Role Information Leakage Elimination ([`roles.ts`](file:///Users/Sumit/Desktop/sih/server/src/middleware/roles.ts))**:
+  - Replaced verbose role mismatch responses with generic `"Access denied. You do not have permission to perform this action."`.
+  - Retained detailed role telemetry on internal server logs (`logger.warn`) for security audits.
+- **Verification**:
+  - `npm run build --workspace=@sih/client`: passed with 0 errors (clean build in 2.32s).
+  - `npm run build --workspace=@sih/server`: passed with 0 errors.
+  - `npm run typecheck --workspace=@sih/mobile`: passed with 0 errors.
+
 ## [1.9.56] - Hero Image Hover Clean & Removal of Blue Badges from Footer Pages — 2026-09-14
 
 - **Landing Page Hero Visual Asset Clean-up**:

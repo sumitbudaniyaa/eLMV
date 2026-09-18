@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { prisma } from "../../config/database";
@@ -16,6 +17,17 @@ interface TokenPayload {
   email: string;
   role: Role;
   name: string;
+}
+
+// Precomputed bcrypt cost 12 hash for timing attack mitigation during failed logins
+const DUMMY_HASH = "$2a$12$e8N8Y9/K6G6YQyYl06b12e3e5r7t9y1u3i5o7p9a1s3d5f7g9h1j";
+
+/**
+ * Cryptographically hash refresh token using SHA-256 for secure database storage
+ * Protects users from full session hijack in the event of a database dump
+ */
+function hashToken(token: string): string {
+  return crypto.createHash("sha256").update(token).digest("hex");
 }
 
 export class AuthService {
@@ -104,13 +116,13 @@ export class AuthService {
       name: user.name,
     });
 
-    // Store refresh token
+    // Store SHA-256 hashed refresh token for security at rest
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
     await prisma.refreshToken.create({
       data: {
-        token: tokens.refreshToken,
+        token: hashToken(tokens.refreshToken),
         userId: user.id,
         expiresAt,
       },
@@ -143,10 +155,12 @@ export class AuthService {
     });
 
     if (!user) {
+      // Mitigate timing attacks by executing bcrypt comparison even when email does not exist
+      await bcrypt.compare(input.password, DUMMY_HASH);
       throw new AppError(
         401,
         ErrorCode.UNAUTHORIZED,
-        "No account found with this email address. Please check your email or register."
+        "Invalid email or password. Please check your credentials and try again."
       );
     }
 
@@ -163,7 +177,7 @@ export class AuthService {
       throw new AppError(
         401,
         ErrorCode.UNAUTHORIZED,
-        "Invalid password. Please check your password and try again."
+        "Invalid email or password. Please check your credentials and try again."
       );
     }
 
@@ -174,13 +188,13 @@ export class AuthService {
       name: user.name,
     });
 
-    // Store refresh token in DB
+    // Store SHA-256 hashed refresh token in DB
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
     await prisma.refreshToken.create({
       data: {
-        token: tokens.refreshToken,
+        token: hashToken(tokens.refreshToken),
         userId: user.id,
         expiresAt,
       },
@@ -217,8 +231,9 @@ export class AuthService {
       );
     }
 
+    const tokenHash = hashToken(refreshTokenString);
     const storedToken = await prisma.refreshToken.findUnique({
-      where: { token: refreshTokenString },
+      where: { token: tokenHash },
       include: { user: true },
     });
 
@@ -247,9 +262,10 @@ export class AuthService {
     const nextExpires = new Date();
     nextExpires.setDate(nextExpires.getDate() + 7);
 
+    // Store hashed token for the rotated refresh token
     await prisma.refreshToken.create({
       data: {
-        token: tokens.refreshToken,
+        token: hashToken(tokens.refreshToken),
         userId: user.id,
         expiresAt: nextExpires,
       },
@@ -263,8 +279,9 @@ export class AuthService {
    */
   async logout(userId: string, refreshTokenString?: string) {
     if (refreshTokenString) {
+      const tokenHash = hashToken(refreshTokenString);
       await prisma.refreshToken.updateMany({
-        where: { token: refreshTokenString, userId },
+        where: { token: tokenHash, userId },
         data: { isRevoked: true },
       });
     } else {

@@ -38,12 +38,56 @@ const envSchema = z.object({
     .default("default-pki-secret-key-32chars!"),
   CLIENT_URL: z.string().default("http://localhost:5173"),
   PUBLIC_VERIFICATION_URL: z.string().default("http://localhost:5173/verify"),
+}).superRefine((data, ctx) => {
+  // CRITICAL SECURITY ENFORCEMENT:
+  // In production, reject known development fallback secrets, enforce cryptographic length >= 32 chars
+  if (data.NODE_ENV === "production") {
+    if (data.JWT_ACCESS_SECRET === "test-jwt-access-secret-key-32chars!!" || data.JWT_ACCESS_SECRET.length < 32) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["JWT_ACCESS_SECRET"],
+        message: "CRITICAL: In production, JWT_ACCESS_SECRET must be set and contain at least 32 characters of high-entropy secret.",
+      });
+    }
+
+    if (data.JWT_REFRESH_SECRET === "test-jwt-refresh-secret-key-32chars!" || data.JWT_REFRESH_SECRET.length < 32) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["JWT_REFRESH_SECRET"],
+        message: "CRITICAL: In production, JWT_REFRESH_SECRET must be set and contain at least 32 characters of high-entropy secret.",
+      });
+    }
+
+    if (data.PKI_KEY_ENCRYPTION_SECRET === "default-pki-secret-key-32chars!" || data.PKI_KEY_ENCRYPTION_SECRET.length < 32) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["PKI_KEY_ENCRYPTION_SECRET"],
+        message: "CRITICAL: In production, PKI_KEY_ENCRYPTION_SECRET must be set and contain at least 32 characters to encrypt root ECDSA keys at rest.",
+      });
+    }
+
+    if (data.DATABASE_URL.includes("postgrespassword")) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["DATABASE_URL"],
+        message: "CRITICAL: Default local database password 'postgrespassword' cannot be used in production.",
+      });
+    }
+
+    if (data.CLOUDINARY_API_SECRET === "abcdefghijklmnopqrstuvwxyz12") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["CLOUDINARY_API_SECRET"],
+        message: "CRITICAL: Demo Cloudinary API secret cannot be used in production.",
+      });
+    }
+  }
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
 
 if (!parsedEnv.success) {
-  console.error("Invalid environment variables:", parsedEnv.error.format());
+  console.error("CRITICAL CONFIGURATION ERROR: Invalid environment variables:", parsedEnv.error.format());
   process.exit(1);
 }
 

@@ -51,8 +51,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (fetchedUser) {
         setUser(fetchedUser);
       }
-    } catch (err) {
-      console.warn("Could not fetch current profile:", err);
+    } catch (err: any) {
+      // If token is invalid (401) or user no longer exists (404),
+      // silently clear stale credentials so the user lands on the login screen
+      const status = err?.response?.status;
+      if (status === 401 || status === 404) {
+        await clearMobileTokens();
+        setUser(null);
+      }
     }
   };
 
@@ -63,8 +69,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (accessToken) {
           await refreshProfile();
         }
-      } catch (err) {
-        console.warn("Auth initialization error:", err);
+      } catch {
+        // Silently handle stale/invalid tokens on startup — user will see login screen
+        await clearMobileTokens();
+        setUser(null);
       } finally {
         setIsLoading(false);
       }

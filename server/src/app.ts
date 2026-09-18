@@ -74,9 +74,13 @@ import { notificationsRouter } from "./modules/notifications/notifications.route
 import { auditRouter } from "./modules/audit/audit.routes";
 import { adminRouter } from "./modules/admin/admin.routes";
 import { gatcRouter } from "./modules/gatc/gatc.routes";
+import { globalApiLimiter } from "./middleware/rateLimiter";
 
 // Root API v1 router placeholder (will mount all feature modules)
 export const apiV1Router = express.Router();
+
+// Apply global API rate limiter across all v1 routes
+apiV1Router.use(globalApiLimiter);
 
 apiV1Router.get("/", (_req: Request, res: Response) => {
   res.json({

@@ -2,7 +2,7 @@ const { spawn } = require("child_process");
 const fs = require("fs");
 
 const TUNNEL_URL = "https://vapouringly-nonallegoric-teodora.ngrok-free.dev";
-const PORT = 5173;
+const PORT = 5001;
 
 console.log("\x1b[32m%s\x1b[0m", `\n========================================================`);
 console.log("\x1b[32m%s\x1b[0m", `🚀  Legal Metrology Full Stack Ecosystem Active!`);
@@ -10,10 +10,7 @@ console.log("\x1b[35m%s\x1b[0m", `🛒  Consumer Web App (Port 5173): http://loc
 console.log("\x1b[34m%s\x1b[0m", `🏛️   Admin Web App    (Port 5174): http://localhost:5174`);
 console.log("\x1b[33m%s\x1b[0m", `📋  Field Web Suite  (Port 5175): http://localhost:5175`);
 console.log("\x1b[36m%s\x1b[0m", `📱  Mobile Metro Dev (Port 8081): http://localhost:8081`);
-console.log("\x1b[37m%s\x1b[0m", `    ↳ To run on iOS Simulator:    npm run mobile:ios`);
-console.log("\x1b[37m%s\x1b[0m", `    ↳ To run on Android:          npm run mobile:android`);
-console.log("\x1b[37m%s\x1b[0m", `    ↳ To scan QR in Expo Go:      npm run mobile:start`);
-console.log("\x1b[36m%s\x1b[0m", `🌐  Public Tunnel    (Web & API): ${TUNNEL_URL}`);
+console.log("\x1b[36m%s\x1b[0m", `🌐  Public ngrok API Tunnel:     ${TUNNEL_URL}/api/v1`);
 console.log("\x1b[32m%s\x1b[0m", `========================================================\n`);
 
 function resolveNgrok() {

@@ -4,6 +4,7 @@ import { requireAuth } from "../../middleware/auth";
 import { requireRole } from "../../middleware/roles";
 import { validate } from "../../middleware/validate";
 import { createInspectionSchema, Role } from "@sih/shared";
+import { uploadLimiter } from "../../middleware/rateLimiter";
 
 export const inspectionsRouter = Router();
 
@@ -20,9 +21,10 @@ inspectionsRouter.post(
 // Get inspection record
 inspectionsRouter.get("/:id", inspectionsController.getById);
 
-// Upload photo
+// Upload photo with rate limiting
 inspectionsRouter.post(
   "/upload-photo",
+  uploadLimiter,
   requireRole([Role.LMO, Role.GATC_INSPECTOR, Role.GATC_ADMIN, Role.ADMIN]),
   inspectionsController.uploadPhoto
 );

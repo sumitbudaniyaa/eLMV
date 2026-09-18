@@ -23,14 +23,16 @@ function getLocalIp() {
 }
 
 const localIp = getLocalIp();
+const apiUrl = `${TUNNEL_URL}/api/v1`;
 
 console.log("\x1b[36m%s\x1b[0m", "\n========================================================");
 console.log("\x1b[32m%s\x1b[0m", "📱  MOBILE APP LAUNCHER (Expo Go)");
 if (useTunnel) {
-  console.log("\x1b[33m%s\x1b[0m", "🌐  Network Mode: TUNNEL (Works across cellular & any network)");
-  console.log("\x1b[35m%s\x1b[0m", `🔗  Backend API:  ${TUNNEL_URL}/api/v1`);
+  console.log("\x1b[33m%s\x1b[0m", "🌐  Network Mode: TUNNEL (Expo Metro Bundler via Tunnel)");
+  console.log("\x1b[35m%s\x1b[0m", `🔗  Backend API:  ${apiUrl}`);
 } else {
   console.log("\x1b[33m%s\x1b[0m", "🏠  Network Mode: LOCAL LAN (Same Wi-Fi network only)");
+  console.log("\x1b[35m%s\x1b[0m", `🔗  Backend API:  http://${localIp}:5001/api/v1`);
 }
 console.log("\x1b[36m%s\x1b[0m", "========================================================\n");
 
@@ -44,7 +46,7 @@ const child = spawn("npx", expoArgs, {
   stdio: "inherit",
   env: {
     ...process.env,
-    EXPO_PUBLIC_API_URL: useTunnel ? `${TUNNEL_URL}/api/v1` : undefined,
+    EXPO_PUBLIC_API_URL: apiUrl,
   },
 });
 

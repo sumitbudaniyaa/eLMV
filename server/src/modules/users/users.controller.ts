@@ -1,12 +1,23 @@
 import { Request, Response, NextFunction } from "express";
 import { usersService } from "./users.service";
-import { ApiResponse, Role } from "@sih/shared";
+import { ApiResponse, Role, ErrorCode } from "@sih/shared";
+import { AppError } from "../../middleware/errorHandler";
 
 export class UsersController {
   async getUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const id = req.params.id === "me" ? req.user!.id : req.params.id;
-      const user = await usersService.getUserById(id);
+      const targetId = req.params.id === "me" ? req.user!.id : req.params.id;
+
+      // Strict IDOR protection: Non-admin users can ONLY retrieve their own user profile
+      if (targetId !== req.user!.id && req.user!.role !== Role.ADMIN) {
+        throw new AppError(
+          403,
+          ErrorCode.FORBIDDEN,
+          "Access denied. You do not have permission to view this user profile."
+        );
+      }
+
+      const user = await usersService.getUserById(targetId);
       const response: ApiResponse = {
         success: true,
         data: user,

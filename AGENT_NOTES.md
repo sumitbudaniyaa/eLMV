@@ -780,5 +780,47 @@
 - **Rationale**:
   - Bright blue badge pills beside page titles created visual fragmentation and looked like promotional marketing tags. Neutral, authoritative typography aligns with standard Government of India digital service guidelines.
 
+### ADR-070: Enterprise Security Hardening & Zero-Vulnerability Architecture
+- **Decision**:
+  1. **Rate Limiting Middleware Engine (`server/src/middleware/rateLimiter.ts`)**:
+     - Built an in-memory sliding-window rate limiter with RFC headers (`RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset`, `Retry-After`) and automatic periodic eviction.
+     - Enforced strict limits:
+       - Login: 5 attempts / 15 minutes per IP
+       - Registration: 5 registrations / 1 hour per IP
+       - Token refresh: 20 calls / 15 minutes per IP
+       - Photo uploads: 15 uploads / 10 minutes per IP
+       - General API routes: 300 requests / 1 minute per IP
+  2. **Production Secret Enforcement (`server/src/config/env.ts`)**:
+     - Added Zod `.superRefine()` refusing to start in production if fallback test secrets (`JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `PKI_KEY_ENCRYPTION_SECRET`, `DATABASE_URL`, or `CLOUDINARY_API_SECRET`) are used.
+     - Mandated minimum 32-character high-entropy secrets for cryptographic signing and key encryption in production.
+  3. **Account Enumeration & Timing Attack Elimination (`server/src/modules/auth/auth.service.ts`)**:
+     - Unified login failure error messages to `"Invalid email or password. Please check your credentials and try again."` for both non-existent users and bad passwords.
+     - Executed precomputed bcrypt cost 12 dummy comparison (`DUMMY_HASH`) when the user email does not exist, equalizing execution latency (~100ms) to foil side-channel timing analysis.
+  4. **IDOR Lockdown on User Endpoints (`server/src/modules/users/users.controller.ts`)**:
+     - Restricted `GET /users/:id` strictly to the authenticated user's own profile (`targetId === req.user.id`) or administrators (`Role.ADMIN`).
+  5. **File Upload Bounds & Binary Magic-Byte Verification (`server/src/modules/inspections/inspections.controller.ts`)**:
+     - Enforced a hard 5MB limit on decoded base64 inspection photo uploads.
+     - Verified binary magic-byte signatures for JPEG (`FF D8 FF`), PNG (`89 50 4E 47`), and WebP (`RIFF...WEBP`).
+     - Strictly rejected vector SVGs, HTML, and script payloads to eliminate Stored XSS threat vectors.
+     - Sanitized file identifiers against alphanumeric characters.
+  6. **Cryptographic Hashing of Refresh Tokens at Rest (`server/src/modules/auth/auth.service.ts`)**:
+     - Stored only SHA-256 digests (`hashToken()`) in the database `RefreshToken` table.
+     - Query lookups, rotations, and revocations compare SHA-256 hashes, ensuring database disclosures cannot lead to valid JWT refresh tokens.
+  7. **Role Information Leakage Elimination (`server/src/middleware/roles.ts`)**:
+     - Replaced verbose role mismatch responses with generic `"Access denied. You do not have permission to perform this action."`.
+     - Retained detailed role telemetry on internal server logs (`logger.warn`) for security audits.
+- **Rationale**:
+  - The Legal Metrology Online Verification System handles sensitive trader commercial records, physical inspection reports, and PKI-signed statutory certificates. Enterprise-grade security demands defense-in-depth across authentication, authorization, session persistence, and network bounds without compromising developer velocity or user experience.
+
+### ADR-071: Mobile API Network Tunnel Resilience & Personal ngrok Binding
+- **Decision**:
+  1. Authenticate system ngrok with user's personal credential (`ngrok config add-authtoken <TOKEN>`) to bind port 5001 directly to the user's reserved static domain: `https://vapouringly-nonallegoric-teodora.ngrok-free.dev`.
+  2. Implement network diagnostics and explicit target logging in `mobile/src/lib/api.ts` to surface destination URLs and distinguish Wi-Fi AP Client Isolation timeouts from server errors.
+  3. Silently catch startup profile resolution failures (401/404) in `mobile/src/lib/auth.tsx` to clear stale credentials on startup without noisy console warnings.
+- **Rationale**:
+  - Personal static ngrok domains guarantee a stable, non-expiring HTTPS endpoint across cellular networks and restricted Wi-Fi environments. Direct authtoken integration resolves `ERR_NGROK_320` account mismatch errors while avoiding ephemeral tunnel drift.
+
+
+
 
 

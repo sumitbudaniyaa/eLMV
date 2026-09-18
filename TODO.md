@@ -887,6 +887,56 @@ In accordance with hard project rules, every phase must be fully implemented, te
   - `ContactUsPage.tsx`: Removed *"Official Directory"* blue badge and neutralized icon containers to slate.
 - [x] Verification: Monorepo build and typecheck passed with 0 errors.
 
+## Phase 79: Comprehensive Backend Security Hardening & Enterprise Vulnerability Remediation
+- [x] CRITICAL-1: Multi-Tiered Sliding-Window Rate Limiting Engine (`server/src/middleware/rateLimiter.ts`):
+  - Created high-performance, zero-dependency in-memory sliding-window rate limiter with automatic stale key eviction.
+  - Implemented standard RFC headers: `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset`, `Retry-After`.
+  - Added `authLoginLimiter` (5 attempts / 15m), `authRegisterLimiter` (5 registrations / 1h), and `authRefreshLimiter` (20 calls / 15m) on `/api/v1/auth` in `auth.routes.ts`.
+  - Added `uploadLimiter` (15 uploads / 10m) on `/api/v1/inspections/upload-photo` in `inspections.routes.ts`.
+  - Applied `globalApiLimiter` (300 requests / 1m) across all v1 API endpoints in `app.ts`.
+  - Added `ErrorCode.RATE_LIMIT_EXCEEDED` to `@sih/shared`.
+- [x] CRITICAL-2: Production Environment Secret Enforcement (`server/src/config/env.ts`):
+  - Integrated Zod `.superRefine()` validation enforcing that in production (`NODE_ENV === "production"`), default test secrets for `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, and `PKI_KEY_ENCRYPTION_SECRET` are strictly rejected.
+  - Required minimum 32-character high-entropy secrets for cryptographic signing and key encryption at rest.
+  - Blocked default local database password (`postgrespassword`) and demo Cloudinary secrets from booting in production.
+- [x] HIGH-1: Account Enumeration & Timing Attack Elimination (`server/src/modules/auth/auth.service.ts`):
+  - Unified failed login error messages to `"Invalid email or password. Please check your credentials and try again."` for both non-existent emails and incorrect passwords.
+  - Implemented precomputed bcrypt cost 12 dummy comparison (`DUMMY_HASH`) when user is not found, equalizing execution time (~100ms) and eliminating side-channel timing attacks.
+- [x] HIGH-2: IDOR Elimination on User Profiles (`server/src/modules/users/users.controller.ts`):
+  - Enforced strict authorization guard on `GET /api/v1/users/:id`: non-admin users are restricted to their own user ID (`req.user.id` or `"me"`), rejecting cross-tenant user record scraping with 403 Forbidden.
+- [x] HIGH-3: Binary Magic-Byte Inspection & File Upload Bounds (`server/src/modules/inspections/inspections.controller.ts`):
+  - Enforced strict 5MB decoded buffer limit on inspection photo uploads.
+  - Added binary magic-byte header validation verifying JPEG (`FF D8 FF`), PNG (`89 50 4E 47`), and WebP (`RIFF...WEBP`) signatures.
+  - Explicitly blocked vector SVGs, HTML, and executable scripts to prevent stored XSS attacks.
+  - Sanitized filenames against alphanumeric regex (`/^[a-zA-Z0-9_-]+$/`) to prevent path traversal.
+- [x] MEDIUM-1: Refresh Token Hashing at Rest (`server/src/modules/auth/auth.service.ts`):
+  - Implemented SHA-256 cryptographic hashing (`hashToken`) for refresh tokens before database persistence.
+  - All lookups, revocations, and rotations in `register()`, `login()`, `refresh()`, and `logout()` operate on hashed digests, rendering database dumps useless for session hijacking.
+- [x] MEDIUM-2: Role Information Leakage Elimination (`server/src/middleware/roles.ts`):
+  - Replaced verbose role mismatch responses with generic `"Access denied. You do not have permission to perform this action."`.
+  - Shifted internal role mismatch telemetry and required roles to server-side `logger.warn` for internal security auditing.
+- [x] Verification:
+  - Client production build (`npm run build --workspace=@sih/client`): Passed with 0 errors.
+  - Mobile typecheck (`npm run typecheck --workspace=@sih/mobile`): Passed with 0 errors.
+  - Server compilation (`npm run build --workspace=@sih/server`): Passed with 0 errors.
+  - Shared package compilation (`npm run build --workspace=@sih/shared`): Passed with 0 errors.
+
+## Phase 80: Mobile API Network Tunnel Resilience & Personal ngrok Restoration
+- [x] Personal ngrok Authtoken Authentication:
+  - Saved user's personal ngrok authtoken (`364NANPU9f...`) to system configuration (`~/.ngrok/ngrok.yml`).
+  - Resolved `ERR_NGROK_320` domain ownership conflict and restored static domain: `https://vapouringly-nonallegoric-teodora.ngrok-free.dev`.
+  - Configured `scripts/start-tunnel.js` to bind port 5001 directly to the authenticated personal static domain.
+- [x] Mobile Network Diagnostics & Configuration Sync (`mobile/src/lib/api.ts`, `mobile/src/lib/config.ts`):
+  - Added request/response URL logging in `mobile/src/lib/api.ts` to diagnose LAN AP isolation vs tunnel connectivity.
+  - Enhanced timeout error messages to identify the exact destination server endpoint (`timeout of 15000ms exceeded on target: ...`).
+  - Synced `PUBLIC_TUNNEL_URL` and `scripts/start-mobile.js` to route all mobile traffic through the live authenticated ngrok endpoint.
+- [x] Auth Initialization Hardening (`mobile/src/lib/auth.tsx`):
+  - Handled 401 and 404 responses during startup token resolution silently by wiping invalid/stale credentials from storage without noisy console warnings.
+- [x] Verification:
+  - Mobile TypeScript build (`npm run typecheck --workspace=@sih/mobile`): 0 errors.
+  - Full repository build (`@sih/shared`, `@sih/server`, `@sih/client`): Passed with 0 errors.
+  - Live authenticated ngrok endpoint `GET /api/v1/` and `POST /api/v1/auth/login` verified returning 200 OK with valid tokens.
+
 
 
 

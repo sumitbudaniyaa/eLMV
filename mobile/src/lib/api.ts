@@ -47,6 +47,8 @@ mobileApi.interceptors.request.use(async (config) => {
   const currentBaseUrl = await getSavedBaseUrl();
   config.baseURL = currentBaseUrl;
 
+  console.log(`[MOBILE API] --> ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
+
   if (config.headers) {
     config.headers["ngrok-skip-browser-warning"] = "true";
   }
@@ -127,6 +129,15 @@ mobileApi.interceptors.response.use(
         isRefreshing = false;
       }
     }
+
+    const targetUrl = `${originalRequest?.baseURL || ""}${originalRequest?.url || ""}`;
+    console.warn(`[MOBILE API ERROR] ${error.message} on target: ${targetUrl}`);
+
+    if (error.code === "ECONNABORTED" || error.message?.includes("timeout")) {
+      const detailedErr = new Error(`Connection timed out (15s) reaching: ${targetUrl}`);
+      return Promise.reject(detailedErr);
+    }
+
     return Promise.reject(error);
   }
 );
