@@ -47,16 +47,16 @@ export function RecordInspectionDialog({
     defaultValues: {
       applicationId,
       result: InspectionResult.PASSED,
-      maxPermissibleError: 1.5,
-      actualErrorObserved: 0.5,
-      standardsUsed: ["STD-WT-E2-0041", "STD-WT-M1-0089"],
+      maxPermissibleError: "" as any,
+      actualErrorObserved: "" as any,
+      standardsUsed: [],
       photoUrls: [],
-      sealNumber: `LM-SEAL-${Date.now().toString().slice(-6)}`,
-      remarks: "Tested across zero, half-capacity, and full-capacity. Verification seal affixed.",
+      sealNumber: "",
+      remarks: "",
       observations: {
-        repeatability: "Passed (error < 0.2 division)",
-        eccentricity: "Passed within permissible class limit",
-        linearity: "Linearity verified at 5 test points",
+        repeatability: "",
+        eccentricity: "",
+        linearity: "",
       },
     },
   });
@@ -65,7 +65,7 @@ export function RecordInspectionDialog({
   useEffect(() => {
     if (open) {
       setValue("applicationId", applicationId);
-      setValue("sealNumber", `LM-SEAL-${Date.now().toString().slice(-6)}`);
+      setValue("sealNumber", "");
     }
   }, [open, applicationId, setValue]);
 
@@ -160,6 +160,7 @@ export function RecordInspectionDialog({
               id="maxPermissibleError"
               type="number"
               step="any"
+              placeholder="e.g. 1.5"
               className="mt-1"
               {...register("maxPermissibleError", { valueAsNumber: true })}
             />
@@ -174,6 +175,7 @@ export function RecordInspectionDialog({
               id="actualErrorObserved"
               type="number"
               step="any"
+              placeholder="e.g. 0.5"
               className="mt-1"
               {...register("actualErrorObserved", { valueAsNumber: true })}
             />
@@ -212,13 +214,13 @@ export function RecordInspectionDialog({
         <div className="grid grid-cols-2 gap-3">
           <div>
             <Label htmlFor="sealNumber">{t("dialogs.recordInspection.sealNumber")}</Label>
-            <Input id="sealNumber" placeholder={t("dialogs.recordInspection.sealPlaceholder")} className="mt-1" {...register("sealNumber")} />
+            <Input id="sealNumber" placeholder={t("dialogs.recordInspection.sealPlaceholder", { defaultValue: "e.g. LM-SEAL-894210" })} className="mt-1" {...register("sealNumber")} />
           </div>
           <div>
             <Label htmlFor="standard">{t("dialogs.recordInspection.standards")}</Label>
             <Input
               id="standard"
-              defaultValue="STD-WT-E2-0041"
+              placeholder="e.g. STD-WT-E2-0041"
               className="mt-1"
               onChange={(e) => setValue("standardsUsed", [e.target.value])}
             />
@@ -311,6 +313,7 @@ export function RecordInspectionDialog({
           <textarea
             id="remarks"
             rows={2}
+            placeholder={t("dialogs.recordInspection.remarksPlaceholder", { defaultValue: "e.g. Tested across capacity range. Verification seal affixed." })}
             className="mt-1 flex w-full rounded-xl border border-input bg-background dark:bg-card px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
             {...register("remarks")}
           />

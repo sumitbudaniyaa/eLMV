@@ -817,9 +817,54 @@
   1. Authenticate system ngrok with user's personal credential (`ngrok config add-authtoken <TOKEN>`) to bind port 5001 directly to the user's reserved static domain: `https://vapouringly-nonallegoric-teodora.ngrok-free.dev`.
   2. Implement network diagnostics and explicit target logging in `mobile/src/lib/api.ts` to surface destination URLs and distinguish Wi-Fi AP Client Isolation timeouts from server errors.
   3. Silently catch startup profile resolution failures (401/404) in `mobile/src/lib/auth.tsx` to clear stale credentials on startup without noisy console warnings.
+### ADR-072: Form Input Hardening, Zero Pre-Filled Defaults & Unified Input Specification
+- **Decision**:
+  1. Remove all pre-filled/hardcoded form inputs across all web and mobile forms (`RegisterInstrumentDialog`, `RecordInspectionDialog`, `ScheduleInspectionDialog`, `OfficerManagementPage`, `GatcAgencyManagementPage`, `GatcStaffPage`, `InspectionModal`, `LoginScreen`).
+  2. Replace hardcoded default values with clean, descriptive placeholder hints so users always start with empty forms.
+  3. Author `FORM_INPUT_GUIDE.md` as the authoritative reference for form schemas, validation constraints, and realistic copy-pasteable sample data.
 - **Rationale**:
-  - Personal static ngrok domains guarantee a stable, non-expiring HTTPS endpoint across cellular networks and restricted Wi-Fi environments. Direct authtoken integration resolves `ERR_NGROK_320` account mismatch errors while avoiding ephemeral tunnel drift.
+  - In a production-ready enterprise deployment, input forms must never contain hardcoded demo data by default. Providing clean placeholders improves usability while `FORM_INPUT_GUIDE.md` equips developers, QA testers, and jury evaluators with complete test data sets.
 
+### ADR-073: Database Seed Data Purge & Admin-Only Provisioning Model
+- **Decision**:
+  1. Purge all mock/demo seeded records (certificates, inspections, application histories, applications, instruments, audit logs, refresh tokens, profiles, non-admin users) from the active database.
+  2. Preserve exclusively the root central administrator account (`admin@metrology.gov.in`) and active root PKI ECDSA signing key.
+  3. Rewrite `server/prisma/seed.ts` to provision only the admin account and active PKI key on future seed runs.
+- **Rationale**:
+  - Ensures a completely clean production state for fresh deployments, hackathon presentations, and user-driven testing, where all officers, agencies, and traders are provisioned through live workflows rather than artificial seed scripts.
+
+### ADR-075: Authenticated Role Priority in Portal Selection & Safe Non-Destructive Navigation
+- **Decision**:
+  1. In `client/src/App.tsx`, evaluate the authenticated user's role before applying any URL path heuristics. If `user.role === ADMIN` or `GATC_ADMIN`, always render `AdminApp`.
+  2. Map `/officers`, `/agencies`, `/agency`, and `/inspectors` under `"admin"` in `client/src/lib/subdomain.ts`.
+  3. Remove destructive `logout()` invocations from `FieldRoot` and `AdminRoot`, replacing them with non-destructive navigation redirects.
+- **Rationale**:
+  - URL heuristics should only be used to guide unauthenticated users to the correct login page. Once authenticated, a user's role is authoritative and must determine their app shell, preventing accidental cross-portal switches and unwanted session termination.
+
+### ADR-076: Citizen Services Navigation Direct Routing & Metrological Reference Manual
+- **Decision**:
+  1. In `client/src/portals/consumer/pages/ConsumerLandingPage.tsx`, replace the anchor `#contact` on the "Consumer Helpline & Grievances" card with `<Link to="/contact">`.
+  2. Compile `LEGAL_METROLOGY_INSTRUMENTS_GUIDE.md` as the authoritative reference manual for government compliance under the Legal Metrology Act, 2009, Legal Metrology (General) Rules, 2011, and OIML recommendations.
+  3. Standardize category codes for all 7 instrument families (`NON_AUTOMATIC_WEIGHING_INSTRUMENT`, `AUTOMATIC_WEIGHING_INSTRUMENT`, `FUEL_DISPENSER`, `STORAGE_TANK`, `LENGTH_MEASURE`, `CAPACITY_MEASURE`, `OTHER`) and accuracy classes (Class I, II, III, IIII).
+- **Rationale**:
+  - Landing page cards representing distinct services must navigate directly to the dedicated service views rather than scrolling within the landing page. Metrological compliance requires formal alignment with Central and State rules and OIML standards.
+
+### ADR-077: Mobile Reactive 401 Interceptor & Invalidation Dispatch
+- **Decision**:
+  1. In `mobile/src/lib/api.ts`, add `setOnUnauthorized` callback hook to the Axios response interceptor.
+  2. When the backend returns 401 (e.g., user account was purged or deleted from the database) and token refresh fails, immediately clear SecureStore and trigger `unauthorizedListener()`.
+  3. In `mobile/src/lib/auth.tsx`, register the listener in `AuthProvider` to update React state `user = null`.
+- **Rationale**:
+  - Previously, `clearMobileTokens()` cleared storage on 401, but the in-memory React state remained populated until the user reloaded or restarted the application. Adding an event callback ensures instantaneous transition back to `LoginScreen` in real time upon account deletion or token invalidation.
+
+### ADR-078: QR Code Verification Hardening & Complete Mock Certificate Elimination
+- **Decision**:
+  1. In `mobile/src/screens/VerifyScreen.tsx`, constrain `extractIdentifier` to strictly match Legal Metrology payloads (JSON with `token`/`certNumber`, URLs with `?token=`, `?cert=`, `/verify/:token`, standard certificate numbers `^LM-[A-Z0-9]{2,4}-\d{4}-\d+$`, or 32/64-char hex tokens). Return empty string for all unrelated QR data.
+  2. In `handleBarcodeScanned`, reject non-metrology QR codes with an alert ("Invalid or Unrecognized QR Code").
+  3. Route valid scanned identifiers to `handleVerify(identifier)` to perform backend verification before displaying results.
+  4. In `mobile/src/components/officer/CertificateModal.tsx`, completely eliminate hardcoded demo fallbacks (`"LM-KA-2026-0000001"`, fake ECDSA signatures, default valid status). Render an explicit "Statutory Certificate Not Found" error card when a certificate is not found in the database.
+- **Rationale**:
+  - A verification app must never display a valid certificate for random or unverified QR codes. If a QR code is not a registered Legal Metrology certificate, it must explicitly fail and report "Not Found" rather than falling back to demo records.
 
 
 

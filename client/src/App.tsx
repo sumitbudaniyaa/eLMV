@@ -48,6 +48,18 @@ export default function App() {
     document.title = title;
   }, [portal, location.pathname, user?.role]);
 
+  if (user) {
+    if (user.role === Role.ADMIN || user.role === Role.GATC_ADMIN) {
+      return <AdminApp />;
+    }
+    if (user.role === Role.LMO || user.role === Role.GATC_INSPECTOR) {
+      return <FieldApp />;
+    }
+    if (user.role === Role.CONSUMER) {
+      return <ConsumerApp />;
+    }
+  }
+
   if (portal === "admin") {
     return <AdminApp />;
   }

@@ -30,9 +30,9 @@ export function OfficerManagementPage() {
     phone: "",
     password: "",
     badgeNumber: "",
-    jurisdictionDistrict: "Jaipur",
-    jurisdictionState: "Rajasthan",
-    jurisdictionZone: "North Zone",
+    jurisdictionDistrict: "",
+    jurisdictionState: "",
+    jurisdictionZone: "",
     officeAddress: "",
   });
 
@@ -58,9 +58,9 @@ export function OfficerManagementPage() {
         phone: "",
         password: "",
         badgeNumber: "",
-        jurisdictionDistrict: "Jaipur",
-        jurisdictionState: "Rajasthan",
-        jurisdictionZone: "North Zone",
+        jurisdictionDistrict: "",
+        jurisdictionState: "",
+        jurisdictionZone: "",
         officeAddress: "",
       });
       setFormError("");
@@ -294,6 +294,7 @@ export function OfficerManagementPage() {
                 <label className="text-xs font-semibold text-foreground">District *</label>
                 <Input
                   required
+                  placeholder="e.g. Jaipur"
                   value={formData.jurisdictionDistrict}
                   onChange={(e) => setFormData({ ...formData, jurisdictionDistrict: e.target.value })}
                   className="text-xs mt-1"
@@ -303,6 +304,7 @@ export function OfficerManagementPage() {
                 <label className="text-xs font-semibold text-foreground">State *</label>
                 <Input
                   required
+                  placeholder="e.g. Rajasthan"
                   value={formData.jurisdictionState}
                   onChange={(e) => setFormData({ ...formData, jurisdictionState: e.target.value })}
                   className="text-xs mt-1"
@@ -311,6 +313,7 @@ export function OfficerManagementPage() {
               <div>
                 <label className="text-xs font-semibold text-foreground">Zone</label>
                 <Input
+                  placeholder="e.g. North Zone"
                   value={formData.jurisdictionZone}
                   onChange={(e) => setFormData({ ...formData, jurisdictionZone: e.target.value })}
                   className="text-xs mt-1"

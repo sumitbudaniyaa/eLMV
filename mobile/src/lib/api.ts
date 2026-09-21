@@ -42,6 +42,13 @@ export async function clearMobileTokens() {
   }
 }
 
+type UnauthorizedListener = () => void;
+let unauthorizedListener: UnauthorizedListener | null = null;
+
+export function setOnUnauthorized(listener: UnauthorizedListener | null) {
+  unauthorizedListener = listener;
+}
+
 // Dynamically inject latest saved base URL and Authorization token before every request
 mobileApi.interceptors.request.use(async (config) => {
   const currentBaseUrl = await getSavedBaseUrl();
@@ -85,6 +92,8 @@ mobileApi.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest?._retry) {
       const { refreshToken } = await getMobileTokens();
       if (!refreshToken) {
+        await clearMobileTokens();
+        unauthorizedListener?.();
         return Promise.reject(error);
       }
 
@@ -124,6 +133,7 @@ mobileApi.interceptors.response.use(
       } catch (refreshErr) {
         processQueue(refreshErr, null);
         await clearMobileTokens();
+        unauthorizedListener?.();
         return Promise.reject(refreshErr);
       } finally {
         isRefreshing = false;

@@ -38,10 +38,10 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const isHi = i18n.language === "hi";
-  const [mpe, setMpe] = useState<string>("1.5");
+  const [mpe, setMpe] = useState<string>("");
   const [actualError, setActualError] = useState<string>("");
   const [sealNumber, setSealNumber] = useState<string>("");
-  const [standardSerial, setStandardSerial] = useState<string>("STD-WT-E2-0041");
+  const [standardSerial, setStandardSerial] = useState<string>("");
   const [remarks, setRemarks] = useState<string>("");
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -54,9 +54,10 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
 
   useEffect(() => {
     if (visible && application) {
-      setSealNumber(`LM-SEAL-${Date.now().toString().slice(-6)}`);
-      setMpe("1.5");
+      setSealNumber("");
+      setMpe("");
       setActualError("");
+      setStandardSerial("");
       setRemarks("");
       setPhotoUri(null);
       setIsCameraOpen(false);
@@ -259,6 +260,7 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
           <Input
             label={i18n.t("inspection.mpeLabel")}
             labelStyle={styles.equalLabel}
+            placeholder="e.g. 1.5"
             value={mpe}
             onChangeText={setMpe}
             keyboardType="numeric"
@@ -337,12 +339,14 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
       {/* Statutory Fields */}
       <Input
         label={i18n.t("inspection.sealLabel")}
+        placeholder="e.g. LM-SEAL-894210"
         value={sealNumber}
         onChangeText={setSealNumber}
       />
 
       <Input
         label={i18n.t("inspection.standardsLabel")}
+        placeholder="e.g. STD-WT-E2-0041"
         value={standardSerial}
         onChangeText={setStandardSerial}
       />

@@ -1,4 +1,3 @@
-import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Role } from "@sih/shared";
@@ -18,25 +17,17 @@ import { HelpFaqPage } from "@/features/public/HelpFaqPage";
 import { ContactUsPage } from "@/features/public/ContactUsPage";
 
 function FieldRoot() {
-  const { user, isAuthenticated, isLoading, logout } = useAuth();
-
-  React.useEffect(() => {
-    if (isAuthenticated && user && user.role !== Role.LMO && user.role !== Role.GATC_INSPECTOR) {
-      logout();
-    }
-  }, [isAuthenticated, user, logout]);
+  const { user, isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) return null;
   if (!isAuthenticated || !user) return <Navigate to="/login" replace />;
 
+  if (user.role === Role.ADMIN || user.role === Role.GATC_ADMIN) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   if (user.role !== Role.LMO && user.role !== Role.GATC_INSPECTOR) {
-    return (
-      <Navigate
-        to="/login"
-        state={{ authError: "Invalid credentials. Please try again." }}
-        replace
-      />
-    );
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <Navigate to="/roster" replace />;
@@ -47,10 +38,12 @@ export function FieldApp() {
     <Routes>
       {/* Root redirect */}
       <Route path="/" element={<FieldRoot />} />
+      <Route path="/field" element={<FieldRoot />} />
 
       {/* Public & Auth Routes */}
       <Route element={<FieldAuthLayout />}>
         <Route path="/login" element={<FieldLoginPage />} />
+        <Route path="/field/login" element={<FieldLoginPage />} />
         <Route path="/verify" element={<PublicVerificationPage />} />
       </Route>
 

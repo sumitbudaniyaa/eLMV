@@ -676,12 +676,12 @@ export function ConsumerLandingPage() {
                   {t("consumerLanding.services.helpdesk.desc")}
                 </p>
               </div>
-              <a href="#contact">
+              <Link to="/contact">
                 <Button variant="outline" size="sm" className="w-full text-xs font-semibold justify-between rounded-xl group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600 transition-all">
                   <span>{t("consumerLanding.services.helpdesk.action")}</span>
                   <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
                 </Button>
-              </a>
+              </Link>
             </CardContent>
           </Card>
 

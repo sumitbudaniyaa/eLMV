@@ -244,20 +244,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                 )}
               </TouchableOpacity>
             </Animated.View>
-
-            {/* Quick Demo Fill link */}
-            <TouchableOpacity
-              onPress={() => {
-                setEmail("lmo.jaipur@metrology.gov.in");
-                setPassword("Password@123");
-              }}
-              style={styles.quickFillBtn}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.quickFillText}>
-                {i18n.t("auth.demoAccount", { defaultValue: "Use Demo Officer Account" })}
-              </Text>
-            </TouchableOpacity>
           </Animated.View>
 
           <Text style={styles.footerText}>

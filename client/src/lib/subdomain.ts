@@ -18,21 +18,38 @@ export function getActivePortal(): PortalType {
   if (typeof window !== "undefined") {
     const { hostname, port, pathname } = window.location;
 
-    // A. Port matching (Local development: 5173=consumer, 5174=admin, 5175=field)
+    // A. Path prefix matching FIRST (ensures http://localhost:5173/admin/* routes to AdminApp directly)
+    const lowerPath = pathname.toLowerCase();
+    if (
+      lowerPath.startsWith("/admin") ||
+      lowerPath.startsWith("/agency") ||
+      lowerPath.startsWith("/agencies") ||
+      lowerPath.startsWith("/gatc") ||
+      lowerPath.startsWith("/officer") ||
+      lowerPath.startsWith("/inspectors")
+    ) {
+      return "admin";
+    }
+    if (
+      lowerPath.startsWith("/field") ||
+      lowerPath.startsWith("/roster")
+    ) {
+      return "field";
+    }
+    if (lowerPath.startsWith("/consumer")) {
+      return "consumer";
+    }
+
+    // B. Port matching (Local development: 5174=admin, 5175=field, 5173=consumer)
     if (port === "5174") return "admin";
     if (port === "5175") return "field";
     if (port === "5173") return "consumer";
 
-    // B. Subdomain matching (Production or *.localhost)
+    // C. Subdomain matching (Production or *.localhost)
     const lowerHost = hostname.toLowerCase();
     if (lowerHost.startsWith("admin.") || lowerHost.includes(".admin.")) return "admin";
     if (lowerHost.startsWith("field.") || lowerHost.includes(".field.")) return "field";
     if (lowerHost.startsWith("consumer.") || lowerHost.includes(".consumer.")) return "consumer";
-
-    // C. Path prefix fallback (e.g. if accessed directly on a unified host)
-    if (pathname.startsWith("/admin")) return "admin";
-    if (pathname.startsWith("/field")) return "field";
-    if (pathname.startsWith("/consumer")) return "consumer";
   }
 
   return "consumer";

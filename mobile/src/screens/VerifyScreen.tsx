@@ -75,10 +75,10 @@ export const VerifyScreen: React.FC<{ currentLanguage?: string }> = ({ currentLa
     if (cleaned.startsWith("{") && cleaned.endsWith("}")) {
       try {
         const parsed = JSON.parse(cleaned);
-        if (parsed.certificateNumber) return parsed.certificateNumber;
-        if (parsed.qrToken) return parsed.qrToken;
-        if (parsed.token) return parsed.token;
-        if (parsed.certNumber) return parsed.certNumber;
+        if (parsed.certificateNumber) return String(parsed.certificateNumber).trim();
+        if (parsed.qrToken) return String(parsed.qrToken).trim();
+        if (parsed.token) return String(parsed.token).trim();
+        if (parsed.certNumber) return String(parsed.certNumber).trim();
       } catch {
         // continue
       }
@@ -89,30 +89,46 @@ export const VerifyScreen: React.FC<{ currentLanguage?: string }> = ({ currentLa
       if (cleaned.includes("?") || cleaned.startsWith("http://") || cleaned.startsWith("https://")) {
         const url = new URL(cleaned);
         const token = url.searchParams.get("token") || url.searchParams.get("qrToken");
-        if (token) return token;
+        if (token) return token.trim();
         const cert = url.searchParams.get("cert") || url.searchParams.get("certificateNumber");
-        if (cert) return cert;
+        if (cert) return cert.trim();
 
         const pathParts = url.pathname.split("/verify/");
         if (pathParts[1]) {
-          return pathParts[1].split(/[?#/]/)[0];
+          const p = pathParts[1].split(/[?#/]/)[0]?.trim();
+          if (p) return p;
         }
+
+        // If it's a general URL without legal metrology verification parameters, it's NOT a valid cert QR
+        return "";
       }
     } catch {
       const tokenMatch = cleaned.match(/[?&](?:token|qrToken)=([^&]+)/i);
-      if (tokenMatch) return decodeURIComponent(tokenMatch[1]);
+      if (tokenMatch) return decodeURIComponent(tokenMatch[1]).trim();
       const certMatch = cleaned.match(/[?&](?:cert|certificateNumber)=([^&]+)/i);
-      if (certMatch) return decodeURIComponent(certMatch[1]);
+      if (certMatch) return decodeURIComponent(certMatch[1]).trim();
     }
 
     if (cleaned.includes("/verify/")) {
       const parts = cleaned.split("/verify/");
       if (parts[1]) {
-        return parts[1].split(/[?#/]/)[0];
+        const p = parts[1].split(/[?#/]/)[0]?.trim();
+        if (p) return p;
       }
     }
 
-    return cleaned;
+    // 3. Check standard Legal Metrology Certificate Number: e.g. LM-RJ-2026-0000001
+    if (/^LM-[A-Z0-9]{2,4}-\d{4}-\d+$/i.test(cleaned)) {
+      return cleaned.toUpperCase();
+    }
+
+    // 4. Check 32 to 64 character hex token
+    if (/^[a-f0-9]{32,64}$/i.test(cleaned)) {
+      return cleaned.toLowerCase();
+    }
+
+    // Unrecognized or random string is rejected
+    return "";
   };
 
   const startScanning = async () => {
@@ -136,18 +152,18 @@ export const VerifyScreen: React.FC<{ currentLanguage?: string }> = ({ currentLa
 
     if (!identifier) {
       Alert.alert(
-        currentLanguage === "hi" ? "अमान्य क्यूआर कोड" : "Invalid QR Code",
-        currentLanguage === "hi"
-          ? "स्कैन किए गए क्यूआर में कोई वैध प्रमाणपत्र संख्या या टोकन नहीं मिला।"
-          : "No valid certificate token or number detected in QR code."
+        isHi ? "अमान्य या अपरिचित क्यूआर कोड" : "Invalid or Unrecognized QR Code",
+        isHi
+          ? "स्कैन किया गया क्यूआर कोड कोई वैध विधिक मापविज्ञान प्रमाणपत्र या सत्यापन टैग नहीं है।"
+          : "The scanned QR code is not a valid Legal Metrology certificate or verification tag."
       );
       setTimeout(() => setScanned(false), 2000);
       return;
     }
 
     setIsScannerOpen(false);
-    setDrawerCertNumber(identifier);
-    setShowFullCertModal(true);
+    setQuery(identifier);
+    handleVerify(identifier);
   };
 
   const handleVerify = async (searchTerm?: string) => {

@@ -1,4 +1,3 @@
-import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Role } from "@sih/shared";
@@ -23,25 +22,17 @@ import { HelpFaqPage } from "@/features/public/HelpFaqPage";
 import { ContactUsPage } from "@/features/public/ContactUsPage";
 
 function AdminRoot() {
-  const { user, isAuthenticated, isLoading, logout } = useAuth();
-
-  React.useEffect(() => {
-    if (isAuthenticated && user && user.role !== Role.ADMIN && user.role !== Role.GATC_ADMIN) {
-      logout();
-    }
-  }, [isAuthenticated, user, logout]);
+  const { user, isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) return null;
   if (!isAuthenticated || !user) return <Navigate to="/login" replace />;
 
-  if (user.role !== Role.ADMIN && user.role !== Role.GATC_ADMIN) {
-    return (
-      <Navigate
-        to="/login"
-        state={{ authError: "Invalid credentials. Please try again." }}
-        replace
-      />
-    );
+  if (user.role === Role.LMO || user.role === Role.GATC_INSPECTOR) {
+    return <Navigate to="/roster" replace />;
+  }
+
+  if (user.role === Role.CONSUMER) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   // Redirect based on administrative persona
@@ -56,10 +47,12 @@ export function AdminApp() {
     <Routes>
       {/* Root redirect */}
       <Route path="/" element={<AdminRoot />} />
+      <Route path="/admin" element={<AdminRoot />} />
 
       {/* Public & Auth Routes */}
       <Route element={<AdminAuthLayout />}>
         <Route path="/login" element={<AdminLoginPage />} />
+        <Route path="/admin/login" element={<AdminLoginPage />} />
         <Route path="/verify" element={<PublicVerificationPage />} />
       </Route>
 

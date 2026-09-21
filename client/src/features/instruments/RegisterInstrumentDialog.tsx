@@ -28,18 +28,18 @@ export function RegisterInstrumentDialog({ open, onOpenChange }: RegisterInstrum
     resolver: zodResolver(createInstrumentSchema),
     defaultValues: {
       type: InstrumentType.NON_AUTOMATIC_WEIGHING_INSTRUMENT,
-      category: "NAWI-ClassIII",
+      category: "",
       make: "",
       model: "",
       serialNumber: "",
-      capacity: 30,
-      unit: "kg",
-      accuracyClass: "Class III",
-      verificationInterval: 12,
+      capacity: "" as any,
+      unit: "",
+      accuracyClass: "",
+      verificationInterval: "" as any,
       installationAddress: "",
-      district: "Bengaluru Urban",
-      state: "Karnataka",
-      pincode: "560001",
+      district: "",
+      state: "",
+      pincode: "",
     },
   });
 
@@ -151,7 +151,8 @@ export function RegisterInstrumentDialog({ open, onOpenChange }: RegisterInstrum
               id="capacity"
               type="number"
               step="any"
-              className="mt-1 h-9 rounded-xl border border-slate-200 dark:border-border bg-white dark:bg-card text-xs font-medium text-slate-800 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#0B2545]/20 dark:focus:ring-primary/20 focus:border-[#0B2545] dark:focus:border-primary transition-all"
+              placeholder="e.g. 30"
+              className="mt-1 h-9 rounded-xl border border-slate-200 dark:border-border bg-white dark:bg-card text-xs font-medium text-slate-800 dark:text-foreground placeholder:text-slate-400 dark:placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#0B2545]/20 dark:focus:ring-primary/20 focus:border-[#0B2545] dark:focus:border-primary transition-all"
               {...register("capacity", { valueAsNumber: true })}
             />
             {errors.capacity && <p className="text-[11px] text-rose-600 dark:text-rose-400 mt-1">{errors.capacity.message}</p>}
@@ -166,6 +167,7 @@ export function RegisterInstrumentDialog({ open, onOpenChange }: RegisterInstrum
               className="mt-1 flex h-9 w-full rounded-xl border border-slate-200 dark:border-border bg-white dark:bg-card px-3 py-1 text-xs font-medium text-slate-800 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#0B2545]/20 dark:focus:ring-primary/20 focus:border-[#0B2545] dark:focus:border-primary transition-all"
               {...register("unit")}
             >
+              <option value="" disabled className="bg-white dark:bg-card text-muted-foreground">Select Unit</option>
               {STANDARD_MEASURING_UNITS.map((u) => (
                 <option key={u} value={u} className="bg-white dark:bg-card text-foreground">
                   {u}
@@ -185,6 +187,7 @@ export function RegisterInstrumentDialog({ open, onOpenChange }: RegisterInstrum
               className="mt-1 flex h-9 w-full rounded-xl border border-slate-200 dark:border-border bg-white dark:bg-card px-3 py-1 text-xs font-medium text-slate-800 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#0B2545]/20 dark:focus:ring-primary/20 focus:border-[#0B2545] dark:focus:border-primary transition-all"
               {...register("accuracyClass")}
             >
+              <option value="" disabled className="bg-white dark:bg-card text-muted-foreground">Select Accuracy Class</option>
               <option value="Class I" className="bg-white dark:bg-card text-foreground">Class I (Special)</option>
               <option value="Class II" className="bg-white dark:bg-card text-foreground">Class II (High)</option>
               <option value="Class III" className="bg-white dark:bg-card text-foreground">Class III (Medium)</option>
@@ -199,7 +202,8 @@ export function RegisterInstrumentDialog({ open, onOpenChange }: RegisterInstrum
             <Input
               id="verificationInterval"
               type="number"
-              className="mt-1 h-9 rounded-xl border border-slate-200 dark:border-border bg-white dark:bg-card text-xs font-medium text-slate-800 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#0B2545]/20 dark:focus:ring-primary/20 focus:border-[#0B2545] dark:focus:border-primary transition-all"
+              placeholder="e.g. 12"
+              className="mt-1 h-9 rounded-xl border border-slate-200 dark:border-border bg-white dark:bg-card text-xs font-medium text-slate-800 dark:text-foreground placeholder:text-slate-400 dark:placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#0B2545]/20 dark:focus:ring-primary/20 focus:border-[#0B2545] dark:focus:border-primary transition-all"
               {...register("verificationInterval", { valueAsNumber: true })}
             />
           </div>

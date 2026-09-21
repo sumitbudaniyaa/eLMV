@@ -224,7 +224,7 @@ export function GatcAgencyManagementPage() {
     agencyName: "",
     notificationRefNumber: "",
     authorizedScope: [] as string[],
-    validUntil: "2028-12-31",
+    validUntil: "",
     district: "",
     state: "",
     address: "",
@@ -234,14 +234,10 @@ export function GatcAgencyManagementPage() {
     agencyName: "",
     accreditationNumber: "",
     notificationRefNumber: "",
-    authorizedScope: [
-      "NON_AUTOMATIC_WEIGHING_INSTRUMENT",
-      "AUTOMATIC_WEIGHING_INSTRUMENT",
-      "FUEL_DISPENSER",
-    ],
-    validUntil: "2028-12-31",
-    district: "Jaipur",
-    state: "Rajasthan",
+    authorizedScope: [] as string[],
+    validUntil: "",
+    district: "",
+    state: "",
     address: "",
     adminName: "",
     adminEmail: "",
@@ -259,10 +255,7 @@ export function GatcAgencyManagementPage() {
 
   const createAgencyMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      const res = await api.post("/admin/gatc-agencies", {
-        ...data,
-        validUntil: new Date(data.validUntil).toISOString(),
-      });
+      const res = await api.post("/admin/gatc-agencies", data);
       return res.data;
     },
     onSuccess: () => {
@@ -272,14 +265,10 @@ export function GatcAgencyManagementPage() {
         agencyName: "",
         accreditationNumber: "",
         notificationRefNumber: "",
-        authorizedScope: [
-          "NON_AUTOMATIC_WEIGHING_INSTRUMENT",
-          "AUTOMATIC_WEIGHING_INSTRUMENT",
-          "FUEL_DISPENSER",
-        ],
-        validUntil: "2028-12-31",
-        district: "Jaipur",
-        state: "Rajasthan",
+        authorizedScope: [] as string[],
+        validUntil: "",
+        district: "",
+        state: "",
         address: "",
         adminName: "",
         adminEmail: "",
@@ -583,6 +572,7 @@ export function GatcAgencyManagementPage() {
                   </label>
                   <Input
                     required
+                    placeholder="e.g. Jaipur"
                     value={formData.district}
                     onChange={(e) => setFormData({ ...formData, district: e.target.value })}
                     className="text-xs h-9"
@@ -594,6 +584,7 @@ export function GatcAgencyManagementPage() {
                   </label>
                   <Input
                     required
+                    placeholder="e.g. Rajasthan"
                     value={formData.state}
                     onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                     className="text-xs h-9"
@@ -830,6 +821,7 @@ export function GatcAgencyManagementPage() {
                   </label>
                   <Input
                     required
+                    placeholder="e.g. Jaipur"
                     value={editFormData.district}
                     onChange={(e) => setEditFormData({ ...editFormData, district: e.target.value })}
                     className="text-xs h-9"
@@ -841,6 +833,7 @@ export function GatcAgencyManagementPage() {
                   </label>
                   <Input
                     required
+                    placeholder="e.g. Rajasthan"
                     value={editFormData.state}
                     onChange={(e) => setEditFormData({ ...editFormData, state: e.target.value })}
                     className="text-xs h-9"

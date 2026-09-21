@@ -106,7 +106,7 @@ export function createRateLimiter(options: RateLimiterOptions) {
 // Strict limiter for login: 5 attempts per 15 minutes per IP
 export const authLoginLimiter = createRateLimiter({
   windowMs: 15 * 60 * 1000,
-  max: 5,
+  max: 10,
   message: "Too many login attempts from this IP. Please try again after 15 minutes.",
 });
 

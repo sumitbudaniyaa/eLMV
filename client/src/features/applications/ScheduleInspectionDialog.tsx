@@ -26,10 +26,6 @@ export function ScheduleInspectionDialog({
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const defaultDate = new Date(Date.now() + 86400000 * 2);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  const localDefaultDateTime = `${defaultDate.getFullYear()}-${pad(defaultDate.getMonth() + 1)}-${pad(defaultDate.getDate())}T${pad(defaultDate.getHours())}:${pad(defaultDate.getMinutes())}`;
-
   const {
     register,
     handleSubmit,
@@ -38,8 +34,8 @@ export function ScheduleInspectionDialog({
   } = useForm<ScheduleApplicationInput>({
     resolver: zodResolver(scheduleApplicationSchema),
     defaultValues: {
-      scheduledDate: localDefaultDateTime,
-      remarks: "Site inspection scheduled for physical verification and stamping.",
+      scheduledDate: "",
+      remarks: "",
     },
   });
 
@@ -94,6 +90,7 @@ export function ScheduleInspectionDialog({
           <textarea
             id="remarks"
             rows={3}
+            placeholder={t("dialogs.scheduleInspection.remarksPlaceholder", { defaultValue: "e.g. Site inspection scheduled for physical verification and stamping." })}
             className="mt-1 flex w-full rounded-xl border border-slate-200 dark:border-border bg-white dark:bg-card px-3 py-2 text-xs font-medium text-slate-800 dark:text-foreground placeholder:text-slate-400 dark:placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#0B2545]/20 dark:focus:ring-primary/20 focus:border-[#0B2545] dark:focus:border-primary transition-all"
             {...register("remarks")}
           />

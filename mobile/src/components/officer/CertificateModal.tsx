@@ -40,6 +40,7 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
 }) => {
   const isHi = currentLanguage === "hi" || i18n.language === "hi";
   const [certResult, setCertResult] = useState<any | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState(visible);
 
@@ -49,6 +50,8 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
   useEffect(() => {
     if (visible) {
       setModalVisible(true);
+      setFetchError(null);
+      setCertResult(null);
       translateY.setValue(SCREEN_HEIGHT);
       Animated.parallel([
         Animated.spring(translateY, {
@@ -67,6 +70,12 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
 
       if (certificateNumber) {
         fetchCertificate(certificateNumber);
+      } else if (!applicationData?.certificate) {
+        setFetchError(
+          isHi
+            ? "कोई प्रमाणपत्र संख्या या टोकन प्रदान नहीं किया गया।"
+            : "No certificate number or token provided."
+        );
       }
     } else if (modalVisible) {
       handleDismiss();
@@ -121,6 +130,7 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
 
   const fetchCertificate = async (certNum: string) => {
     setIsLoading(true);
+    setFetchError(null);
     try {
       // 1. Try public verification endpoint which returns the full canonical verification result
       const res = await mobileApi.get(`/verification/verify/${encodeURIComponent(certNum)}`);
@@ -128,7 +138,7 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
         setCertResult(res.data.data);
         return;
       }
-    } catch {
+    } catch (err: any) {
       // 2. Fallback to standard /certificates query
       try {
         const certRes = await mobileApi.get(`/certificates?certificateNumber=${encodeURIComponent(certNum)}`);
@@ -150,8 +160,24 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
           });
           return;
         }
-      } catch {
-        // Fallback to applicationData
+
+        if (!applicationData?.certificate) {
+          setFetchError(
+            isHi
+              ? "इस पहचानकर्ता से मेल खाता कोई वैधानिक प्रमाणपत्र नहीं मिला। स्कैन किया गया क्यूआर कोड अमान्य, जाली या अपंजीकृत हो सकता है।"
+              : "No statutory certificate found matching this identifier. The scanned QR code or certificate number may be invalid, counterfeit, or unverified."
+          );
+        }
+      } catch (err2: any) {
+        if (!applicationData?.certificate) {
+          const msg =
+            err?.response?.data?.error?.message ||
+            err2?.response?.data?.error?.message ||
+            (isHi
+              ? "प्रमाणपत्र सत्यापन विफल रहा। कोई आधिकारिक रिकॉर्ड नहीं मिला।"
+              : "Certificate verification failed. No official statutory record found.");
+          setFetchError(msg);
+        }
       }
     } finally {
       setIsLoading(false);
@@ -169,19 +195,20 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
 
   if (!modalVisible && !visible) return null;
 
-  // Resolve data fields safely with fallbacks from applicationData
-  const activeCert = certResult?.certificate || applicationData?.certificate || {};
+  // Resolve data fields safely with ZERO mock fallbacks
+  const activeCert = certResult?.certificate || applicationData?.certificate;
+  const hasValidCertificate = !!activeCert?.certificateNumber;
+
   const activeInstrument = certResult?.instrument || applicationData?.instrument || {};
   const activeApplicant = certResult?.applicant || applicationData?.applicant || {};
   const activeInspection = certResult?.inspection || applicationData?.inspectionRecord || {};
   const activeCrypto = certResult?.cryptographicDetails || {
     algorithm: "ECDSA_P256",
-    keyVersion: activeCert.signingKeyVersion || "v1-2026",
-    signature: activeCert.digitalSignature || "MEUCIGPiK+VBqdKniDjV5Y20dNtKbeA5Y+TGnKMLc1ClaJPSAiEAlavJtbqxT8frY4l6l6vJk+wvgDIZzsMsdk3Rl3Zl55g=",
+    keyVersion: activeCert?.signingKeyVersion || "v1-2026",
+    signature: activeCert?.digitalSignature || "",
   };
 
-  const activeCertNumber =
-    activeCert.certificateNumber || certificateNumber || applicationData?.certificate?.certificateNumber || "LM-KA-2026-0000001";
+  const activeCertNumber = activeCert?.certificateNumber || certificateNumber || "";
   const isSignatureValid = certResult?.isSignatureValid !== false;
 
   const formatDate = (dateStr?: string) => {
@@ -197,9 +224,11 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
     }
   };
 
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
-    `https://metrology.gov.in/verify?cert=${activeCertNumber}`
-  )}`;
+  const qrUrl = activeCertNumber
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
+        `https://metrology.gov.in/verify?cert=${activeCertNumber}`
+      )}`
+    : "";
 
   return (
     <RNModal
@@ -275,6 +304,37 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
                   <Text style={styles.loadingText}>
                     {isHi ? "क्रिप्टोग्राफिक प्रमाणपत्र प्राप्त किया जा रहा है..." : "Fetching cryptographic certificate..."}
                   </Text>
+                </View>
+              ) : fetchError || !hasValidCertificate ? (
+                <View style={styles.errorContainer}>
+                  <View style={styles.errorIconWrap}>
+                    <Icons.XCircle size={32} color="#e11d48" />
+                  </View>
+                  <Text style={styles.errorTitle}>
+                    {isHi ? "वैधानिक प्रमाणपत्र नहीं मिला" : "Statutory Certificate Not Found"}
+                  </Text>
+                  <Text style={styles.errorDesc}>
+                    {fetchError ||
+                      (isHi
+                        ? "केंद्रीय लेजर में इस क्यूआर कोड या पहचानकर्ता के लिए कोई आधिकारिक प्रमाणपत्र रिकॉर्ड उपलब्ध नहीं है। यह क्यूआर अमान्य या अपंजीकृत हो सकता है।"
+                        : "No official certificate record exists in the central statutory ledger for this identifier or QR code. The scanned code may be invalid or unverified.")}
+                  </Text>
+                  {certificateNumber ? (
+                    <View style={styles.errorIdentifierBadge}>
+                      <Text style={styles.errorIdentifierText} numberOfLines={1}>
+                        {certificateNumber}
+                      </Text>
+                    </View>
+                  ) : null}
+                  <TouchableOpacity
+                    style={styles.errorCloseBtn}
+                    onPress={() => handleDismiss()}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.errorCloseBtnText}>
+                      {isHi ? "बंद करें" : "Dismiss"}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               ) : (
                 <View style={styles.certificateStack}>
@@ -684,6 +744,68 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 12,
     color: "#71717a",
+  },
+  errorContainer: {
+    paddingVertical: 36,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    backgroundColor: "#fff1f2",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#fecdd3",
+    gap: 10,
+    marginVertical: 10,
+  },
+  errorIconWrap: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: "#ffe4e6",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#fca5a5",
+    marginBottom: 4,
+  },
+  errorTitle: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: "#9f1239",
+    textAlign: "center",
+  },
+  errorDesc: {
+    fontSize: 12,
+    color: "#881337",
+    textAlign: "center",
+    lineHeight: 18,
+    maxWidth: 290,
+  },
+  errorIdentifierBadge: {
+    backgroundColor: "#ffffff",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#fecdd3",
+    marginTop: 4,
+  },
+  errorIdentifierText: {
+    fontSize: 11,
+    fontFamily: Platform.OS === "ios" ? "Courier" : "monospace",
+    color: "#9f1239",
+    fontWeight: "700",
+  },
+  errorCloseBtn: {
+    marginTop: 10,
+    backgroundColor: "#be123c",
+    paddingHorizontal: 22,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  errorCloseBtnText: {
+    color: "#ffffff",
+    fontSize: 12,
+    fontWeight: "700",
   },
   certificateStack: {
     gap: 14,

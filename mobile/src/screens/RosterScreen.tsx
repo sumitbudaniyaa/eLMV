@@ -23,118 +23,7 @@ import { ApplicationDrawer } from "../components/officer/ApplicationDrawer";
 import { getOfflineQueueCount, syncOfflineInspections } from "../lib/offlineQueue";
 import i18n from "../i18n";
 
-const FALLBACK_APPLICATIONS = [
-  {
-    id: "demo-app-1",
-    applicationNumber: "LM-APP-2026-0000001",
-    status: ApplicationStatus.CERTIFIED,
-    type: "RE_VERIFICATION",
-    scheduledDate: new Date().toISOString(),
-    feeAmount: 500,
-    feePaid: true,
-    applicant: {
-      name: "Rajesh Kumar (Shree Provision Stores)",
-      email: "trader.rajesh@shreestores.com",
-      phone: "9876543213",
-    },
-    instrument: {
-      id: "demo-inst-1",
-      make: "Essae-Teraoka",
-      model: "DS-252",
-      serialNumber: "ESSAE-DS-2025-00892",
-      capacity: 30,
-      unit: "kg",
-      accuracyClass: "Class III",
-      district: "Jaipur",
-      state: "Rajasthan",
-    },
-    certificate: {
-      id: "demo-cert-1",
-      certificateNumber: "LM-RJ-2026-0000001",
-      validUntil: new Date(Date.now() + 365 * 86400000).toISOString(),
-    },
-  },
-  {
-    id: "demo-app-2",
-    applicationNumber: "LM-APP-2026-0000002",
-    status: ApplicationStatus.SCHEDULED,
-    type: "NEW",
-    scheduledDate: new Date(Date.now() + 86400000).toISOString(),
-    feeAmount: 750,
-    feePaid: true,
-    applicant: {
-      name: "Rajesh Kumar (Shree Provision Stores)",
-      email: "trader.rajesh@shreestores.com",
-      phone: "9876543213",
-    },
-    instrument: {
-      id: "demo-inst-2",
-      make: "Mettler Toledo",
-      model: "Precision Balance PB-3002",
-      serialNumber: "METTLER-TOLEDO-PB3002",
-      capacity: 3100,
-      unit: "g",
-      accuracyClass: "Class II",
-      district: "Jaipur",
-      state: "Rajasthan",
-    },
-  },
-  {
-    id: "demo-app-3",
-    applicationNumber: "APP-2026-000003",
-    status: ApplicationStatus.CERTIFIED,
-    type: "RE_VERIFICATION",
-    scheduledDate: new Date().toISOString(),
-    feeAmount: 600,
-    feePaid: true,
-    applicant: {
-      name: "Apex Precision Lab Ltd",
-      email: "lab@apexmetrology.org",
-      phone: "9876543212",
-    },
-    instrument: {
-      id: "demo-inst-3",
-      make: "Sartorius",
-      model: "Secura 225D-1S",
-      serialNumber: "SART-SEC-2026-091",
-      capacity: 220,
-      unit: "g",
-      accuracyClass: "Class I",
-      district: "Jaipur",
-      state: "Rajasthan",
-    },
-    certificate: {
-      id: "demo-cert-3",
-      certificateNumber: "LM-RJ-2026-0000003",
-      validUntil: new Date(Date.now() + 365 * 86400000).toISOString(),
-    },
-  },
-  {
-    id: "demo-app-4",
-    applicationNumber: "APP-2026-000006",
-    status: ApplicationStatus.SUBMITTED,
-    type: "NEW",
-    scheduledDate: null,
-    feeAmount: 500,
-    feePaid: true,
-    applicant: {
-      name: "Kalyan Jewellers (Counter 4)",
-      email: "store@kalyanjewellers.in",
-      phone: "9876543299",
-    },
-    instrument: {
-      id: "demo-inst-4",
-      make: "A&D Instruments",
-      model: "GX-6001A",
-      serialNumber: "AD-GX6001A-8821",
-      capacity: 6200,
-      unit: "g",
-      accuracyClass: "Class II",
-      district: "Jaipur",
-      state: "Rajasthan",
-    },
-  },
-];
+
 
 const INSTRUMENT_TYPE_FILTERS = [
   { key: "all", shortLabel: "All Types" },
@@ -181,18 +70,17 @@ export const RosterScreen: React.FC<{ currentLanguage?: string }> = ({ currentLa
       }
       const res = await mobileApi.get("/applications", { params });
       const list = res.data?.data;
-      if (Array.isArray(list) && list.length > 0) {
+      if (Array.isArray(list)) {
         setApplications(list);
         setIsOfflineMode(false);
-      } else if (Array.isArray(list) && list.length === 0) {
-        // Fallback to rich inspection queue if backend returned 0 items
-        setApplications(FALLBACK_APPLICATIONS);
+      } else {
+        setApplications([]);
         setIsOfflineMode(false);
       }
     } catch (err) {
       console.warn("Error fetching applications:", err);
       setIsOfflineMode(true);
-      setApplications((prev) => (prev.length > 0 ? prev : FALLBACK_APPLICATIONS));
+      setApplications([]);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);

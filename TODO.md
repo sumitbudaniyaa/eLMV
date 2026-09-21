@@ -935,7 +935,108 @@ In accordance with hard project rules, every phase must be fully implemented, te
 - [x] Verification:
   - Mobile TypeScript build (`npm run typecheck --workspace=@sih/mobile`): 0 errors.
   - Full repository build (`@sih/shared`, `@sih/server`, `@sih/client`): Passed with 0 errors.
-  - Live authenticated ngrok endpoint `GET /api/v1/` and `POST /api/v1/auth/login` verified returning 200 OK with valid tokens.
+## Phase 81: Form Input Hardening, Pre-Filled Data Cleanup & Form Input Guide
+- [x] Web Client Form Resets:
+  - Reset `RegisterInstrumentDialog.tsx` `defaultValues` to empty strings and added placeholder options for unit and accuracy class selects.
+  - Reset `RecordInspectionDialog.tsx` `defaultValues` to empty strings, cleared `sealNumber` on open, removed hardcoded standard weight `defaultValue`, and added input placeholders.
+  - Reset `ScheduleInspectionDialog.tsx` `defaultValues` to empty strings and added textarea placeholder.
+  - Reset `OfficerManagementPage.tsx` `formData` to empty strings for jurisdiction fields with proper placeholders.
+  - Reset `GatcAgencyManagementPage.tsx` `formData` and `editFormData` to empty strings/arrays for scopes, dates, and jurisdictions.
+  - Reset `GatcStaffPage.tsx` `formData` to empty strings for technical designation and qualification reference.
+- [x] Mobile Form Resets:
+  - Reset `InspectionModal.tsx` initial state and `useEffect` reset values to empty strings for MPE, standard serial, and seal number.
+  - Removed "Use Demo Officer Account" quick-fill button from `LoginScreen.tsx` to ensure zero hardcoded credentials.
+- [x] Form Input Specification & Guide (`FORM_INPUT_GUIDE.md`):
+  - Created comprehensive documentation detailing field specifications, regex patterns, constraints, and copy-pasteable dummy data for all 10 forms across Citizen, Admin, Field Officer, and Mobile platforms.
+- [x] Build Verification:
+  - `@sih/shared`: 0 errors
+  - `@sih/server`: 0 errors
+  - `@sih/client`: 0 errors
+  - `@sih/mobile`: 0 errors
+
+## Phase 82: Database Purge & Admin-Only Seed Hardening
+- [x] Purged Seeded Records from Database:
+  - Deleted 7 certificates, 7 inspection records, 21 application histories, 8 applications, 3 instruments, 144 audit logs, 186 refresh tokens, and all profiles (Officer, GATC Agency, GATC Inspector, Stakeholder).
+  - Deleted all non-admin users (retained strictly `admin@metrology.gov.in`).
+  - Retained the active ECDSA NIST P-256 root PKI signing key for digital certification.
+- [x] Hardened `server/prisma/seed.ts`:
+  - Updated seed script to only provision the `admin@metrology.gov.in` administrator account and active root PKI signing key.
+  - Removed all hardcoded LMO, GATC, trader, instrument, and application seeds.
+- [x] Documentation Synchronized:
+  - Updated `FORM_INPUT_GUIDE.md` Section 2 to reflect active admin-only pre-seeding.
+
+## Phase 83: Cross-Portal Path Routing & Mobile Fallback Mock Data Elimination
+- [x] Web Client Path Routing (`subdomain.ts`, `AdminApp.tsx`, `FieldApp.tsx`):
+  - Updated `getActivePortal()` to inspect `pathname` before port matching, ensuring `http://localhost:5173/admin/login` and `http://localhost:5173/admin/*` seamlessly render the Admin Portal.
+  - Added `<Route path="/admin/login" ...>` and `<Route path="/admin" ...>` to `AdminApp.tsx`.
+  - Added `<Route path="/field/login" ...>` and `<Route path="/field" ...>` to `FieldApp.tsx`.
+- [x] Mobile Fallback Mock Data Elimination (`RosterScreen.tsx`, `RegistryScreen.tsx`):
+  - Removed `FALLBACK_APPLICATIONS` and `FALLBACK_INSTRUMENTS` hardcoded mock arrays.
+  - Updated `fetchApplications` and `fetchInstruments` to strictly display an empty array `[]` when the database is empty, preventing phantom demo applications from showing.
+- [x] Database Verification:
+  - Verified 0 applications, 0 instruments, 0 certificates, and 1 user (`admin@metrology.gov.in`) in PostgreSQL.
+- [x] Verification:
+  - Client build: 0 errors (`npm run build --workspace=@sih/client`)
+  - Mobile typecheck: 0 errors (`npm run typecheck --workspace=@sih/mobile`)
+
+## Phase 84: Admin LMO Officers Navigation Logout Bug Fix & Role Priority Hardening
+- [x] Root Cause Identified & Resolved:
+  - `client/src/lib/subdomain.ts` previously had `lowerPath.startsWith("/officer")` mapped to `"field"`.
+  - When clicking "LMO Officers" (`/officers`), `getActivePortal()` switched the portal from `"admin"` to `"field"`.
+  - `FieldRoot` (`FieldApp.tsx`) saw an `ADMIN` role on the Field portal and forcefully executed `logout()`.
+- [x] Hardened Architecture:
+  - In `client/src/App.tsx`, when `user` is authenticated, the user's role is given absolute priority (`user.role === ADMIN` always renders `AdminApp`), completely bypassing URL path heuristics.
+  - In `client/src/lib/subdomain.ts`, correctly mapped `/officers`, `/agencies`, `/agency`, `/inspectors` under `"admin"`.
+  - Removed hostile `logout()` calls from `FieldRoot` and `AdminRoot`, replacing them with safe navigation redirects to `/dashboard` or `/roster`.
+- [x] Verification:
+  - Client production build: 0 errors (`npm run build --workspace=@sih/client`)
+
+## Phase 85: Citizen Services Contact Us Link & Legal Metrology Instruments Guide
+- [x] Citizen Services Contact Us Navigation:
+  - In `client/src/portals/consumer/pages/ConsumerLandingPage.tsx`, updated the "Consumer Helpline & Grievances" Citizen Services card from `<a href="#contact">` (which scrolled to footer) to `<Link to="/contact">`.
+  - Clicking the action button now directly opens the official `/contact` page with email desks and 1915 helpline details.
+- [x] Research & Legal Metrology Instruments Reference Guide (`LEGAL_METROLOGY_INSTRUMENTS_GUIDE.md`):
+  - Researched statutory framework under the Legal Metrology Act, 2009, Legal Metrology (General) Rules, 2011, and international OIML standards.
+  - Documented NAWI vs. AWI distinction:
+    - NAWI (OIML R 76 / Seventh Schedule Heading A): Requires operator intervention; covers Class I (Special), Class II (High), Class III (Medium), Class IIII (Ordinary).
+    - AWI (OIML R 50/51/61/106/107/134 / Seventh Schedule Heading C): Automatic, programmed, dynamic material testing; covers catchweighers, gravimetric fillers, belt weighers, discontinuous totalisers, rail-weighbridges, and WIM.
+  - Detailed all 7 instrument families and category codes: `NON_AUTOMATIC_WEIGHING_INSTRUMENT`, `AUTOMATIC_WEIGHING_INSTRUMENT`, `FUEL_DISPENSER`, `STORAGE_TANK`, `LENGTH_MEASURE`, `CAPACITY_MEASURE`, and `OTHER`.
+  - Outlined Model Approval (Section 22, `IND/XX/YY/ZZZ`) vs. Periodic Verification (Section 24 & Rule 27) and the role of GATCs.
+- [x] Build Verification:
+  - Client build: 0 errors (`npm run build --workspace=@sih/client` passed in 2.45s).
+
+## Phase 86: Database Fresh Purge & Reset
+- [x] Executed Database Purge (`server/prisma/purge.ts`):
+  - Purged 2 non-admin users and 1 officer profile.
+  - Purged 15 audit logs and 6 refresh tokens.
+  - Retained exclusively `admin@metrology.gov.in` (`Role.ADMIN`, `S. K. Sharma (Joint Controller)`).
+  - Preserved active ECDSA NIST P-256 root PKI signing key (`v1-2026`).
+
+## Phase 87: Mobile Instant Automatic Logout on User Deletion / 401 Unauthorized
+- [x] Mobile Reactive 401 Interceptor & Auth Context Synchronization:
+  - In `mobile/src/lib/api.ts`, exported `setOnUnauthorized` callback listener and integrated into Axios response interceptor:
+    - If a 401 is received and refresh token is missing, or token refresh fails (due to user being deleted), SecureStore is cleared and `unauthorizedListener()` is invoked immediately.
+  - In `mobile/src/lib/auth.tsx`, registered `setOnUnauthorized` in `AuthProvider` to set `user = null`.
+  - When a user is deleted from the backend, the mobile app immediately and reactively kicks them back to `LoginScreen` on any request or app resume without waiting for manual reload.
+- [x] Verification:
+  - Mobile TypeScript check: 0 errors (`npm run typecheck --workspace=@sih/mobile`).
+
+## Phase 88: Random QR Scanner Vulnerability Fix & Certificate Modal Hardening
+- [x] Root Cause Identified & Resolved:
+  - In `mobile/src/components/officer/CertificateModal.tsx`, when API lookup failed on an unrecognized QR code or certificate number, `fetchCertificate` caught the error silently and fell back to hardcoded mock data (`"LM-KA-2026-0000001"`, `isSignatureValid = true`, fake ECDSA signature), presenting a fake valid certificate for ANY scanned QR code.
+  - In `mobile/src/screens/VerifyScreen.tsx`, `extractIdentifier` returned raw non-metrology text/URLs (`return cleaned`), and `handleBarcodeScanned` opened `CertificateModal` directly without prior verification.
+- [x] Hardened Architecture:
+  - In `mobile/src/screens/VerifyScreen.tsx`:
+    - Hardened `extractIdentifier` to strictly match Legal Metrology JSON payloads, URLs with `?token=`, `?cert=`, or `/verify/:token`, standard certificate numbers (`^LM-[A-Z0-9]{2,4}-\d{4}-\d+$`), or 32/64-char hex tokens. All other arbitrary QR codes (Wi-Fi, UPI, random URLs) return empty string.
+    - Updated `handleBarcodeScanned` to reject non-metrology QR codes with an explicit Alert ("Invalid or Unrecognized QR Code").
+    - Routed valid scanned identifiers to `handleVerify(identifier)` to perform authentic cryptographic verification before rendering results.
+  - In `mobile/src/components/officer/CertificateModal.tsx`:
+    - Removed all hardcoded demo/mock fallbacks (`"LM-KA-2026-0000001"`, fake signatures).
+    - Added `fetchError` state and an explicit "Statutory Certificate Not Found" error card when a certificate is not found in the central ledger.
+- [x] Verification:
+  - Mobile TypeScript check: 0 errors (`npm run typecheck --workspace=@sih/mobile`).
+  - Client production build: 0 errors (`npm run build --workspace=@sih/client`).
+
 
 
 

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { mobileApi, getMobileTokens, setMobileTokens, clearMobileTokens } from "./api";
+import { mobileApi, getMobileTokens, setMobileTokens, clearMobileTokens, setOnUnauthorized } from "./api";
 import { Role } from "@sih/shared";
 
 export interface OfficerUser {
@@ -78,6 +78,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
     initAuth();
+  }, []);
+
+  useEffect(() => {
+    setOnUnauthorized(() => {
+      setUser(null);
+    });
+    return () => {
+      setOnUnauthorized(null);
+    };
   }, []);
 
   const login = async (email: string, pass: string) => {

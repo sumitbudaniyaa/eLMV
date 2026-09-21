@@ -40,135 +40,7 @@ const ACCURACY_CLASS_FILTERS = [
   { key: "Class IV", label: "Class IV" },
 ];
 
-// Realistic fallback instruments for offline demo & zero-state reliability
-const FALLBACK_INSTRUMENTS = [
-  {
-    id: "demo-reg-1",
-    type: InstrumentType.NON_AUTOMATIC_WEIGHING_INSTRUMENT,
-    category: "NAWI-ClassIII",
-    make: "Essae-Teraoka",
-    model: "DS-252",
-    serialNumber: "ESSAE-DS-2025-00892",
-    capacity: 30,
-    unit: "kg",
-    accuracyClass: "Class III",
-    verificationInterval: 12,
-    installationAddress: "No. 45, Counter 1, Johari Bazaar",
-    district: "Jaipur",
-    state: "Rajasthan",
-    pincode: "302003",
-    owner: {
-      name: "Rajesh Kumar",
-      businessName: "Shree Provision Stores",
-      phone: "9876543213",
-    },
-  },
-  {
-    id: "demo-reg-2",
-    type: InstrumentType.NON_AUTOMATIC_WEIGHING_INSTRUMENT,
-    category: "NAWI-ClassII",
-    make: "Mettler Toledo",
-    model: "Precision Balance PB-3002",
-    serialNumber: "METTLER-TOLEDO-PB3002",
-    capacity: 3100,
-    unit: "g",
-    accuracyClass: "Class II",
-    verificationInterval: 12,
-    installationAddress: "No. 45, Testing Lab, Johari Bazaar",
-    district: "Jaipur",
-    state: "Rajasthan",
-    pincode: "302003",
-    owner: {
-      name: "Rajesh Kumar",
-      businessName: "Shree Provision Stores",
-      phone: "9876543213",
-    },
-  },
-  {
-    id: "demo-reg-3",
-    type: InstrumentType.NON_AUTOMATIC_WEIGHING_INSTRUMENT,
-    category: "Micro-Balance",
-    make: "Sartorius",
-    model: "Secura 225D-1S",
-    serialNumber: "SART-SEC-2026-091",
-    capacity: 220,
-    unit: "g",
-    accuracyClass: "Class I",
-    verificationInterval: 12,
-    installationAddress: "Plot 12, Industrial Area, Sitapura",
-    district: "Jaipur",
-    state: "Rajasthan",
-    pincode: "302022",
-    owner: {
-      name: "Dr. Arvind Mehta",
-      businessName: "Apex Precision Lab Ltd",
-      phone: "9876543212",
-    },
-  },
-  {
-    id: "demo-reg-4",
-    type: InstrumentType.FUEL_DISPENSER,
-    category: "Multi-Product Dispenser",
-    make: "Tokheim",
-    model: "Quantium 510",
-    serialNumber: "TKH-FD-2025-4412",
-    capacity: 70,
-    unit: "L/min",
-    accuracyClass: "Class III",
-    verificationInterval: 6,
-    installationAddress: "NH-8, Highway Fuel Oasis, Kotputli",
-    district: "Jaipur",
-    state: "Rajasthan",
-    pincode: "303108",
-    owner: {
-      name: "Suresh Sharma",
-      businessName: "Highway Petroleum Services",
-      phone: "9829012345",
-    },
-  },
-  {
-    id: "demo-reg-5",
-    type: InstrumentType.AUTOMATIC_WEIGHING_INSTRUMENT,
-    category: "Checkweigher",
-    make: "Ishida",
-    model: "DACS-G-S015",
-    serialNumber: "ISH-DACS-2026-004",
-    capacity: 1500,
-    unit: "g",
-    accuracyClass: "Class II",
-    verificationInterval: 12,
-    installationAddress: "RIICO Agro Park, Boranada",
-    district: "Jodhpur",
-    state: "Rajasthan",
-    pincode: "342012",
-    owner: {
-      name: "Vikram Singhal",
-      businessName: "Marwar Foods Pvt Ltd",
-      phone: "9414056789",
-    },
-  },
-  {
-    id: "demo-reg-6",
-    type: InstrumentType.STORAGE_TANK,
-    category: "Vertical Cylindrical Tank",
-    make: "L&T Heavy Engineering",
-    model: "TK-VT-50KL",
-    serialNumber: "LNT-TANK-50KL-088",
-    capacity: 50000,
-    unit: "L",
-    accuracyClass: "Class III",
-    verificationInterval: 60,
-    installationAddress: "Depot Rd, IOCL Terminal, Bagru",
-    district: "Jaipur",
-    state: "Rajasthan",
-    pincode: "303007",
-    owner: {
-      name: "Anil Bhati",
-      businessName: "Rajasthan State Warehousing",
-      phone: "9829045612",
-    },
-  },
-];
+
 
 const getInstrumentTypeLabel = (type?: string) => {
   switch (type) {
@@ -236,14 +108,14 @@ export const RegistryScreen: React.FC<{ currentLanguage?: string }> = () => {
         params: { limit: 200 },
       });
       const list = res.data?.data;
-      if (Array.isArray(list) && list.length > 0) {
+      if (Array.isArray(list)) {
         setInstruments(list);
       } else {
-        setInstruments(FALLBACK_INSTRUMENTS);
+        setInstruments([]);
       }
     } catch (err) {
-      console.warn("Error fetching instruments, using statutory fallbacks:", err);
-      setInstruments((prev) => (prev.length > 0 ? prev : FALLBACK_INSTRUMENTS));
+      console.warn("Error fetching instruments:", err);
+      setInstruments([]);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);

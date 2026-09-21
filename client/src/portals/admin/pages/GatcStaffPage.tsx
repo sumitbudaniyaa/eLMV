@@ -32,8 +32,8 @@ export function GatcStaffPage() {
     phone: "",
     password: "",
     employeeId: "",
-    designation: "Calibration & Testing Engineer",
-    qualificationRef: "NABL-CAL-2026-CERT",
+    designation: "",
+    qualificationRef: "",
   });
 
   const { data: inspectors = [], isLoading } = useQuery({
@@ -58,8 +58,8 @@ export function GatcStaffPage() {
         phone: "",
         password: "",
         employeeId: "",
-        designation: "Calibration & Testing Engineer",
-        qualificationRef: "NABL-CAL-2026-CERT",
+        designation: "",
+        qualificationRef: "",
       });
       setFormError("");
     },
