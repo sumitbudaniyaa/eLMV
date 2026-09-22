@@ -1,214 +1,151 @@
 # eLMV — Online Verification System for Weighing & Measuring Instruments
 
-Unified statutory verification, certification, and regulatory tracking system under India's **Legal Metrology Act, 2009** (Act No. 1 of 2010).
+Unified statutory verification, certification, and regulatory tracking system under India's **Legal Metrology Act, 2009** (Act No. 1 of 2010) and **Legal Metrology (General) Rules, 2011**.
+
+[![Live on Vercel](https://img.shields.io/badge/Frontend-Vercel-black?style=flat&logo=vercel)](https://elmv.vercel.app)
+[![API on Render](https://img.shields.io/badge/Backend-Render-46E3B7?style=flat&logo=render)](https://sih26-wfjr.onrender.com/health)
+[![Database on Neon](https://img.shields.io/badge/Database-Neon%20Postgres-00E599?style=flat&logo=postgresql)](https://neon.tech)
+[![Mobile on Expo EAS](https://img.shields.io/badge/Mobile-Expo%20EAS-000020?style=flat&logo=expo)](https://expo.dev/accounts/sumitbudaniya/projects/elmv/builds/8baa9ca1-0f51-42c0-9c47-8ae72baf12cc)
 
 ---
 
-## Quick Start (Single Command)
+## 🌐 Live Production Deployments
 
-To run the entire ecosystem (Backend API, Consumer Web, Admin Web, Field Officer Web, Mobile Expo Bundler, and Public Ngrok Tunnel concurrently):
+All portals, services, and apps are hosted in cloud production with automated CI/CD synchronization:
+
+| Component | Target Users | Live Cloud URL | Platform |
+| :--- | :--- | :--- | :---: |
+| **Consumer & Trader Portal** | Citizens, Shopkeepers, Commercial Traders | **[https://elmv.vercel.app](https://elmv.vercel.app)** | Vercel |
+| **Admin Management Portal** | State Controllers, Legal Metrology Directors, GATC Admin | **[https://admin-elmv.vercel.app](https://admin-elmv.vercel.app)** | Vercel |
+| **Field Inspection Suite** | Legal Metrology Officers (LMOs), Field Inspectors | **[https://inspector-elmv.vercel.app](https://inspector-elmv.vercel.app)** | Vercel |
+| **Public Certificate Verification** | Any Citizen scanning physical QR code stamps | **[https://elmv.vercel.app/verify](https://elmv.vercel.app/verify)** | Vercel |
+| **Backend REST API** | Core Business Logic, PKI Signing, Auth | **[https://sih26-wfjr.onrender.com/api/v1](https://sih26-wfjr.onrender.com/api/v1)** | Render |
+| **Server Health Check** | 24/7 Uptime Monitoring Endpoint | **[https://sih26-wfjr.onrender.com/health](https://sih26-wfjr.onrender.com/health)** | Render |
+| **Mobile Android App (APK)** | On-ground Officers & Mobile Field Inspectors | **[Download APK v1.0.0](https://expo.dev/accounts/sumitbudaniya/projects/elmv/builds/8baa9ca1-0f51-42c0-9c47-8ae72baf12cc)** | Expo EAS |
+
+---
+
+## 🔑 Pre-Seeded Test Credentials
+
+All environments are pre-seeded with sample statutory data and active operational roles:
+
+| Persona | Email | Password | Access / Role |
+| :--- | :--- | :--- | :--- |
+| **State Admin** | `admin@metrology.gov.in` | `Password@123` | Department-wide oversight, agency approvals, officer workload, audit logs |
+| **Field Officer (LMO)** | `lmo1@metrology.gov.in` | `Password@123` | On-site inspections, tolerance tests, stamping, certificate issuance |
+| **Field Officer (Bengaluru)** | `lmo.bangalore@metrology.gov.in` | `Password@123` | Urban zone enforcement officer |
+| **GATC Testing Lab** | `gatc.lead@precisionlab.org` | `Password@123` | Accredited testing & calibration bench |
+| **Registered Trader** | `trader.rajesh@shreestores.com` | `Password@123` | Commercial shopkeeper instrument verification & applications |
+| **Public Citizen** | *No Login Required* | — | Public verification at `/verify` or scanning stamp QR code |
+
+---
+
+## 🔄 GitHub CI/CD & Automated Cloud Synchronization
+
+This repository uses a modern GitOps continuous deployment pipeline. **Every commit pushed to the `main` branch automatically triggers synchronized builds across all platforms**:
+
+```mermaid
+flowchart TD
+    A["Developer / Team\n(git push origin main)"] --> B["GitHub Repository\n(sumitbudaniyaa/sih26)"]
+    
+    B -->|"Webhook Event"| C["Vercel Build Engine\n(3 Frontend Projects)"]
+    C --> C1["elmv.vercel.app\n(Consumer Portal)"]
+    C --> C2["admin-elmv.vercel.app\n(Admin Portal)"]
+    C --> C3["inspector-elmv.vercel.app\n(Inspector Portal)"]
+
+    B -->|"Webhook Event"| D["Render Cloud Service\n(sih26-wfjr)"]
+    D --> D1["Compiles @sih/shared\nRuns Prisma Client\nStarts Express Engine"]
+    
+    D1 --> E[("Neon PostgreSQL Cloud\n(ep-wispy-fire)")]
+    D1 --> F["Cloudinary CDN\n(Verification Photos & Docs)"]
+    
+    B -.->|"On Demand / Scheduled"| G["Expo EAS Cloud\n(eas-cli build)"]
+    G --> H["Downloadable Android APK\n(eLMV.apk)"]
+```
+
+### How to Monitor Deployments in GitHub:
+1. **Commit Status Icons**: Look at the commit history on GitHub. A green checkmark (`✔`) or yellow dot (`●`) next to any commit displays the live status of the Vercel and Render deployments.
+2. **Deployments Tab**: On the right sidebar of your GitHub repository, click **"Deployments"** to view live deployment history, build times, and active URLs.
+3. **Webhooks**: Go to **Settings** → **Webhooks** to see live webhook payloads sent to Vercel and Render on every push.
+
+---
+
+## 📦 How to Create a GitHub Release for the Android APK
+
+To attach your generated `.apk` file directly to your GitHub repository so judges and users can download it straight from GitHub:
+
+1. **Download the APK** to your computer:
+   * Open **[Expo Build Artifact #8baa9ca1](https://expo.dev/accounts/sumitbudaniya/projects/elmv/builds/8baa9ca1-0f51-42c0-9c47-8ae72baf12cc)** and click **"Download"**.
+2. **Go to Releases in GitHub**:
+   * Navigate to your repo: `https://github.com/sumitbudaniyaa/sih26/releases`.
+   * Click **"Draft a new release"**.
+3. **Fill in the Release Details**:
+   * **Tag version**: `v1.0.0` (Click *"Create new tag: v1.0.0 on publish"*).
+   * **Release title**: `eLMV Mobile App v1.0.0 (Production Release)`
+   * **Description**:
+     ```markdown
+     ### Official eLMV Android Mobile Application (Release v1.0.0)
+     - Full offline and online statutory verification suite
+     - Integrated camera QR scanner for physical stamps
+     - Direct cloud sync with Legal Metrology Central Backend
+     ```
+4. **Attach the APK**:
+   * Drag & drop the downloaded `.apk` file into the **"Attach binaries by dropping them here or selecting them"** box.
+5. Click **"Publish release"**.
+
+---
+
+## 🏛️ System Architecture & Legal Metrology Compliance
+
+```
+/
+├── shared/                  # @sih/shared: Zod schemas, TypeScript types, statutory formulas
+├── server/                  # @sih/server: Express REST API, Prisma ORM, ECDSA PKI engine
+│   ├── prisma/              # PostgreSQL schema with multi-tenant statutory models
+│   └── src/                 # Controllers, services, authentication, and statutory modules
+├── client/                  # @sih/client: React 18, Vite, Tailwind CSS, Lucide icons
+│   └── src/
+│       ├── portals/consumer # Citizen & Trader self-service portal
+│       ├── portals/admin    # Controller & Regulatory governance dashboard
+│       └── portals/field    # Field Officer mobile-responsive inspection suite
+└── mobile/                  # @sih/mobile: React Native / Expo field enforcement application
+    ├── src/                 # Camera inspection HUD, offline queue, certificate viewer
+    └── eas.json             # EAS cloud build configuration for standalone APKs
+```
+
+### Statutory Core Features:
+1. **Asymmetric PKI Digital Signatures (ECDSA NIST P-256 / SHA-256)**: Every certificate is signed using hardware-isolated elliptic curve keys with deterministic JSON canonicalization.
+2. **Rule 14 / Schedule XII Fee Engine**: Dynamic calculation of statutory verification fees, compounding penalties, and automated Government Treasury Receipts.
+3. **Maximum Permissible Error (MPE) Engine**: Automatic tolerance validation based on instrument accuracy classes (Class I, II, III, IIII) under Legal Metrology Rules, 2011.
+4. **Section 24 Re-Verification Tracking**: Automated 30-day proactive expiry notifications preventing non-compliant commercial use.
+5. **Decoupled Verification Gateway**: QR codes on physical weights and measuring instruments route to public `/verify` URL without requiring app installs or user logins.
+
+---
+
+## 🛠️ Local Development Quick Start
+
+To run the entire ecosystem locally concurrently:
 
 ```bash
+# 1. Clone the repository
+git clone https://github.com/sumitbudaniyaa/sih26.git
+cd sih26
+
+# 2. Install dependencies across all workspaces
+npm install
+
+# 3. Start all services concurrently (Server, Consumer, Admin, Field, Mobile)
 npm run dev
 ```
 
-This single command automatically:
-1. Frees ports `5001`, `5173`, `5174`, `5175`, `8081`, `4040` if occupied by stale processes (`scripts/free-ports.js`).
-2. Builds the shared Zod schemas & types package (`@sih/shared`).
-3. Starts the **Express Backend Server** on `http://localhost:5001`.
-4. Starts the **Consumer Web App** on `http://localhost:5173`, **Admin Portal** on `http://localhost:5174`, and **Field Suite** on `http://localhost:5175`.
-5. Opens a secure **Public Ngrok Tunnel** exposing port `5173` (with `/api` proxied to port `5001`).
-6. Starts the **React Native / Expo Mobile App** in **Tunnel Mode** (`--tunnel`) with `EXPO_PUBLIC_API_URL` configured to the public tunnel gateway.
-
-> **📱 Mobile Testing Across Any Network (Cellular / Remote Wi-Fi)**:
-> You do **not** need to be on the same Wi-Fi network as your laptop! When you run `npm run dev`, Expo outputs a public tunnel QR code. Scan it with **Expo Go** on your phone (even on 4G/5G mobile data) — the app bundle downloads over the Expo tunnel, and all login, inspection, and verification API calls route seamlessly to your local backend via the Ngrok API proxy.
-
-### Additional Development Commands
-
-- **Run Full Stack with Public Tunnels (Default)**:
-  ```bash
-  npm run dev
-  ```
-- **Run Local LAN Only (No Tunnels)**:
-  ```bash
-  npm run dev:local
-  ```
-- **Launch Mobile App on iOS Simulator (Mac)**:
-  ```bash
-  npm run mobile:ios
-  ```
-- **Launch Mobile App on Android Emulator**:
-  ```bash
-  npm run mobile:android
-  ```
-- **Run Mobile in Dedicated Terminal (Tunnel Mode)**:
-  ```bash
-  npm run mobile:start
-  ```
-- **Run Backend Only**:
-  ```bash
-  npm run server:dev
-  ```
-- **Run Frontend Only**:
-  ```bash
-  npm run client:dev
-  ```
-- **Run Full Monorepo Build**:
-  ```bash
-  npm run build
-  ```
-- **Run Typecheck Across All Workspaces**:
-  ```bash
-  npm run typecheck
-  ```
-- **Run Integration & Unit Tests**:
-  ```bash
-  npm test
-  ```
-- **Seed Database**:
-  ```bash
-  npm run db:seed
-  ```
+### Local Workspace Ports:
+* **Consumer Web**: `http://localhost:5173`
+* **Admin Management**: `http://localhost:5174`
+* **Field Officer Suite**: `http://localhost:5175`
+* **Backend API**: `http://localhost:5001/api/v1`
+* **Mobile Metro Bundler**: `http://localhost:8081`
 
 ---
 
-## Live Endpoints & Ports
-
-| Component | Port / Host | URL |
-|---|---|---|
-| **Consumer Web Portal** | `5173` | [http://localhost:5173](http://localhost:5173) |
-| **Admin Management Portal** | `5174` | [http://localhost:5174](http://localhost:5174) |
-| **Field Officer Web Suite** | `5175` | [http://localhost:5175](http://localhost:5175) |
-| **Public Web & API Tunnel** | `Ngrok` | `https://vapouringly-nonallegoric-teodora.ngrok-free.dev` |
-| **Mobile Metro Dev (Expo)** | `8081 / Tunnel` | `exp://...` (Rendered as QR in terminal) |
-| **Backend REST API** | `5001` | [http://localhost:5001/api/v1](http://localhost:5001/api/v1) |
-| **Server Health Check** | `5001` | [http://localhost:5001/health](http://localhost:5001/health) |
-| **PostgreSQL Database** | `5432` | `postgresql://localhost:5432/legal_metrology` |
-
----
-
-## Pre-Seeded Accounts (Password: `Password@123`)
-
-| Role | Email | Description |
-|---|---|---|
-| **Admin** | `admin@metrology.gov.in` | Department-wide oversight, audit log, BI, officer workload, statutory fee collection |
-| **LMO Officer** | `lmo.bangalore@metrology.gov.in` | Inspector Ananya Rao (Badge: `KA-LMO-2024-089`, Bengaluru Urban jurisdiction), site visit scheduling, physical inspection recording, PKI certification |
-| **GATC Lab** | `gatc.lead@precisionlab.org` | Apex Metrology GATC (Gazette Ref: `GOI-DOCA-LM/2023/GATC-041`), accredited testing & calibration bench |
-| **Trader / Owner** | `trader.rajesh@shreestores.com` | Commercial user (Shree Provision Stores), instrument registry, Section 24 re-verification applications |
-
-> **Evaluator Tip**: On the login page ([http://localhost:5173/login](http://localhost:5173/login)), expand the **Test Credentials** section beneath the login card to view quick copy-paste credentials for each operational role.
-
----
-
-## Key Features
-
-1. **Asymmetric PKI Digital Signatures (ECDSA NIST P-256)**:
-   - Every verification certificate is cryptographically signed strictly using ECDSA NIST P-256 (`prime256v1`) with SHA-256 (FIPS 186-4 compliant).
-   - Deterministic JSON canonicalization ensures byte-reproducible digests.
-   - Private keys are stored encrypted at rest using AES-256-GCM.
-2. **Public Verification Portal (`/verify`)**:
-   - No authentication required.
-   - Validates digital signatures against the official public key.
-   - Built-in live camera QR scanner with automatic laptop/MacBook camera fallback and instant QR image file upload.
-   - Sample active certificate: `LM-KA-2026-0000001`.
-3. **Statutory Fee & Treasury Receipt Engine (Rule 14 / Schedule XII)**:
-   - Automated fee computation based on instrument category and capacity.
-   - Generates official statutory Treasury Receipts (`REC-YYYY-XXXXXX`) with payment reconciliation feeding the Admin revenue dashboard.
-4. **Territorial Jurisdictional Routing**:
-   - Explicit `OfficerProfile` mapping enforcement officers to districts and zones (`Bengaluru Urban`, `South Zone`) for automated application assignment.
-   - Explicit Government Gazette Notification tracking (`notificationRefNumber`) for authorized GATC test centers.
-5. **Bilingual Support (English & हिन्दी)**:
-   - Full translation coverage across all dashboard views, navigation elements, KPI cards, and action dialogs.
-   - Persistent language selection saved across sessions without full-page reloads.
-6. **Theme Customization (Default: Light)**:
-   - Clean, high-contrast light mode by default with an instant toggle for dark mode.
-7. **Statutory Tolerance Engine**:
-   - Automated Maximum Permissible Error (MPE) calculation per Legal Metrology Rules, 2011.
-   - Rejects applications where observed error exceeds statutory tolerance limits.
-8. **End-to-End Workflow**:
-   - `SUBMITTED → SCHEDULED → INSPECTED → CERTIFIED → EXPIRED`.
-   - Automated daily background cron job flagging instruments due for re-verification within 30 days under Section 24.
-9. **Operational BI & Analytics**:
-   - Turnaround Time (TAT) distribution, aging pendency buckets, regional compliance rates, officer workload matrices, and statutory fee collections.
-10. **Statutory Separation of Duties & Multi-Persona Registry**:
-    - Enforces legal separation between applicant and adjudicator under the Legal Metrology Act, 2009: LMO officers and GATC labs cannot self-apply for verification or register commercial devices.
-    - Role-adaptive Instruments Registry (`/instruments`): serves as a commercial inventory for Traders, a Section 15 on-site spot-check database for LMOs, a statewide master ledger for Admin, and a technical calibration reference for GATC laboratories.
-11. **Mobile Field Inspection Suite (`@sih/mobile`)**:
-    - High-performance React Native / Expo application tailored for on-ground statutory enforcement officers and test centre inspectors with unified **eLMV** branding and State Emblem authentication.
-    - Minimalist, distraction-free 3-tab layout (`Roster`, `Verify`, `Registry`).
-    - 60FPS native spring physics, tactile press feedback, and drag-to-dismiss bottom sheet drawer (`ApplicationDrawer`).
-    - Integrated native camera QR code scanner with animated HUD viewfinder, corner reticles, flashlight torch toggle (`Flashlight` / `FlashlightOff`), and instant direct-to-drawer Schedule XI certificate verification.
-    - Strict button hierarchy: primary action buttons solid black (`#09090b`), secondary cards and triggers styled in clean light-mode cards with subtle borders.
-    - Full-fidelity official Government of Rajasthan Schedule XI Verification Certificate viewer (`CertificateModal`) matching the web portal with zero text truncation.
-    - Automated 401 token refresh interceptor via `expo-secure-store` and offline fallback queue.
-    - Complete bilingual localization (English & हिन्दी) with dynamic screen re-mounting and dedicated login screen language switcher.
-12. **Role-Isolated Web Portals & Decoupled Public Verification**:
-    - Dedicated portal workspaces for Traders (`/consumer/*`), Regulators (`/admin/*`), and Field Officers (`/field/*`).
-    - Authenticated navigation menus (`Sidebar.tsx`, `ConsumerLayout.tsx`, `FieldLayout.tsx`) are strictly streamlined to role-specific tasks, decoupling public verification from internal navigation while preserving universal `/verify` URL resolution for QR code verification.
-
----
-
-## Deployment & Free Hosting Guide
-
-### 1. Database (Free Cloud PostgreSQL)
-Use **[Supabase](https://supabase.com)** or **[Neon.tech](https://neon.tech)** for a 100% free PostgreSQL instance:
-1. Create a free project and copy your connection string:
-   ```env
-   DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres?sslmode=require"
-   ```
-2. Run database migrations from the project root:
-   ```bash
-   npm run db:push
-   npm run db:seed
-   ```
-
-### 2. Frontend Web Portals (Vercel)
-Deploy the React web application for free on **[Vercel](https://vercel.com)**:
-1. Import your GitHub repository in Vercel.
-2. In Project Settings:
-   - **Framework Preset**: `Vite`
-   - **Root Directory**: `client`
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `dist`
-3. Environment Variables:
-   - `VITE_API_BASE_URL`: `https://your-backend-api.onrender.com/api/v1`
-4. Routing rewrites are handled automatically via `client/vercel.json` to prevent 404s on page refresh/navigation.
-
-### 3. Backend REST API (Render / Koyeb)
-Deploy the Express API for free on **[Render](https://render.com)**:
-1. Create a new **Web Service** and connect your GitHub repository.
-2. Configure settings:
-   - **Root Directory**: Leave empty (repo root) or `server`
-   - **Build Command**: `npm install && npm run build --workspace=@sih/shared && npm run build --workspace=@sih/server`
-   - **Start Command**: `npm run start --workspace=@sih/server`
-3. Add Environment Variables (matching `.env.example`):
-   - `PORT`: `5001`
-   - `NODE_ENV`: `production`
-   - `DATABASE_URL`: `postgresql://...` (your Supabase/Neon connection string)
-   - `JWT_ACCESS_SECRET`: `<secure-random-32-hex-bytes>`
-   - `JWT_REFRESH_SECRET`: `<secure-random-32-hex-bytes>`
-   - `CLIENT_URL`: `https://your-frontend.vercel.app`
-
-### 4. Mobile App (Expo EAS)
-1. Install EAS CLI:
-   ```bash
-   npm install -g eas-cli
-   ```
-2. Build an Android APK for distribution:
-   ```bash
-   cd mobile
-   eas build -p android --profile preview
-   ```
-
----
-
-## Documentation
-
-- [ARCHITECTURE.md](file:///Users/Sumit/Desktop/sih/ARCHITECTURE.md) — System architecture, PKI specifications, workflow diagrams, and security model.
-- [API.md](file:///Users/Sumit/Desktop/sih/API.md) — Complete REST API specification with endpoints, request bodies, and responses.
-- [DATABASE.md](file:///Users/Sumit/Desktop/sih/DATABASE.md) — PostgreSQL database schema and model relationships.
-- [CHANGELOG.md](file:///Users/Sumit/Desktop/sih/CHANGELOG.md) — Release notes and phase progression across all delivered releases.
-- [TODO.md](file:///Users/Sumit/Desktop/sih/TODO.md) — Complete implementation checklist across all 36 delivered phases.
-- [AGENT_NOTES.md](file:///Users/Sumit/Desktop/sih/AGENT_NOTES.md) — Architectural decision records (ADR-001 to ADR-032) and engineering log.
-
-
+## 📜 License
+Developed for the **Smart India Hackathon (SIH)** — Online Verification System for Weighing & Measuring Instruments under India Legal Metrology Act.
