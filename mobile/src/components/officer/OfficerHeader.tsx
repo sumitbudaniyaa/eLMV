@@ -36,10 +36,7 @@ export const OfficerHeader: React.FC<OfficerHeaderProps> = ({
         {/* Left: App Identity */}
         <View style={styles.brandRow}>
           <View>
-            <View style={styles.titleRow}>
-              <Text style={styles.brandTitle}>eLMV</Text>
-              <View style={styles.liveDot} />
-            </View>
+            <Text style={styles.brandTitle}>eLMV</Text>
             <Text style={styles.brandSubtitle}>
               {jurisdiction}
             </Text>
@@ -93,22 +90,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-  titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
   brandTitle: {
     fontSize: 18,
     fontWeight: "900",
     letterSpacing: -0.4,
     color: theme.colors.foreground,
-  },
-  liveDot: {
-    width: 6,
-    height: 6,
-    borderRadius: theme.radius.full,
-    backgroundColor: theme.colors.certified.solid,
   },
   brandSubtitle: {
     fontSize: 11,
