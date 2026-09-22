@@ -44,6 +44,7 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
   const [standardSerial, setStandardSerial] = useState<string>("");
   const [remarks, setRemarks] = useState<string>("");
   const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [photoBase64, setPhotoBase64] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // Camera capture modal states
@@ -60,6 +61,7 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
       setStandardSerial("");
       setRemarks("");
       setPhotoUri(null);
+      setPhotoBase64(null);
       setIsCameraOpen(false);
     }
   }, [visible, application]);
@@ -88,9 +90,13 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
   const handleCapturePhoto = async () => {
     if (cameraRef.current) {
       try {
-        const photo = await cameraRef.current.takePictureAsync?.({ quality: 0.8 });
+        const photo = await cameraRef.current.takePictureAsync?.({
+          quality: 0.7,
+          base64: true,
+        });
         if (photo?.uri) {
           setPhotoUri(photo.uri);
+          setPhotoBase64(photo.base64 || null);
           setIsCameraOpen(false);
           return;
         }
@@ -111,6 +117,24 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
     setIsSubmitting(true);
 
     try {
+      // 1. Upload on-site photo proof to Cloudinary if captured
+      let finalPhotoUrls: string[] = [];
+      if (photoBase64) {
+        try {
+          const uploadRes = await mobileApi.post("/inspections/upload-photo", {
+            imageBase64: `data:image/jpeg;base64,${photoBase64}`,
+            filename: `insp-${application.applicationNumber}-${Date.now()}`,
+          });
+          if (uploadRes.data?.data?.url) {
+            finalPhotoUrls = [uploadRes.data.data.url];
+          }
+        } catch (uploadErr) {
+          console.warn("Direct mobile Cloudinary upload failed; forwarding base64 payload to server:", uploadErr);
+          // Pass base64 data URL so backend service will upload to Cloudinary upon ingestion
+          finalPhotoUrls = [`data:image/jpeg;base64,${photoBase64}`];
+        }
+      }
+
       const payload = {
         applicationId: application.id,
         result: isPassed ? InspectionResult.PASSED : InspectionResult.FAILED,
@@ -118,7 +142,7 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
         actualErrorObserved: numActual,
         sealNumber: sealNumber.trim() || `LM-SEAL-${Date.now().toString().slice(-6)}`,
         standardsUsed: [standardSerial.trim()],
-        photoUrls: photoUri ? [photoUri] : [],
+        photoUrls: finalPhotoUrls,
         remarks: remarks.trim(),
         observations: {
           repeatability: "Passed (error < 0.2 division)",
@@ -127,10 +151,10 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
         },
       };
 
-      // 1. Record the inspection
+      // 2. Record the inspection
       await mobileApi.post("/inspections", payload);
 
-      // 2. Option A: If passed, immediately call digital certificate issuance
+      // 3. Option A: If passed, immediately call digital certificate issuance
       if (isPassed) {
         try {
           await mobileApi.post("/certificates/issue", {
@@ -160,7 +184,7 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
         err?.message?.toLowerCase().includes("network");
 
       if (isNetworkIssue) {
-        // Airplane Mode / Network Disconnected: Save to local offline queue
+        // Airplane Mode / Network Disconnected: Save to local offline queue with base64 for later Cloudinary upload
         const offlinePayload = {
           applicationId: application.id,
           result: isPassed ? InspectionResult.PASSED : InspectionResult.FAILED,
@@ -168,7 +192,7 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
           actualErrorObserved: numActual,
           sealNumber: sealNumber.trim() || `LM-SEAL-${Date.now().toString().slice(-6)}`,
           standardsUsed: [standardSerial.trim()],
-          photoUrls: photoUri ? [photoUri] : [],
+          photoUrls: photoBase64 ? [`data:image/jpeg;base64,${photoBase64}`] : [],
           remarks: remarks.trim(),
           observations: {
             repeatability: "Passed (error < 0.2 division)",
@@ -373,7 +397,10 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
               </View>
             </View>
             <TouchableOpacity
-              onPress={() => setPhotoUri(null)}
+              onPress={() => {
+                setPhotoUri(null);
+                setPhotoBase64(null);
+              }}
               style={styles.removeBtn}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >

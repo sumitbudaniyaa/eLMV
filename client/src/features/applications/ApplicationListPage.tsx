@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { api } from "@/lib/api";
 import { ApiResponse, ApplicationStatus, Role, InstrumentType } from "@sih/shared";
 import { useAuth } from "@/context/AuthContext";
-import { formatDate } from "@/lib/utils";
+import { formatDate, cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,8 @@ import {
 import { SubmitApplicationDialog } from "./SubmitApplicationDialog";
 import { ScheduleInspectionDialog } from "./ScheduleInspectionDialog";
 import { RecordInspectionDialog } from "../inspections/RecordInspectionDialog";
+import { InspectionDetailsDialog } from "../inspections/InspectionDetailsDialog";
+import { SignConfirmationDialog } from "./SignConfirmationDialog";
 import { CertificateDialog } from "@/components/common/CertificateDialog";
 import {
   FileText,
@@ -62,6 +64,8 @@ export function ApplicationListPage() {
   const [scheduleTarget, setScheduleTarget] = useState<any | null>(null);
   const [inspectionTarget, setInspectionTarget] = useState<any | null>(null);
   const [viewCertNumber, setViewCertNumber] = useState<string | null>(null);
+  const [inspectionDetailsTarget, setInspectionDetailsTarget] = useState<any | null>(null);
+  const [signConfirmTarget, setSignConfirmTarget] = useState<any | null>(null);
 
   const gatcScopes: string[] =
     user?.role === Role.GATC_ADMIN
@@ -75,12 +79,17 @@ export function ApplicationListPage() {
   const handleIssueCertificate = async (app: any) => {
     try {
       setIssuingId(app.id);
-      await api.post("/certificates/issue", { applicationId: app.id });
+      const res = await api.post("/certificates/issue", { applicationId: app.id });
       queryClient.invalidateQueries({ queryKey: ["applications"] });
       queryClient.invalidateQueries({ queryKey: ["fieldApplications"] });
       queryClient.invalidateQueries({ queryKey: ["certificates"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["consumerDashboard"] });
+
+      const newCertNum = res.data?.data?.certificateNumber;
+      if (newCertNum) {
+        setViewCertNumber(newCertNum);
+      }
     } catch (err: any) {
       console.error("Failed to issue certificate:", err);
       alert(err?.response?.data?.error?.message || "Failed to issue certificate.");
@@ -458,9 +467,27 @@ export function ApplicationListPage() {
             </TableHeader>
             <TableBody>
               {applications.map((app) => (
-                <TableRow key={app.id} className="hover:bg-muted/30 transition-colors">
+                <TableRow
+                  key={app.id}
+                  className={cn(
+                    "hover:bg-muted/30 transition-colors cursor-pointer",
+                    app.status === ApplicationStatus.INSPECTED && "bg-amber-500/5 hover:bg-amber-500/10"
+                  )}
+                  onClick={() => {
+                    if (app.inspectionRecord || app.status === ApplicationStatus.INSPECTED || app.status === ApplicationStatus.CERTIFIED) {
+                      setInspectionDetailsTarget(app);
+                    }
+                  }}
+                >
                   <TableCell className="font-mono font-bold text-foreground">
-                    {app.applicationNumber}
+                    <div className="flex items-center gap-2">
+                      <span>{app.applicationNumber}</span>
+                      {(app.inspectionRecord || app.status === ApplicationStatus.INSPECTED) && (
+                        <span className="text-[10px] text-primary/80 font-normal hover:underline" title="Click to view inspection details">
+                          (Inspection)
+                        </span>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1.5 flex-wrap">
@@ -513,7 +540,10 @@ export function ApplicationListPage() {
                             variant="outline"
                             size="sm"
                             className="h-7 text-xs font-medium px-2.5 shadow-2xs inline-flex items-center gap-1.5 whitespace-nowrap"
-                            onClick={() => setScheduleTarget(app)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setScheduleTarget(app);
+                            }}
                           >
                             <Calendar className="h-3 w-3 shrink-0" />
                             <span>{t("applications.table.schedule")}</span>
@@ -524,45 +554,80 @@ export function ApplicationListPage() {
                             variant="default"
                             size="sm"
                             className="h-7 text-xs font-semibold px-2.5 shadow-xs inline-flex items-center gap-1.5 whitespace-nowrap"
-                            onClick={() => setInspectionTarget(app)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setInspectionTarget(app);
+                            }}
                           >
                             <ClipboardCheck className="h-3 w-3 shrink-0" />
                             <span>{t("applications.table.inspect")}</span>
                           </Button>
                         )}
                         {app.status === ApplicationStatus.INSPECTED && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-7 text-xs font-semibold px-2.5 shadow-2xs border-amber-500/50 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/30 inline-flex items-center gap-1.5 whitespace-nowrap"
-                            onClick={() => {
-                              if (window.confirm(`Digitally sign and issue statutory certificate for ${app.applicationNumber} under Section 24?`)) {
-                                handleIssueCertificate(app);
-                              }
-                            }}
-                            disabled={issuingId === app.id}
-                          >
-                            {issuingId === app.id ? (
-                              <Loader2 className="h-3 w-3 animate-spin shrink-0" />
-                            ) : (
-                              <ShieldCheck className="h-3 w-3 text-amber-600 shrink-0" />
-                            )}
-                            <span>{t("applications.table.digitallySign", { defaultValue: "Digitally Sign & Issue" })}</span>
-                          </Button>
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-xs font-medium px-2 shadow-2xs border-slate-300 dark:border-border text-foreground hover:bg-muted inline-flex items-center gap-1 whitespace-nowrap"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setInspectionDetailsTarget(app);
+                              }}
+                              title="Review on-site inspection measurements and photos"
+                            >
+                              <FileText className="h-3 w-3 shrink-0 text-muted-foreground" />
+                              <span>Review</span>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-xs font-semibold px-2.5 shadow-2xs border-amber-500/50 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/30 inline-flex items-center gap-1.5 whitespace-nowrap"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSignConfirmTarget(app);
+                              }}
+                              disabled={issuingId === app.id}
+                            >
+                              {issuingId === app.id ? (
+                                <Loader2 className="h-3 w-3 animate-spin shrink-0" />
+                              ) : (
+                                <ShieldCheck className="h-3 w-3 text-amber-600 shrink-0" />
+                              )}
+                              <span>{t("applications.table.digitallySign", { defaultValue: "Digitally Sign & Issue" })}</span>
+                            </Button>
+                          </>
                         )}
                       </>
                     )}
 
                     {app.status === ApplicationStatus.CERTIFIED && app.certificate?.certificateNumber && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-7 text-xs font-medium px-2.5 shadow-2xs border-emerald-500/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 inline-flex items-center gap-1.5 whitespace-nowrap"
-                        onClick={() => setViewCertNumber(app.certificate.certificateNumber)}
-                      >
-                        <Award className="h-3 w-3 shrink-0" />
-                        <span>{t("applications.table.certificate")}</span>
-                      </Button>
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-xs font-normal px-2 text-muted-foreground hover:text-foreground inline-flex items-center gap-1 whitespace-nowrap"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setInspectionDetailsTarget(app);
+                          }}
+                          title="View on-site inspection audit record"
+                        >
+                          <FileText className="h-3 w-3 shrink-0" />
+                          <span>Audit</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-7 text-xs font-medium px-2.5 shadow-2xs border-emerald-500/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 inline-flex items-center gap-1.5 whitespace-nowrap"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setViewCertNumber(app.certificate.certificateNumber);
+                          }}
+                        >
+                          <Award className="h-3 w-3 shrink-0" />
+                          <span>{t("applications.table.certificate")}</span>
+                        </Button>
+                      </>
                     )}
                   </TableCell>
                 </TableRow>
@@ -593,6 +658,40 @@ export function ApplicationListPage() {
           applicationId={inspectionTarget.id}
           applicationNumber={inspectionTarget.applicationNumber}
           instrumentSerialNumber={inspectionTarget.instrument?.serialNumber || ""}
+        />
+      )}
+
+      {inspectionDetailsTarget && (
+        <InspectionDetailsDialog
+          open={!!inspectionDetailsTarget}
+          onOpenChange={(open) => !open && setInspectionDetailsTarget(null)}
+          application={inspectionDetailsTarget}
+          canSign={
+            user?.role === Role.ADMIN ||
+            user?.role === Role.LMO ||
+            user?.role === Role.GATC_ADMIN
+          }
+          onSignClick={(app) => {
+            setInspectionDetailsTarget(null);
+            setSignConfirmTarget(app);
+          }}
+          onViewCertificate={(certNum) => {
+            setInspectionDetailsTarget(null);
+            setViewCertNumber(certNum);
+          }}
+        />
+      )}
+
+      {signConfirmTarget && (
+        <SignConfirmationDialog
+          open={!!signConfirmTarget}
+          onOpenChange={(open) => !open && setSignConfirmTarget(null)}
+          application={signConfirmTarget}
+          isSigning={issuingId === signConfirmTarget.id}
+          onConfirm={async () => {
+            await handleIssueCertificate(signConfirmTarget);
+            setSignConfirmTarget(null);
+          }}
         />
       )}
 

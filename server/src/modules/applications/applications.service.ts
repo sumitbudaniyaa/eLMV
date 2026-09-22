@@ -227,6 +227,11 @@ export class ApplicationsService {
           certificate: {
             select: { id: true, certificateNumber: true, validUntil: true },
           },
+          inspectionRecord: {
+            include: {
+              officer: { select: { id: true, name: true, email: true } },
+            },
+          },
         },
       }),
     ]);

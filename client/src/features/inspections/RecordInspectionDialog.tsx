@@ -98,10 +98,29 @@ export function RecordInspectionDialog({
 
   const mutation = useMutation({
     mutationFn: async (data: CreateInspectionInput) => {
+      let finalPhotoUrls: string[] = [];
+      if (photoPreview && photoPreview.startsWith("data:")) {
+        try {
+          const uploadRes = await api.post("/inspections/upload-photo", {
+            imageBase64: photoPreview,
+            filename: `insp-${applicationNumber}-${Date.now()}`,
+          });
+          if (uploadRes.data?.data?.url) {
+            finalPhotoUrls = [uploadRes.data.data.url];
+          }
+        } catch (uploadErr) {
+          console.warn("Direct web Cloudinary upload failed; forwarding base64 payload:", uploadErr);
+          finalPhotoUrls = [photoPreview];
+        }
+      } else if (data.photoUrls && data.photoUrls.length > 0) {
+        finalPhotoUrls = data.photoUrls;
+      }
+
       const payload = {
         ...data,
         applicationId,
         result: isPassed ? InspectionResult.PASSED : InspectionResult.FAILED,
+        photoUrls: finalPhotoUrls,
       };
       const res = await api.post("/inspections", payload);
       // Option A: Automatically digitally sign & issue statutory certificate immediately if inspection passed

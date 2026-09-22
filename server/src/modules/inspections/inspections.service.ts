@@ -1,5 +1,7 @@
 import { prisma } from "../../config/database";
 import { AppError } from "../../middleware/errorHandler";
+import { uploadToCloudinary } from "../../config/cloudinary";
+import { logger } from "../../config/logger";
 import {
   CreateInspectionInput,
   ErrorCode,
@@ -56,6 +58,33 @@ export class InspectionsService {
       );
     }
 
+    // Process photos: Automatically upload any base64 or data URLs to Cloudinary
+    const processedPhotoUrls: string[] = [];
+    if (Array.isArray(input.photoUrls)) {
+      for (let i = 0; i < input.photoUrls.length; i++) {
+        const photo = input.photoUrls[i];
+        if (photo && (photo.startsWith("data:") || (!photo.startsWith("http") && photo.length > 500))) {
+          try {
+            const cleanBase64 = photo.replace(/^data:image\/[a-zA-Z0-9.+_-]+;base64,/, "");
+            const buffer = Buffer.from(cleanBase64, "base64");
+            const safeId = input.applicationId.slice(0, 8);
+            const cdnUrl = await uploadToCloudinary(
+              buffer,
+              "inspections",
+              `insp-${safeId}-${Date.now()}-${i}`,
+              "image"
+            );
+            processedPhotoUrls.push(cdnUrl);
+          } catch (uploadErr) {
+            logger.warn({ uploadErr }, "Failed to upload base64 photo to Cloudinary in service");
+            processedPhotoUrls.push(photo);
+          }
+        } else if (photo) {
+          processedPhotoUrls.push(photo);
+        }
+      }
+    }
+
     // Create inspection record
     const inspection = await prisma.inspectionRecord.create({
       data: {
@@ -66,7 +95,7 @@ export class InspectionsService {
         standardsUsed: input.standardsUsed,
         maxPermissibleError: input.maxPermissibleError,
         actualErrorObserved: input.actualErrorObserved,
-        photoUrls: input.photoUrls,
+        photoUrls: processedPhotoUrls,
         sealNumber: input.sealNumber,
         remarks: input.remarks,
       },
