@@ -85,7 +85,7 @@ function startMetro(useTunnel) {
   console.log("\x1b[35m%s\x1b[0m", `🔗  Backend API:  ${apiUrl}`);
   console.log("\x1b[36m%s\x1b[0m", "========================================================\n");
 
-  const expoArgs = ["expo", "start", "--go"];
+  const expoArgs = ["expo", "start", "--go", "-c"];
   if (useTunnel) {
     expoArgs.push("--tunnel");
   }
