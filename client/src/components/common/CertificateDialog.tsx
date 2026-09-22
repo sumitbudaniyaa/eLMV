@@ -206,32 +206,22 @@ export function CertificateDialog({
             id="certificate-modal-print-node"
             className="rounded-xl border-2 border-zinc-900 dark:border-zinc-700 bg-white dark:bg-zinc-950 p-5 sm:p-7 space-y-4 shadow-sm text-zinc-900 dark:text-zinc-100"
           >
-            {/* Certificate Header with Emblem & QR */}
+            {/* Certificate Header with QR */}
             <div className="flex items-start justify-between pb-3 border-b-2 border-zinc-900/80 dark:border-zinc-700 gap-3">
-              <div className="flex items-start space-x-3 sm:space-x-4 min-w-0 flex-1">
-                <img
-                  src="/emblem.jpeg"
-                  alt="National Emblem of India"
-                  className="h-14 w-auto object-contain shrink-0 mt-0.5"
-                  onError={(e) => {
-                    // Fallback to text if emblem missing
-                    (e.target as HTMLElement).style.display = "none";
-                  }}
-                />
-                <div className="space-y-1 min-w-0">
-                  <div className="inline-flex flex-wrap items-center gap-1.5 text-[9.5px] font-mono tracking-widest uppercase text-zinc-600 dark:text-zinc-400 font-bold">
-                    <span>GOVERNMENT OF INDIA</span>
-                    <span>•</span>
-                    <span>DEPARTMENT OF CONSUMER AFFAIRS</span>
-                  </div>
-                  <h2 className="text-base sm:text-lg font-black tracking-tight uppercase text-zinc-900 dark:text-zinc-50 leading-tight">
-                    Certificate of Verification of Weights &amp; Measures
-                  </h2>
-                  <p className="text-[10px] sm:text-[10.5px] text-zinc-600 dark:text-zinc-400 font-mono">
-                    [Issued under Section 24 of Legal Metrology Act, 2009 &amp; Rule 27 of General Rules, 2011]
-                  </p>
+              <div className="space-y-1 min-w-0 flex-1">
+                <div className="inline-flex flex-wrap items-center gap-1.5 text-[9.5px] font-mono tracking-widest uppercase text-zinc-600 dark:text-zinc-400 font-bold">
+                  <span>GOVERNMENT OF INDIA</span>
+                  <span>•</span>
+                  <span>DEPARTMENT OF CONSUMER AFFAIRS</span>
                 </div>
+                <h2 className="text-base sm:text-lg font-black tracking-tight uppercase text-zinc-900 dark:text-zinc-50 leading-tight">
+                  Certificate of Verification of Weights &amp; Measures
+                </h2>
+                <p className="text-[10px] sm:text-[10.5px] text-zinc-600 dark:text-zinc-400 font-mono">
+                  [Issued under Section 24 of Legal Metrology Act, 2009 &amp; Rule 27 of General Rules, 2011]
+                </p>
               </div>
+
 
               {/* Statutory QR Code */}
               <div className="flex flex-col items-center justify-center p-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white shrink-0 shadow-2xs">
