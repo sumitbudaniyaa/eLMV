@@ -1033,9 +1033,14 @@ In accordance with hard project rules, every phase must be fully implemented, te
   - In `mobile/src/components/officer/CertificateModal.tsx`:
     - Removed all hardcoded demo/mock fallbacks (`"LM-KA-2026-0000001"`, fake signatures).
     - Added `fetchError` state and an explicit "Statutory Certificate Not Found" error card when a certificate is not found in the central ledger.
-- [x] Verification:
-  - Mobile TypeScript check: 0 errors (`npm run typecheck --workspace=@sih/mobile`).
-  - Client production build: 0 errors (`npm run build --workspace=@sih/client`).
+## Phase 89: Neon Cloud Database Migration & Admin Seeding
+- [x] Cloud Database Schema Push (`ep-wispy-fire-b329naal-pooler.c-4.ap-southeast-1.aws.neon.tech`):
+  - Successfully synced complete Prisma schema to user's remote Neon PostgreSQL 16 database.
+- [x] Cloud Admin Account Provisioning:
+  - Seeded `admin@metrology.gov.in` (`Role.ADMIN`, `S. K. Sharma (Joint Controller)`, password: `Password@123`).
+  - Initialized active Root PKI ECDSA Signing Key (`v1-2026`).
+  - Zero mock data or secondary accounts migrated.
+
 
 
 
