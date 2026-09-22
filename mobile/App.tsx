@@ -3,6 +3,7 @@ import {
   StyleSheet,
   View,
   Text,
+  Image,
   TouchableOpacity,
   StatusBar,
   ActivityIndicator,
@@ -73,8 +74,19 @@ function MainApp() {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
-        <Text style={styles.loadingText}>Initializing eLMV Station...</Text>
+        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" translucent={true} />
+        <Image
+          source={require("./assets/emblem.jpeg")}
+          style={styles.splashLogo}
+          resizeMode="contain"
+        />
+        <Text style={styles.splashTitle}>eLMV</Text>
+        <Text style={styles.splashSubtitle}>LEGAL METROLOGY DIVISION</Text>
+        <Text style={styles.splashGovt}>GOVERNMENT OF INDIA • भारत सरकार</Text>
+        <View style={styles.splashLoaderWrapper}>
+          <ActivityIndicator size="small" color="#000000" />
+          <Text style={styles.loadingText}>Initializing eLMV Station...</Text>
+        </View>
       </View>
     );
   }
@@ -219,14 +231,48 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: "#ffffff",
     alignItems: "center",
     justifyContent: "center",
-    gap: 12,
+    paddingHorizontal: 24,
+  },
+  splashLogo: {
+    width: 140,
+    height: 140,
+    marginBottom: 16,
+  },
+  splashTitle: {
+    fontSize: 34,
+    fontWeight: "900",
+    color: "#000000",
+    letterSpacing: -1,
+    marginBottom: 6,
+  },
+  splashSubtitle: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#111827",
+    letterSpacing: 1.5,
+    marginBottom: 4,
+    textTransform: "uppercase",
+  },
+  splashGovt: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#4b5563",
+    letterSpacing: 0.8,
+    marginBottom: 28,
+  },
+  splashLoaderWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 8,
   },
   loadingText: {
     fontSize: 12,
-    color: theme.colors.mutedForeground,
+    fontWeight: "500",
+    color: "#000000",
   },
   viewport: {
     flex: 1,

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { useAuth } from "../../lib/auth";
 import { theme } from "../ui/theme";
 
@@ -35,6 +35,11 @@ export const OfficerHeader: React.FC<OfficerHeaderProps> = ({
       <View style={styles.headerBar}>
         {/* Left: App Identity */}
         <View style={styles.brandRow}>
+          <Image
+            source={require("../../../assets/emblem.jpeg")}
+            style={styles.brandLogo}
+            resizeMode="contain"
+          />
           <View>
             <Text style={styles.brandTitle}>eLMV</Text>
             <Text style={styles.brandSubtitle}>
@@ -89,6 +94,12 @@ const styles = StyleSheet.create({
   brandRow: {
     flexDirection: "row",
     alignItems: "center",
+  },
+  brandLogo: {
+    width: 32,
+    height: 32,
+    marginRight: 9,
+    borderRadius: 4,
   },
   brandTitle: {
     fontSize: 18,
