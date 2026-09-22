@@ -20,7 +20,11 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#000000"
       },
-      "package": "gov.in.metrology.verification"
+      "package": "gov.in.metrology.verification",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "plugins": [
       [
@@ -29,7 +33,11 @@
           "cameraPermission": "Allow eLMV to access camera for scanning QR codes and taking on-site verification photos."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "536fb272-4b72-4a03-9401-15a519df7f39"
+      }
+    }
   }
 }
-

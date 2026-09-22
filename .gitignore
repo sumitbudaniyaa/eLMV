@@ -18,6 +18,8 @@ node_modules/
 # Build Artifacts & Output
 dist/
 */dist/
+!shared/dist/
+!shared/dist/**
 build/
 */build/
 .output/
