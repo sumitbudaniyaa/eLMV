@@ -24,6 +24,7 @@ app.use(
         origin === "http://localhost:5174" ||
         origin === "http://localhost:5175" ||
         origin === "http://localhost:3000" ||
+        /^https:\/\/.*\.vercel\.app$/.test(origin) ||
         /^http:\/\/[a-z0-9-]+\.localhost(:[0-9]+)?$/.test(origin) ||
         /^https:\/\/[a-z0-9-]+\.(ngrok-free\.dev|ngrok-free\.app|ngrok\.app|ngrok\.io|loca\.lt)$/.test(origin);
 
