@@ -103,13 +103,18 @@ export function errorHandler(
   }
 
   // Fallback 500
+  const message = err?.message || "An internal server error occurred.";
   const response: ApiResponse = {
     success: false,
     error: {
       code: ErrorCode.INTERNAL_SERVER_ERROR,
-      message: "An internal server error occurred.",
+      message,
+      details: process.env.NODE_ENV !== "production"
+        ? [{ message: err?.stack || String(err) }]
+        : undefined,
     },
   };
   res.status(500).json(response);
 }
+
 

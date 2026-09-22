@@ -115,7 +115,23 @@ export function verifySignature(
 }
 
 /**
- * Get or bootstrap active signing key from database
+ * Helper to generate a unique keyVersion if default version already exists in database
+ */
+async function getUniqueKeyVersion(baseVersion: string): Promise<string> {
+  const existing = await prisma.signingKey.findUnique({
+    where: { keyVersion: baseVersion },
+  });
+  if (!existing) {
+    return baseVersion;
+  }
+  return `${baseVersion}-${Date.now().toString(36)}`;
+}
+
+/**
+ * Get or bootstrap active signing key from database.
+ * If the active key in the database cannot be decrypted (e.g. PKI_KEY_ENCRYPTION_SECRET
+ * changed across deployments/environments), it automatically rotates by deactivating
+ * the invalid key and generating a fresh root signing key with the current secret.
  */
 export async function getActiveSigningKey(): Promise<{
   id: string;
@@ -128,16 +144,41 @@ export async function getActiveSigningKey(): Promise<{
     orderBy: { createdAt: "desc" },
   });
 
-  if (!keyRecord) {
-    logger.info("No active PKI signing key found. Generating root signing key...");
+  let decryptedPrivate: string | null = null;
+
+  if (keyRecord) {
+    try {
+      decryptedPrivate = decryptPrivateKey(keyRecord.privateKeyEncrypted);
+    } catch (err: any) {
+      logger.warn(
+        { err: err?.message, keyId: keyRecord.id, keyVersion: keyRecord.keyVersion },
+        "Active PKI signing key failed decryption (PKI_KEY_ENCRYPTION_SECRET mismatch or corrupted). Retiring invalid key."
+      );
+      try {
+        await prisma.signingKey.update({
+          where: { id: keyRecord.id },
+          data: { isActive: false },
+        });
+      } catch (updateErr) {
+        logger.error({ updateErr }, "Failed to deactivate corrupted signing key record");
+      }
+      keyRecord = null;
+      decryptedPrivate = null;
+    }
+  }
+
+  if (!keyRecord || !decryptedPrivate) {
+    logger.info("Initializing fresh PKI root signing key...");
     const { publicKeyPem, privateKeyPem } = generateEcdsaKeypair();
     const encryptedPrivate = encryptPrivateKey(privateKeyPem);
     const validUntil = new Date();
     validUntil.setFullYear(validUntil.getFullYear() + 2); // 2-year lifecycle
 
+    const keyVersion = await getUniqueKeyVersion(env.PKI_ACTIVE_KEY_VERSION);
+
     keyRecord = await prisma.signingKey.create({
       data: {
-        keyVersion: env.PKI_ACTIVE_KEY_VERSION,
+        keyVersion,
         algorithm: ALGORITHM,
         publicKey: publicKeyPem,
         privateKeyEncrypted: encryptedPrivate,
@@ -145,10 +186,9 @@ export async function getActiveSigningKey(): Promise<{
         validUntil,
       },
     });
+    decryptedPrivate = privateKeyPem;
     logger.info(`Initialized PKI root signing key version ${keyRecord.keyVersion}`);
   }
-
-  const decryptedPrivate = decryptPrivateKey(keyRecord.privateKeyEncrypted);
 
   return {
     id: keyRecord.id,
@@ -157,4 +197,5 @@ export async function getActiveSigningKey(): Promise<{
     privateKeyPem: decryptedPrivate,
   };
 }
+
 
