@@ -8,14 +8,19 @@
     "dev:consumer": "vite --port 5173 --host",
     "dev:admin": "vite --port 5174 --host",
     "dev:field": "vite --port 5175 --host",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
     "@sih/shared": "*",
     "@tanstack/react-query": "^5.56.2",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.20",
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -23,6 +28,7 @@
     "i18next": "^23.15.1",
     "i18next-browser-languagedetector": "^8.0.0",
     "lucide-react": "^0.441.0",
+    "postcss": "^8.4.47",
     "qrcode.react": "^4.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -31,17 +37,12 @@
     "react-router-dom": "^6.26.2",
     "recharts": "^2.12.7",
     "tailwind-merge": "^2.5.2",
-    "zod": "^3.23.8"
-  },
-  "devDependencies": {
-    "@types/react": "^18.2.45",
-    "@types/react-dom": "^18.2.18",
-    "@vitejs/plugin-react": "^4.3.1",
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.47",
     "tailwindcss": "^3.4.11",
     "typescript": "^5.5.4",
     "vite": "^5.4.6",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
     "vitest": "^2.1.1"
   }
 }
