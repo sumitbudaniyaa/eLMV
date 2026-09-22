@@ -25,14 +25,11 @@ export class InspectionsService {
       throw new AppError(404, ErrorCode.NOT_FOUND, "Application not found.");
     }
 
-    if (
-      application.status !== ApplicationStatus.SCHEDULED &&
-      application.status !== ApplicationStatus.SUBMITTED
-    ) {
+    if (application.status !== ApplicationStatus.SCHEDULED) {
       throw new AppError(
         400,
         ErrorCode.INVALID_STATE_TRANSITION,
-        `Cannot record inspection for application in status ${application.status}. Must be SCHEDULED or SUBMITTED.`
+        `Cannot record inspection for application in status ${application.status}. The inspection visit must be SCHEDULED by the field officer first.`
       );
     }
 

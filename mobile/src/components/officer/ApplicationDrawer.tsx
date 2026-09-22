@@ -24,6 +24,7 @@ interface ApplicationDrawerProps {
   visible: boolean;
   onClose: () => void;
   application: any | null;
+  onSchedule?: (app: any) => void;
   onStartInspection?: (app: any) => void;
   onViewCertificate?: (certNumber: string, app: any) => void;
 }
@@ -32,6 +33,7 @@ export const ApplicationDrawer: React.FC<ApplicationDrawerProps> = ({
   visible,
   onClose,
   application,
+  onSchedule,
   onStartInspection,
   onViewCertificate,
 }) => {
@@ -359,7 +361,22 @@ export const ApplicationDrawer: React.FC<ApplicationDrawerProps> = ({
 
             {/* Bottom Action Footer */}
             <View style={styles.footer}>
-              {(status === ApplicationStatus.SCHEDULED || status === ApplicationStatus.SUBMITTED) && onStartInspection ? (
+              {status === ApplicationStatus.SUBMITTED && onSchedule ? (
+                <Button
+                  size="lg"
+                  onPress={() => {
+                    handleDismiss(() => {
+                      onSchedule(app);
+                    });
+                  }}
+                  icon={<Icons.Calendar size={15} color="#ffffff" />}
+                  style={styles.primaryCta}
+                >
+                  {i18n.t("roster.scheduleVisit", { defaultValue: "Schedule Inspection Visit" })}
+                </Button>
+              ) : null}
+
+              {status === ApplicationStatus.SCHEDULED && onStartInspection ? (
                 <Button
                   size="lg"
                   onPress={() => {

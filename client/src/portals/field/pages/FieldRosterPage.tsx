@@ -22,12 +22,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { RecordInspectionDialog } from "@/features/inspections/RecordInspectionDialog";
+import { ScheduleInspectionDialog } from "@/features/applications/ScheduleInspectionDialog";
 import { ApplicationStatus } from "@sih/shared";
 
 export function FieldRosterPage() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<"scheduled" | "certified" | "all">("scheduled");
   const [search, setSearch] = useState("");
+  const [scheduleTarget, setScheduleTarget] = useState<any | null>(null);
   const [inspectionTarget, setInspectionTarget] = useState<{
     id: string;
     number: string;
@@ -252,7 +254,17 @@ export function FieldRosterPage() {
 
                   {/* Right Action Button */}
                   <div className="flex items-center sm:self-center shrink-0 gap-2">
-                    {app.status === ApplicationStatus.SCHEDULED || app.status === ApplicationStatus.SUBMITTED ? (
+                    {app.status === ApplicationStatus.SUBMITTED ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setScheduleTarget(app)}
+                        className="w-full sm:w-auto h-9 text-xs font-semibold inline-flex items-center gap-1.5"
+                      >
+                        <Calendar className="h-3.5 w-3.5 mr-1" />
+                        {t("applications.table.schedule", { defaultValue: "Schedule Visit" })}
+                      </Button>
+                    ) : app.status === ApplicationStatus.SCHEDULED ? (
                       <Button
                         size="sm"
                         onClick={() =>
@@ -308,6 +320,16 @@ export function FieldRosterPage() {
           ))
         )}
       </div>
+
+      {/* Schedule Inspection Dialog Modal */}
+      {scheduleTarget && (
+        <ScheduleInspectionDialog
+          open={!!scheduleTarget}
+          onOpenChange={(open) => !open && setScheduleTarget(null)}
+          applicationId={scheduleTarget.id}
+          applicationNumber={scheduleTarget.applicationNumber}
+        />
+      )}
 
       {/* Verification Dialog Modal */}
       {inspectionTarget && (

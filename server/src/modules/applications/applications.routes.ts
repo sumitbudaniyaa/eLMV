@@ -37,10 +37,10 @@ applicationsRouter.patch(
   applicationsController.assignOfficer
 );
 
-// Schedule inspection (LMO, GATC_INSPECTOR, GATC_ADMIN, ADMIN)
+// Schedule inspection (LMO, GATC_INSPECTOR only)
 applicationsRouter.patch(
   "/:id/schedule",
-  requireRole([Role.LMO, Role.GATC_INSPECTOR, Role.GATC_ADMIN, Role.ADMIN]),
+  requireRole([Role.LMO, Role.GATC_INSPECTOR]),
   validate({ body: scheduleApplicationSchema }),
   applicationsController.schedule
 );

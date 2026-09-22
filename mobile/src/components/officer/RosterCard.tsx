@@ -9,6 +9,7 @@ import i18n from "../../i18n";
 interface RosterCardProps {
   application: any;
   onPress: (app: any) => void;
+  onSchedule?: (app: any) => void;
   onStartInspection: (app: any) => void;
   onViewCertificate: (certNumber: string, app: any) => void;
 }
@@ -16,6 +17,7 @@ interface RosterCardProps {
 export const RosterCard: React.FC<RosterCardProps> = ({
   application,
   onPress,
+  onSchedule,
   onStartInspection,
   onViewCertificate,
 }) => {
@@ -151,7 +153,17 @@ export const RosterCard: React.FC<RosterCardProps> = ({
         </View>
 
         {/* Primary Action Button */}
-        {(status === ApplicationStatus.SCHEDULED || status === ApplicationStatus.SUBMITTED) ? (
+        {status === ApplicationStatus.SUBMITTED ? (
+          <Button
+            size="sm"
+            variant="outline"
+            onPress={() => onSchedule?.(application)}
+            icon={<Icons.Calendar size={13} color="#09090b" />}
+            style={styles.outlineActionBtn}
+          >
+            {i18n.t("roster.scheduleVisit", { defaultValue: "Schedule Visit" })}
+          </Button>
+        ) : status === ApplicationStatus.SCHEDULED ? (
           <Button
             size="sm"
             onPress={() => onStartInspection(application)}

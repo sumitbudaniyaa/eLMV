@@ -315,8 +315,9 @@ export function InspectionDetailsDialog({
         {isInspected && canSign && (
           <Button
             type="button"
+            variant="default"
             onClick={() => onSignClick?.(application)}
-            className="text-xs h-9 font-semibold bg-[#0B2545] hover:bg-[#0B2545]/90 text-white shadow-xs inline-flex items-center gap-2"
+            className="text-xs h-9 font-semibold inline-flex items-center gap-2"
           >
             <ShieldCheck className="h-3.5 w-3.5 text-amber-400" />
             <span>Digitally Sign & Issue Certificate</span>

@@ -529,11 +529,8 @@ export function ApplicationListPage() {
                     {app.assignedOfficer?.name || t("applications.table.unassigned")}
                   </TableCell>
                   <TableCell className="text-right space-x-1.5">
-                    {/* Role-based actions */}
-                    {(user?.role === Role.LMO ||
-                      user?.role === Role.GATC_ADMIN ||
-                      user?.role === Role.GATC_INSPECTOR ||
-                      user?.role === Role.ADMIN) && (
+                    {/* Role-based actions (Field Officers only) */}
+                    {(user?.role === Role.LMO || user?.role === Role.GATC_INSPECTOR) && (
                       <>
                         {app.status === ApplicationStatus.SUBMITTED && (
                           <Button
@@ -563,6 +560,14 @@ export function ApplicationListPage() {
                             <span>{t("applications.table.inspect")}</span>
                           </Button>
                         )}
+                      </>
+                    )}
+
+                    {(user?.role === Role.LMO ||
+                      user?.role === Role.GATC_ADMIN ||
+                      user?.role === Role.GATC_INSPECTOR ||
+                      user?.role === Role.ADMIN) && (
+                      <>
                         {app.status === ApplicationStatus.INSPECTED && (
                           <>
                             <Button

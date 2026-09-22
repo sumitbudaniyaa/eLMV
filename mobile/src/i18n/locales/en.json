@@ -33,6 +33,7 @@
       "rejected": "Rejected"
     },
     "startMpe": "Start MPE Test",
+    "scheduleVisit": "Schedule Visit",
     "digitallySign": "Digitally Sign & Issue",
     "viewCert": "View Certificate / QR",
     "empty": "No verification tasks found matching criteria."

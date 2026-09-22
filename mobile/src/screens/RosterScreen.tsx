@@ -17,6 +17,7 @@ import { theme } from "../components/ui/theme";
 import { Icons } from "../components/ui/icons";
 import { Tabs, TabItem } from "../components/ui/tabs";
 import { RosterCard } from "../components/officer/RosterCard";
+import { ScheduleModal } from "../components/officer/ScheduleModal";
 import { InspectionModal } from "../components/officer/InspectionModal";
 import { CertificateModal } from "../components/officer/CertificateModal";
 import { ApplicationDrawer } from "../components/officer/ApplicationDrawer";
@@ -49,6 +50,7 @@ export const RosterScreen: React.FC<{ currentLanguage?: string }> = ({ currentLa
 
   // Dialog / Modal / Drawer Targets
   const [drawerApp, setDrawerApp] = useState<any | null>(null);
+  const [scheduleTarget, setScheduleTarget] = useState<any | null>(null);
   const [inspectionTarget, setInspectionTarget] = useState<any | null>(null);
   const [certTarget, setCertTarget] = useState<{ number: string; app: any } | null>(null);
 
@@ -310,6 +312,7 @@ export const RosterScreen: React.FC<{ currentLanguage?: string }> = ({ currentLa
             <RosterCard
               application={item}
               onPress={(app) => setDrawerApp(app)}
+              onSchedule={(app) => setScheduleTarget(app)}
               onStartInspection={(app) => setInspectionTarget(app)}
               onViewCertificate={(num, app) => setCertTarget({ number: num, app })}
             />
@@ -351,9 +354,20 @@ export const RosterScreen: React.FC<{ currentLanguage?: string }> = ({ currentLa
         visible={!!drawerApp}
         application={drawerApp}
         onClose={() => setDrawerApp(null)}
+        onSchedule={(app) => setScheduleTarget(app)}
         onStartInspection={(app) => setInspectionTarget(app)}
         onViewCertificate={(num, app) => setCertTarget({ number: num, app })}
       />
+
+      {/* Schedule Inspection Modal */}
+      {scheduleTarget ? (
+        <ScheduleModal
+          visible={!!scheduleTarget}
+          application={scheduleTarget}
+          onClose={() => setScheduleTarget(null)}
+          onScheduleComplete={fetchApplications}
+        />
+      ) : null}
 
       {/* Record Inspection Modal (Option A) */}
       {inspectionTarget ? (

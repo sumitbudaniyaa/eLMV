@@ -13,7 +13,7 @@ inspectionsRouter.use(requireAuth);
 // Record inspection results (LMO & GATC Inspector only)
 inspectionsRouter.post(
   "/",
-  requireRole([Role.LMO, Role.GATC_INSPECTOR, Role.GATC_ADMIN, Role.ADMIN]),
+  requireRole([Role.LMO, Role.GATC_INSPECTOR]),
   validate({ body: createInspectionSchema }),
   inspectionsController.record
 );
@@ -25,7 +25,7 @@ inspectionsRouter.get("/:id", inspectionsController.getById);
 inspectionsRouter.post(
   "/upload-photo",
   uploadLimiter,
-  requireRole([Role.LMO, Role.GATC_INSPECTOR, Role.GATC_ADMIN, Role.ADMIN]),
+  requireRole([Role.LMO, Role.GATC_INSPECTOR]),
   inspectionsController.uploadPhoto
 );
 
