@@ -187,8 +187,8 @@ sequenceDiagram
 
 ### 1. Clone & Install
 ```bash
-git clone https://github.com/sumitbudaniyaa/sih26.git
-cd sih26
+git clone https://github.com/sumitbudaniyaa/eLMV.git
+cd eLMV
 npm install
 ```
 
