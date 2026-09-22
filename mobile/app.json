@@ -4,10 +4,10 @@
     "slug": "elmv",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icon-v2.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splash-v2.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -16,7 +16,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "gov.in.metrology.verification",
       "splash": {
-        "image": "./assets/splash.png",
+        "image": "./assets/splash-v2.png",
         "resizeMode": "contain",
         "backgroundColor": "#ffffff"
       }
@@ -24,11 +24,11 @@
     "android": {
       "userInterfaceStyle": "light",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/adaptive-icon-v2.png",
         "backgroundColor": "#ffffff"
       },
       "splash": {
-        "image": "./assets/splash.png",
+        "image": "./assets/splash-v2.png",
         "resizeMode": "contain",
         "backgroundColor": "#ffffff"
       },

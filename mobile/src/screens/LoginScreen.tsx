@@ -140,7 +140,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           <View style={styles.topSection}>
             <Animated.View style={[styles.brandContainer, { transform: [{ scale: logoScale }] }]}>
               <Image
-                source={require("../../assets/emblem.jpeg")}
+                source={require("../../assets/logo.jpeg")}
                 style={styles.emblemImage}
                 resizeMode="contain"
               />
@@ -300,8 +300,8 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   emblemImage: {
-    width: 48,
-    height: 66,
+    width: 52,
+    height: 52,
   },
   brandTextBlock: {
     justifyContent: "center",

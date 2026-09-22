@@ -36,7 +36,7 @@ export const OfficerHeader: React.FC<OfficerHeaderProps> = ({
         {/* Left: App Identity */}
         <View style={styles.brandRow}>
           <Image
-            source={require("../../../assets/emblem.jpeg")}
+            source={require("../../../assets/logo.jpeg")}
             style={styles.brandLogo}
             resizeMode="contain"
           />

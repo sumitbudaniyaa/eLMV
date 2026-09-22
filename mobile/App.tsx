@@ -76,7 +76,7 @@ function MainApp() {
       <View style={styles.loadingContainer}>
         <StatusBar barStyle="dark-content" backgroundColor="#ffffff" translucent={true} />
         <Image
-          source={require("./assets/emblem.jpeg")}
+          source={require("./assets/logo.jpeg")}
           style={styles.splashLogo}
           resizeMode="contain"
         />
