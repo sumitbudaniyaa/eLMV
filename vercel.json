@@ -1,4 +1,5 @@
 {
+  "framework": null,
   "installCommand": "npm install --include=dev",
   "buildCommand": "npm run build --workspace=@sih/shared && cd client && ../node_modules/.bin/vite build",
   "outputDirectory": "client/dist",
