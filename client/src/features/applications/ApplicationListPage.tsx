@@ -462,7 +462,7 @@ export function ApplicationListPage() {
                 <TableHead>{t("applications.table.status")}</TableHead>
                 <TableHead>{t("applications.table.scheduledDate")}</TableHead>
                 <TableHead>{t("applications.table.assignedOfficer")}</TableHead>
-                <TableHead className="text-right">{t("applications.table.actions")}</TableHead>
+                <TableHead className="text-right whitespace-nowrap min-w-[280px]">{t("applications.table.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -528,114 +528,116 @@ export function ApplicationListPage() {
                   <TableCell className="text-xs text-muted-foreground">
                     {app.assignedOfficer?.name || t("applications.table.unassigned")}
                   </TableCell>
-                  <TableCell className="text-right space-x-1.5">
-                    {/* Role-based actions (Field Officers only) */}
-                    {(user?.role === Role.LMO || user?.role === Role.GATC_INSPECTOR) && (
-                      <>
-                        {app.status === ApplicationStatus.SUBMITTED && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-7 text-xs font-medium px-2.5 shadow-2xs inline-flex items-center gap-1.5 whitespace-nowrap"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setScheduleTarget(app);
-                            }}
-                          >
-                            <Calendar className="h-3 w-3 shrink-0" />
-                            <span>{t("applications.table.schedule")}</span>
-                          </Button>
-                        )}
-                        {app.status === ApplicationStatus.SCHEDULED && (
-                          <Button
-                            variant="default"
-                            size="sm"
-                            className="h-7 text-xs font-semibold px-2.5 shadow-xs inline-flex items-center gap-1.5 whitespace-nowrap"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setInspectionTarget(app);
-                            }}
-                          >
-                            <ClipboardCheck className="h-3 w-3 shrink-0" />
-                            <span>{t("applications.table.inspect")}</span>
-                          </Button>
-                        )}
-                      </>
-                    )}
-
-                    {(user?.role === Role.LMO ||
-                      user?.role === Role.GATC_ADMIN ||
-                      user?.role === Role.GATC_INSPECTOR ||
-                      user?.role === Role.ADMIN) && (
-                      <>
-                        {app.status === ApplicationStatus.INSPECTED && (
-                          <>
+                  <TableCell className="text-right whitespace-nowrap">
+                    <div className="inline-flex items-center justify-end gap-1.5 flex-nowrap shrink-0">
+                      {/* Role-based actions (Field Officers only) */}
+                      {(user?.role === Role.LMO || user?.role === Role.GATC_INSPECTOR) && (
+                        <>
+                          {app.status === ApplicationStatus.SUBMITTED && (
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-7 text-xs font-medium px-2 shadow-2xs border-slate-300 dark:border-border text-foreground hover:bg-muted inline-flex items-center gap-1 whitespace-nowrap"
+                              className="h-7 text-xs font-medium px-2.5 shadow-2xs inline-flex items-center gap-1.5 whitespace-nowrap shrink-0"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setInspectionDetailsTarget(app);
+                                setScheduleTarget(app);
                               }}
-                              title="Review on-site inspection measurements and photos"
                             >
-                              <FileText className="h-3 w-3 shrink-0 text-muted-foreground" />
-                              <span>Review</span>
+                              <Calendar className="h-3 w-3 shrink-0" />
+                              <span>{t("applications.table.schedule")}</span>
                             </Button>
-                            {(user?.role === Role.ADMIN || user?.role === Role.GATC_ADMIN) && (
+                          )}
+                          {app.status === ApplicationStatus.SCHEDULED && (
+                            <Button
+                              variant="default"
+                              size="sm"
+                              className="h-7 text-xs font-semibold px-2.5 shadow-xs inline-flex items-center gap-1.5 whitespace-nowrap shrink-0"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setInspectionTarget(app);
+                              }}
+                            >
+                              <ClipboardCheck className="h-3 w-3 shrink-0" />
+                              <span>{t("applications.table.inspect")}</span>
+                            </Button>
+                          )}
+                        </>
+                      )}
+
+                      {(user?.role === Role.LMO ||
+                        user?.role === Role.GATC_ADMIN ||
+                        user?.role === Role.GATC_INSPECTOR ||
+                        user?.role === Role.ADMIN) && (
+                        <>
+                          {app.status === ApplicationStatus.INSPECTED && (
+                            <>
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="h-7 text-xs font-semibold px-2.5 shadow-2xs border-amber-500/50 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/30 inline-flex items-center gap-1.5 whitespace-nowrap"
+                                className="h-7 text-xs font-medium px-2 shadow-2xs border-slate-300 dark:border-border text-foreground hover:bg-muted inline-flex items-center gap-1 whitespace-nowrap shrink-0"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setSignConfirmTarget(app);
+                                  setInspectionDetailsTarget(app);
                                 }}
-                                disabled={issuingId === app.id}
+                                title="Review on-site inspection measurements and photos"
                               >
-                                {issuingId === app.id ? (
-                                  <Loader2 className="h-3 w-3 animate-spin shrink-0" />
-                                ) : (
-                                  <ShieldCheck className="h-3 w-3 text-amber-600 shrink-0" />
-                                )}
-                                <span>{t("applications.table.digitallySign", { defaultValue: "Digitally Sign & Issue" })}</span>
+                                <FileText className="h-3 w-3 shrink-0 text-muted-foreground" />
+                                <span>Review</span>
                               </Button>
-                            )}
-                          </>
-                        )}
-                      </>
-                    )}
+                              {(user?.role === Role.ADMIN || user?.role === Role.GATC_ADMIN) && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-7 text-xs font-semibold px-2.5 shadow-2xs border-amber-500/50 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/30 inline-flex items-center gap-1.5 whitespace-nowrap shrink-0"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSignConfirmTarget(app);
+                                  }}
+                                  disabled={issuingId === app.id}
+                                >
+                                  {issuingId === app.id ? (
+                                    <Loader2 className="h-3 w-3 animate-spin shrink-0" />
+                                  ) : (
+                                    <ShieldCheck className="h-3 w-3 text-amber-600 shrink-0" />
+                                  )}
+                                  <span>{t("applications.table.digitallySign", { defaultValue: "Digitally Sign & Issue" })}</span>
+                                </Button>
+                              )}
+                            </>
+                          )}
+                        </>
+                      )}
 
-                    {app.status === ApplicationStatus.CERTIFIED && app.certificate?.certificateNumber && (
-                      <>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 text-xs font-normal px-2 text-muted-foreground hover:text-foreground inline-flex items-center gap-1 whitespace-nowrap"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setInspectionDetailsTarget(app);
-                          }}
-                          title="View on-site inspection audit record"
-                        >
-                          <FileText className="h-3 w-3 shrink-0" />
-                          <span>Audit</span>
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-7 text-xs font-medium px-2.5 shadow-2xs border-emerald-500/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 inline-flex items-center gap-1.5 whitespace-nowrap"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setViewCertNumber(app.certificate.certificateNumber);
-                          }}
-                        >
-                          <Award className="h-3 w-3 shrink-0" />
-                          <span>{t("applications.table.certificate")}</span>
-                        </Button>
-                      </>
-                    )}
+                      {app.status === ApplicationStatus.CERTIFIED && app.certificate?.certificateNumber && (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs font-normal px-2 text-muted-foreground hover:text-foreground inline-flex items-center gap-1 whitespace-nowrap shrink-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setInspectionDetailsTarget(app);
+                            }}
+                            title="View on-site inspection audit record"
+                          >
+                            <FileText className="h-3 w-3 shrink-0" />
+                            <span>Audit</span>
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 text-xs font-medium px-2.5 shadow-2xs border-emerald-500/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 inline-flex items-center gap-1.5 whitespace-nowrap shrink-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setViewCertNumber(app.certificate.certificateNumber);
+                            }}
+                          >
+                            <Award className="h-3 w-3 shrink-0" />
+                            <span>{t("applications.table.certificate")}</span>
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
