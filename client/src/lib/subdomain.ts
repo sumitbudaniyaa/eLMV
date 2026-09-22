@@ -16,12 +16,14 @@ export function getActivePortal(): PortalType {
 
   // 2. Window location inspection
   if (typeof window !== "undefined") {
+    const { hostname, port } = window.location;
+
     // A. Port matching (Local development: 5174=admin, 5175=field, 5173=consumer)
     if (port === "5174") return "admin";
     if (port === "5175") return "field";
     if (port === "5173") return "consumer";
 
-    // C. Subdomain / Hostname matching (Production, Vercel, or *.localhost)
+    // B. Subdomain / Hostname matching (Production, Vercel, or *.localhost)
     const lowerHost = hostname.toLowerCase();
 
     // Admin checks: admin-elmv.vercel.app, admin.elmv.com, or contains admin subdomain
