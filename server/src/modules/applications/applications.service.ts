@@ -127,14 +127,16 @@ export class ApplicationsService {
       andClauses.push({ applicantId: userId });
     } else if (role === Role.LMO) {
       const officerProfile = await prisma.officerProfile.findUnique({ where: { userId } });
+      const jurisdictionDistrict = officerProfile?.jurisdictionDistrict;
       andClauses.push({
         OR: [
           { assignedOfficerId: userId },
-          { assignedOfficerId: null },
-          officerProfile?.jurisdictionDistrict
-            ? { instrument: { district: officerProfile.jurisdictionDistrict } }
-            : null,
-        ].filter(Boolean) as any[],
+          {
+            assignedOfficerId: null,
+            status: ApplicationStatus.SUBMITTED,
+            ...(jurisdictionDistrict ? { instrument: { district: jurisdictionDistrict } } : {}),
+          },
+        ],
       });
     } else if (role === Role.GATC_INSPECTOR) {
       const inspectorProfile = await prisma.gATCInspectorProfile.findUnique({
@@ -154,7 +156,6 @@ export class ApplicationsService {
         },
         OR: [
           { assignedOfficerId: userId },
-          { assignedGatcProfileId: inspectorProfile?.gatcProfileId || "none" },
           { assignedOfficerId: null, status: ApplicationStatus.SUBMITTED },
         ],
       });
@@ -323,6 +324,18 @@ export class ApplicationsService {
       }
     }
 
+    if (
+      (role === Role.LMO || role === Role.GATC_INSPECTOR) &&
+      application.assignedOfficerId &&
+      application.assignedOfficerId !== userId
+    ) {
+      throw new AppError(
+        403,
+        ErrorCode.FORBIDDEN,
+        "This application is scheduled and assigned to another verification officer."
+      );
+    }
+
     return application;
   }
 
@@ -400,13 +413,25 @@ export class ApplicationsService {
       );
     }
 
+    if (
+      application.status === ApplicationStatus.SCHEDULED &&
+      application.assignedOfficerId &&
+      application.assignedOfficerId !== actorId
+    ) {
+      throw new AppError(
+        403,
+        ErrorCode.FORBIDDEN,
+        "This application is already scheduled and assigned to another verification officer."
+      );
+    }
+
     const updated = await prisma.application.update({
       where: { id: applicationId },
       data: {
         status: ApplicationStatus.SCHEDULED,
         scheduledDate: new Date(input.scheduledDate),
         remarks: input.remarks || application.remarks,
-        assignedOfficerId: application.assignedOfficerId || actorId,
+        assignedOfficerId: actorId,
         history: {
           create: {
             fromStatus: application.status,
