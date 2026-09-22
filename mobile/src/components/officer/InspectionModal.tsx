@@ -202,7 +202,7 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
           isHi ? "ऑफ़लाइन परीक्षण सहेजा गया" : "Offline Test Saved (Airplane Mode)",
           isHi
             ? `नेटवर्क अनुपलब्ध है। आवेदन ${application.applicationNumber} का सत्यापन परीक्षण स्थानीय रूप से सहेज लिया गया है। कनेक्टिविटी बहाल होने पर यह स्वतः सिंक हो जाएगा।`
-            : `Network is unreachable (Airplane Mode). The verification test observation for ${application.applicationNumber} has been securely cached locally. It will automatically sync and certify once network connectivity is restored.`,
+            : `Network is unreachable (Airplane Mode). The verification test observation for ${application.applicationNumber} has been securely cached locally. It will automatically sync to the central registry once network connectivity is restored.`,
           [
             {
               text: "OK",
@@ -427,20 +427,8 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
         multiline
       />
 
-      {/* Option A Statutory Assurance Callout */}
-      {isPassed ? (
-        <View style={styles.assuranceCallout}>
-          <Icons.ShieldCheck size={18} color={theme.colors.certified.solid} />
-          <View style={{ marginLeft: 8, flex: 1 }}>
-            <Text style={styles.assuranceTitle}>
-              {i18n.t("inspection.autoSignNoticeTitle")}
-            </Text>
-            <Text style={styles.assuranceDesc}>
-              {i18n.t("inspection.autoSignNoticeDesc")}
-            </Text>
-          </View>
-        </View>
-      ) : (
+      {/* Statutory Failure Callout if error exceeds MPE */}
+      {!isPassed && hasInput ? (
         <View style={styles.failedCallout}>
           <Icons.XCircle size={18} color={theme.colors.rejected.solid} />
           <View style={{ marginLeft: 8, flex: 1 }}>
@@ -452,7 +440,7 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
             </Text>
           </View>
         </View>
-      )}
+      ) : null}
 
       {/* Fullscreen On-Site Camera Capture Modal */}
       <RNModal

@@ -330,22 +330,7 @@ export function RecordInspectionDialog({
           />
         </div>
 
-        {isPassed ? (
-          <div className="flex items-start space-x-2.5 p-3 rounded-md bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 text-emerald-900 dark:text-emerald-200">
-            <ShieldCheck className="h-4 w-4 mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
-            <div className="space-y-0.5">
-              <p className="text-xs font-semibold">
-                {t("dialogs.recordInspection.autoSignNoticeTitle", "Automatic Digital Signing & Certification")}
-              </p>
-              <p className="text-[11px] text-emerald-700 dark:text-emerald-300 leading-relaxed">
-                {t(
-                  "dialogs.recordInspection.autoSignNoticeDesc",
-                  "Statutory MPE tolerance verified. Submitting will record inspection and immediately generate an official ECDSA NIST P-256 digitally signed certificate."
-                )}
-              </p>
-            </div>
-          </div>
-        ) : (
+        {!isPassed && (
           <div className="flex items-start space-x-2.5 p-3 rounded-md bg-rose-50/80 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/50 text-rose-900 dark:text-rose-200">
             <XCircle className="h-4 w-4 mt-0.5 shrink-0 text-rose-600 dark:text-rose-400" />
             <div className="space-y-0.5">
