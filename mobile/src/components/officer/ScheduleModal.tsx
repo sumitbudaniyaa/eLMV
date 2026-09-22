@@ -28,6 +28,35 @@ const TIME_SLOTS = [
   { label: "04:00 PM", hour: 16, minute: 0 },
 ];
 
+function parseCustomTime(timeStr: string): { hour: number; minute: number } | null {
+  if (!timeStr || !timeStr.trim()) return null;
+  const clean = timeStr.trim().toLowerCase();
+
+  // Check for 12-hour format: e.g. "3:30 pm", "11:00 am", "2pm", "03:30pm"
+  const ampmMatch = clean.match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)$/);
+  if (ampmMatch) {
+    let hour = parseInt(ampmMatch[1], 10);
+    const minute = ampmMatch[2] ? parseInt(ampmMatch[2], 10) : 0;
+    const isPm = ampmMatch[3] === "pm";
+    if (hour < 1 || hour > 12 || minute < 0 || minute > 59) return null;
+    if (isPm && hour !== 12) hour += 12;
+    if (!isPm && hour === 12) hour = 0;
+    return { hour, minute };
+  }
+
+  // Check for 24-hour format: e.g. "15:30", "09:00", "14:45"
+  const match24 = clean.match(/^(\d{1,2}):(\d{2})$/);
+  if (match24) {
+    const hour = parseInt(match24[1], 10);
+    const minute = parseInt(match24[2], 10);
+    if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
+      return { hour, minute };
+    }
+  }
+
+  return null;
+}
+
 export const ScheduleModal: React.FC<ScheduleModalProps> = ({
   visible,
   onClose,
@@ -38,6 +67,8 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
   const [selectedTimeSlotIndex, setSelectedTimeSlotIndex] = useState<number>(0); // default: 10:00 AM
   const [customDateStr, setCustomDateStr] = useState<string>("");
   const [isCustomDate, setIsCustomDate] = useState<boolean>(false);
+  const [customTimeStr, setCustomTimeStr] = useState<string>("");
+  const [isCustomTime, setIsCustomTime] = useState<boolean>(false);
   const [remarks, setRemarks] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -47,6 +78,8 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
       setSelectedTimeSlotIndex(0);
       setIsCustomDate(false);
       setCustomDateStr("");
+      setIsCustomTime(false);
+      setCustomTimeStr("");
       setRemarks("");
     }
   }, [visible, application]);
@@ -58,17 +91,32 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
 
   // Compute resolved appointment Date object
   const getAppointmentDate = (): Date => {
-    const slot = TIME_SLOTS[selectedTimeSlotIndex] || TIME_SLOTS[0];
+    let hour = 10;
+    let minute = 0;
+
+    if (isCustomTime && customTimeStr.trim()) {
+      const parsedTime = parseCustomTime(customTimeStr);
+      if (parsedTime) {
+        hour = parsedTime.hour;
+        minute = parsedTime.minute;
+      }
+    } else {
+      const slot = TIME_SLOTS[selectedTimeSlotIndex] || TIME_SLOTS[0];
+      hour = slot.hour;
+      minute = slot.minute;
+    }
+
     if (isCustomDate && customDateStr.trim()) {
-      const parsed = new Date(customDateStr.trim());
-      if (!isNaN(parsed.getTime())) {
-        parsed.setHours(slot.hour, slot.minute, 0, 0);
-        return parsed;
+      const parsedDate = new Date(customDateStr.trim());
+      if (!isNaN(parsedDate.getTime())) {
+        parsedDate.setHours(hour, minute, 0, 0);
+        return parsedDate;
       }
     }
+
     const d = new Date();
     d.setDate(d.getDate() + selectedDayOffset);
-    d.setHours(slot.hour, slot.minute, 0, 0);
+    d.setHours(hour, minute, 0, 0);
     return d;
   };
 
@@ -88,6 +136,11 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
 
     if (isCustomDate && customDateStr.trim() && isNaN(new Date(customDateStr.trim()).getTime())) {
       Alert.alert("Invalid Date", "Please enter a valid date in YYYY-MM-DD format.");
+      return;
+    }
+
+    if (isCustomTime && customTimeStr.trim() && !parseCustomTime(customTimeStr)) {
+      Alert.alert("Invalid Time", "Please enter a valid time (e.g. 03:30 PM or 15:30).");
       return;
     }
 
@@ -231,11 +284,14 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
         </Text>
         <View style={styles.chipGrid}>
           {TIME_SLOTS.map((slot, idx) => {
-            const isSelected = selectedTimeSlotIndex === idx;
+            const isSelected = !isCustomTime && selectedTimeSlotIndex === idx;
             return (
               <TouchableOpacity
                 key={slot.label}
-                onPress={() => setSelectedTimeSlotIndex(idx)}
+                onPress={() => {
+                  setIsCustomTime(false);
+                  setSelectedTimeSlotIndex(idx);
+                }}
                 style={[styles.chip, isSelected && styles.chipActive]}
                 activeOpacity={0.7}
               >
@@ -250,7 +306,33 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
               </TouchableOpacity>
             );
           })}
+          <TouchableOpacity
+            onPress={() => setIsCustomTime(true)}
+            style={[styles.chip, isCustomTime && styles.chipActive]}
+            activeOpacity={0.7}
+          >
+            <Icons.Clock
+              size={12}
+              color={isCustomTime ? "#ffffff" : "#71717a"}
+              style={{ marginRight: 4 }}
+            />
+            <Text style={[styles.chipText, isCustomTime && styles.chipTextActive]}>
+              Custom Time
+            </Text>
+          </TouchableOpacity>
         </View>
+
+        {isCustomTime && (
+          <View style={styles.customTimeContainer}>
+            <Input
+              label="Custom Time (e.g. 03:30 PM or 15:30)"
+              placeholder="e.g. 03:30 PM"
+              value={customTimeStr}
+              onChangeText={setCustomTimeStr}
+              containerStyle={{ marginTop: 8 }}
+            />
+          </View>
+        )}
       </View>
 
       {/* Appointment Live Summary Banner */}
@@ -340,6 +422,9 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   customDateContainer: {
+    marginTop: 2,
+  },
+  customTimeContainer: {
     marginTop: 2,
   },
   appointmentBanner: {
