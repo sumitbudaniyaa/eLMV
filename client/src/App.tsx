@@ -15,50 +15,16 @@ export default function App() {
   useEffect(() => {
     let title = "eLMV";
 
-    // 1. Role-based determination (highest priority when authenticated)
-    if (user?.role === Role.ADMIN || user?.role === Role.GATC_ADMIN) {
-      title = "eLMV | admin";
-    } else if (user?.role === Role.LMO || user?.role === Role.GATC_INSPECTOR) {
-      title = "eLMV | field";
-    } else if (user?.role === Role.CONSUMER) {
-      title = "eLMV";
+    if (portal === "admin") {
+      title = "eLMV | Admin";
+    } else if (portal === "field") {
+      title = "eLMV | Field Inspector";
     } else {
-      // 2. Portal & Route-based determination (for unauthenticated pages or portal entry points)
-      const path = location.pathname.toLowerCase();
-      if (
-        portal === "admin" ||
-        path.startsWith("/admin") ||
-        path.startsWith("/agency") ||
-        path.startsWith("/gatc")
-      ) {
-        title = "eLMV | admin";
-      } else if (
-        portal === "field" ||
-        path.startsWith("/field") ||
-        path.startsWith("/roster") ||
-        path.startsWith("/inspectors") ||
-        path.startsWith("/officer")
-      ) {
-        title = "eLMV | field";
-      } else {
-        title = "eLMV";
-      }
+      title = "eLMV";
     }
 
     document.title = title;
-  }, [portal, location.pathname, user?.role]);
-
-  if (user) {
-    if (user.role === Role.ADMIN || user.role === Role.GATC_ADMIN) {
-      return <AdminApp />;
-    }
-    if (user.role === Role.LMO || user.role === Role.GATC_INSPECTOR) {
-      return <FieldApp />;
-    }
-    if (user.role === Role.CONSUMER) {
-      return <ConsumerApp />;
-    }
-  }
+  }, [portal]);
 
   if (portal === "admin") {
     return <AdminApp />;

@@ -16,31 +16,7 @@ export function getActivePortal(): PortalType {
 
   // 2. Window location inspection
   if (typeof window !== "undefined") {
-    const { hostname, port, pathname } = window.location;
-
-    // A. Path prefix matching FIRST (ensures http://localhost:5173/admin/* routes to AdminApp directly)
-    const lowerPath = pathname.toLowerCase();
-    if (
-      lowerPath.startsWith("/admin") ||
-      lowerPath.startsWith("/agency") ||
-      lowerPath.startsWith("/agencies") ||
-      lowerPath.startsWith("/gatc") ||
-      lowerPath.startsWith("/officer") ||
-      lowerPath.startsWith("/inspectors")
-    ) {
-      return "admin";
-    }
-    if (
-      lowerPath.startsWith("/field") ||
-      lowerPath.startsWith("/roster")
-    ) {
-      return "field";
-    }
-    if (lowerPath.startsWith("/consumer")) {
-      return "consumer";
-    }
-
-    // B. Port matching (Local development: 5174=admin, 5175=field, 5173=consumer)
+    // A. Port matching (Local development: 5174=admin, 5175=field, 5173=consumer)
     if (port === "5174") return "admin";
     if (port === "5175") return "field";
     if (port === "5173") return "consumer";
@@ -142,9 +118,7 @@ export function getPortalBaseUrl(portal: PortalType): string {
     return `${protocol}//${prefix}.${hostname}${portSuffix}`;
   }
 
-  // 6. Fallback to path routing on same host
-  if (portal === "admin") return `${protocol}//${hostname}${portSuffix}/admin`;
-  if (portal === "field") return `${protocol}//${hostname}${portSuffix}/field`;
+  // 6. Default root fallback
   return `${protocol}//${hostname}${portSuffix}/`;
 }
 
