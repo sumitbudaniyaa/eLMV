@@ -1,8 +1,10 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { ApiResponse } from "@sih/shared";
 
+const API_BASE = import.meta.env.VITE_API_URL || "";
+
 export const api = axios.create({
-  baseURL: "/api/v1",
+  baseURL: `${API_BASE}/api/v1`,
   headers: {
     "Content-Type": "application/json",
   },
@@ -91,7 +93,7 @@ api.interceptors.response.use(
       try {
         const refreshResponse = await axios.post<
           ApiResponse<{ accessToken: string; refreshToken: string }>
-        >("/api/v1/auth/refresh", { refreshToken });
+        >(`${API_BASE}/api/v1/auth/refresh`, { refreshToken });
 
         if (refreshResponse.data.success && refreshResponse.data.data) {
           const { accessToken: newAccess, refreshToken: newRefresh } =

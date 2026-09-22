@@ -8,7 +8,7 @@ const SERVER_URL_KEY = "lm_custom_server_url";
 // - Android Emulator: 10.0.2.2
 // - iOS Simulator / Web: localhost
 export const DEFAULT_LAN_IP = "10.56.25.145";
-export const PUBLIC_TUNNEL_URL = "https://vapouringly-nonallegoric-teodora.ngrok-free.dev/api/v1";
+export const PUBLIC_TUNNEL_URL = "https://sih26-wfjr.onrender.com/api/v1";
 
 export function getDefaultBaseUrl(): string {
   if (process.env.EXPO_PUBLIC_API_URL) {
