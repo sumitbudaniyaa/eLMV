@@ -25,21 +25,6 @@ All portals, services, and apps are hosted in cloud production with automated CI
 
 ---
 
-## 🔑 Pre-Seeded Test Credentials
-
-All environments are pre-seeded with sample statutory data and active operational roles:
-
-| Persona | Email | Password | Access / Role |
-| :--- | :--- | :--- | :--- |
-| **State Admin** | `admin@metrology.gov.in` | `Password@123` | Department-wide oversight, agency approvals, officer workload, audit logs |
-| **Field Officer (LMO)** | `lmo1@metrology.gov.in` | `Password@123` | On-site inspections, tolerance tests, stamping, certificate issuance |
-| **Field Officer (Bengaluru)** | `lmo.bangalore@metrology.gov.in` | `Password@123` | Urban zone enforcement officer |
-| **GATC Testing Lab** | `gatc.lead@precisionlab.org` | `Password@123` | Accredited testing & calibration bench |
-| **Registered Trader** | `trader.rajesh@shreestores.com` | `Password@123` | Commercial shopkeeper instrument verification & applications |
-| **Public Citizen** | *No Login Required* | — | Public verification at `/verify` or scanning stamp QR code |
-
----
-
 ## 🔄 GitHub CI/CD & Automated Cloud Synchronization
 
 This repository uses a modern GitOps continuous deployment pipeline. **Every commit pushed to the `main` branch automatically triggers synchronized builds across all platforms**:
