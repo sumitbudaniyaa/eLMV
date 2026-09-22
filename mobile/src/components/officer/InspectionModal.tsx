@@ -154,21 +154,10 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
       // 2. Record the inspection
       await mobileApi.post("/inspections", payload);
 
-      // 3. Option A: If passed, immediately call digital certificate issuance
-      if (isPassed) {
-        try {
-          await mobileApi.post("/certificates/issue", {
-            applicationId: application.id,
-          });
-        } catch (certErr: any) {
-          console.warn("Certificate issuance notice:", certErr);
-        }
-      }
-
       Alert.alert(
-        isPassed ? "Verified & Certified" : "Inspection Rejection Recorded",
+        isPassed ? "Inspection Recorded & Stamped" : "Inspection Rejection Recorded",
         isPassed
-          ? `Application ${application.applicationNumber} has been verified and an official ECDSA NIST P-256 statutory certificate has been digitally signed and issued.`
+          ? `Application ${application.applicationNumber} has been verified and stamped. It is now awaiting statutory digital signature by the State Admin.`
           : `Application ${application.applicationNumber} has been recorded as REJECTED due to exceeding statutory MPE tolerance.`,
         [{ text: "OK", onPress: () => {
           onClose();

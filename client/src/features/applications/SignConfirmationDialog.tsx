@@ -1,8 +1,6 @@
-import { useState } from "react";
 import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ShieldCheck, Loader2, Award, Scale, CheckCircle2, AlertCircle, FileCheck2, User, Key } from "lucide-react";
+import { ShieldCheck, Loader2, CheckCircle2 } from "lucide-react";
 
 interface SignConfirmationDialogProps {
   open: boolean;
@@ -28,18 +26,13 @@ export function SignConfirmationDialog({
   return (
     <Dialog open={open} onOpenChange={(val) => !isSigning && onOpenChange(val)} className="max-w-xl p-6 sm:p-7">
       <DialogHeader>
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0 shadow-2xs">
-            <ShieldCheck className="h-5 w-5" />
-          </div>
-          <div>
-            <DialogTitle className="text-lg font-bold tracking-tight text-foreground">
-              Affix Statutory Digital Signature
-            </DialogTitle>
-            <DialogDescription className="text-xs">
-              Official Certificate Authentication under Section 24, Legal Metrology Act, 2009
-            </DialogDescription>
-          </div>
+        <div>
+          <DialogTitle className="text-lg font-bold tracking-tight text-foreground">
+            Affix Statutory Digital Signature
+          </DialogTitle>
+          <DialogDescription className="text-xs">
+            Official Certificate Authentication under Section 24, Legal Metrology Act, 2009
+          </DialogDescription>
         </div>
       </DialogHeader>
 
@@ -89,24 +82,6 @@ export function SignConfirmationDialog({
               </span>
             </div>
           </div>
-        </div>
-
-        {/* PKI & Legal Declaration Alert */}
-        <div className="p-3.5 rounded-xl border border-amber-500/25 bg-amber-500/5 space-y-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-amber-700 dark:text-amber-300 font-semibold text-[11px]">
-              <Key className="h-3.5 w-3.5" />
-              <span>PKI Cryptographic Key: ECDSA NIST P-256 (v1-2026)</span>
-            </div>
-            <Badge variant="outline" className="text-[9px] bg-background/80 font-mono">
-              Sec 24 Authenticated
-            </Badge>
-          </div>
-          <p className="text-[11px] text-muted-foreground leading-relaxed">
-            By clicking confirm, you legally certify that this instrument has undergone statutory physical testing
-            under Rule 14 & Rule 24 of the Legal Metrology (General) Rules, 2011. A tamper-evident cryptographic signature
-            and anti-counterfeit QR code will be affixed to the Schedule XI Verification Certificate and recorded in the audit ledger.
-          </p>
         </div>
       </div>
 

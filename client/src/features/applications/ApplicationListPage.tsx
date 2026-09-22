@@ -578,23 +578,25 @@ export function ApplicationListPage() {
                               <FileText className="h-3 w-3 shrink-0 text-muted-foreground" />
                               <span>Review</span>
                             </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-7 text-xs font-semibold px-2.5 shadow-2xs border-amber-500/50 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/30 inline-flex items-center gap-1.5 whitespace-nowrap"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSignConfirmTarget(app);
-                              }}
-                              disabled={issuingId === app.id}
-                            >
-                              {issuingId === app.id ? (
-                                <Loader2 className="h-3 w-3 animate-spin shrink-0" />
-                              ) : (
-                                <ShieldCheck className="h-3 w-3 text-amber-600 shrink-0" />
-                              )}
-                              <span>{t("applications.table.digitallySign", { defaultValue: "Digitally Sign & Issue" })}</span>
-                            </Button>
+                            {(user?.role === Role.ADMIN || user?.role === Role.GATC_ADMIN) && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7 text-xs font-semibold px-2.5 shadow-2xs border-amber-500/50 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/30 inline-flex items-center gap-1.5 whitespace-nowrap"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSignConfirmTarget(app);
+                                }}
+                                disabled={issuingId === app.id}
+                              >
+                                {issuingId === app.id ? (
+                                  <Loader2 className="h-3 w-3 animate-spin shrink-0" />
+                                ) : (
+                                  <ShieldCheck className="h-3 w-3 text-amber-600 shrink-0" />
+                                )}
+                                <span>{t("applications.table.digitallySign", { defaultValue: "Digitally Sign & Issue" })}</span>
+                              </Button>
+                            )}
                           </>
                         )}
                       </>
@@ -668,7 +670,6 @@ export function ApplicationListPage() {
           application={inspectionDetailsTarget}
           canSign={
             user?.role === Role.ADMIN ||
-            user?.role === Role.LMO ||
             user?.role === Role.GATC_ADMIN
           }
           onSignClick={(app) => {

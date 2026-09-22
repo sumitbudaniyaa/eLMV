@@ -74,17 +74,6 @@ export async function syncOfflineInspections(): Promise<{
       // 1. Submit the cached inspection record
       await mobileApi.post("/inspections", item.payload);
 
-      // 2. If passed, attempt certificate issuance
-      if (item.isPassed) {
-        try {
-          await mobileApi.post("/certificates/issue", {
-            applicationId: item.applicationId,
-          });
-        } catch (certErr) {
-          console.warn("Offline sync certificate issuance notice:", certErr);
-        }
-      }
-
       // Remove from offline queue
       await removeOfflineInspection(item.id);
       synced++;

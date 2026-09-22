@@ -9,10 +9,10 @@ export const certificatesRouter = Router();
 
 certificatesRouter.use(requireAuth);
 
-// Issue digitally signed certificate (LMO, GATC_INSPECTOR, GATC_ADMIN, ADMIN)
+// Issue digitally signed certificate (ADMIN and GATC_ADMIN only)
 certificatesRouter.post(
   "/issue",
-  requireRole([Role.LMO, Role.GATC_INSPECTOR, Role.GATC_ADMIN, Role.ADMIN]),
+  requireRole([Role.ADMIN, Role.GATC_ADMIN]),
   validate({ body: issueCertificateSchema }),
   certificatesController.issue
 );

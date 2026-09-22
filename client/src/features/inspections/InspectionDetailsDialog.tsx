@@ -54,23 +54,18 @@ export function InspectionDetailsDialog({
     <Dialog open={open} onOpenChange={onOpenChange} className="max-w-2xl sm:max-w-3xl max-h-[90vh] overflow-y-auto p-5 sm:p-7">
       <DialogHeader>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/70 pb-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-[#0B2545]/10 dark:bg-primary/10 border border-[#0B2545]/20 dark:border-primary/20 flex items-center justify-center text-[#0B2545] dark:text-primary shrink-0 shadow-2xs">
-              <Scale className="h-5 w-5" />
+          <div>
+            <div className="flex items-center gap-2">
+              <DialogTitle className="text-base sm:text-lg font-bold text-foreground">
+                Statutory Verification Audit
+              </DialogTitle>
+              <Badge variant="outline" className="font-mono text-[10px] px-1.5 py-0.5">
+                {application.applicationNumber}
+              </Badge>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <DialogTitle className="text-base sm:text-lg font-bold text-foreground">
-                  Statutory Verification Audit
-                </DialogTitle>
-                <Badge variant="outline" className="font-mono text-[10px] px-1.5 py-0.5">
-                  {application.applicationNumber}
-                </Badge>
-              </div>
-              <DialogDescription className="text-xs text-muted-foreground">
-                Rule 14 & Rule 24 Metrological Compliance Record under Legal Metrology Act, 2009
-              </DialogDescription>
-            </div>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Rule 14 & Rule 24 Metrological Compliance Record under Legal Metrology Act, 2009
+            </DialogDescription>
           </div>
 
           <div className="flex items-center gap-2 self-start sm:self-center">
@@ -246,14 +241,11 @@ export function InspectionDetailsDialog({
 
         {/* Section 3: On-Site Inspection Proof (Cloudinary CDN) */}
         <div className="rounded-xl border border-border/80 bg-card p-4 space-y-3 shadow-2xs">
-          <div className="flex items-center justify-between border-b border-border/60 pb-2">
+          <div className="border-b border-border/60 pb-2">
             <div className="flex items-center gap-2">
               <Camera className="h-4 w-4 text-primary" />
               <span className="font-bold text-foreground">On-Site Inspection Photographic Evidence</span>
             </div>
-            <Badge variant="outline" className="text-[10px] font-mono bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-300">
-              Cloudinary CDN Verified
-            </Badge>
           </div>
 
           {photoUrls.length > 0 ? (

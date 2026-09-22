@@ -123,14 +123,6 @@ export function RecordInspectionDialog({
         photoUrls: finalPhotoUrls,
       };
       const res = await api.post("/inspections", payload);
-      // Option A: Automatically digitally sign & issue statutory certificate immediately if inspection passed
-      if (isPassed) {
-        try {
-          await api.post("/certificates/issue", { applicationId });
-        } catch (certErr) {
-          console.warn("Certificate issuance warning:", certErr);
-        }
-      }
       return res.data;
     },
     onSuccess: () => {
