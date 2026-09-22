@@ -42,6 +42,7 @@
   "author": "Legal Metrology Engineering",
   "license": "UNLICENSED",
   "devDependencies": {
-    "concurrently": "^10.0.5"
+    "concurrently": "^10.0.5",
+    "vite": "^5.4.6"
   }
 }
