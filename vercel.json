@@ -1,6 +1,6 @@
 {
   "installCommand": "npm install --include=dev",
-  "buildCommand": "npm run build --workspace=@sih/shared && npm install --prefix client vite@5.4.6 @vitejs/plugin-react@4.3.1 && cd client && ./node_modules/.bin/vite build",
+  "buildCommand": "npm run build --workspace=@sih/shared && cd client && npm install --no-save --no-package-lock vite@5.4.6 @vitejs/plugin-react@4.3.1 && ./node_modules/.bin/vite build",
   "outputDirectory": "client/dist",
   "rewrites": [
     {
