@@ -74,7 +74,6 @@ export class VerificationService {
         algorithm: certificate.signingKey.algorithm,
         keyVersion: certificate.signingKeyVersion,
         signature: certificate.signature,
-        publicKeyPem: certificate.signingKey.publicKey,
       },
       certificate: {
         certificateNumber: certificate.certificateNumber,

@@ -149,28 +149,13 @@ export function CertificateDialog({
                 )}
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-foreground uppercase tracking-wide">
-                    {result.verificationStatus === "VALID_AND_ACTIVE"
-                      ? "Statutory Certificate Verified & Active"
-                      : result.verificationStatus === "EXPIRED"
-                      ? "Certificate Expired — Re-Verification Required"
-                      : "Cryptographic Digest Mismatch / Invalid"}
-                  </span>
-                  <Badge
-                    variant="outline"
-                    className={`text-[10px] font-mono font-bold ${
-                      result.verificationStatus === "VALID_AND_ACTIVE"
-                        ? "bg-emerald-100/80 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300"
-                        : "bg-rose-100/80 text-rose-800 border-rose-300 dark:bg-rose-950 dark:text-rose-300"
-                    }`}
-                  >
-                    ECDSA P-256
-                  </Badge>
-                </div>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
-                  NIST P-256 signature verified against Ministry Public Key (v{result.cryptographicDetails?.keyVersion || "1"}).
-                </p>
+                <span className="text-xs font-bold text-foreground uppercase tracking-wide">
+                  {result.verificationStatus === "VALID_AND_ACTIVE"
+                    ? "Statutory Certificate Verified & Active"
+                    : result.verificationStatus === "EXPIRED"
+                    ? "Certificate Expired — Re-Verification Required"
+                    : "Cryptographic Digest Mismatch / Invalid"}
+                </span>
               </div>
             </div>
 
@@ -377,7 +362,7 @@ export function CertificateDialog({
                   Digitally Verified &amp; Stamped
                 </div>
                 <div>Directorate of Legal Metrology</div>
-                <div>Security Key: {result.cryptographicDetails?.keyVersion || "v1"}</div>
+                <div>Government of India</div>
               </div>
             </div>
           </div>

@@ -345,7 +345,7 @@ export class CertificatesService {
       height: 100,
     });
 
-    drawSafeText("ASYMMETRIC CRYPTOGRAPHIC PKI STAMP", {
+    drawSafeText("STATUTORY DIGITAL VERIFICATION STAMP", {
       x: 170,
       y: currentY - 10,
       size: 8.5,
@@ -353,8 +353,7 @@ export class CertificatesService {
       color: rgb(0, 0, 0),
     });
 
-    const keyVer = payload.signingKeyVersion || (payload as any).keyVersion || "v1-2026";
-    drawSafeText(`Signing Key Version: ${keyVer} (ECDSA NIST P-256 / SHA-256)`, {
+    drawSafeText("Digitally Verified & Issued by Directorate of Legal Metrology", {
       x: 170,
       y: currentY - 24,
       size: 7.5,

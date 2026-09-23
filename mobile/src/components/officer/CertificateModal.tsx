@@ -186,10 +186,10 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
 
   const handleCopySignature = () => {
     Alert.alert(
-      isHi ? "क्रिप्टोग्राफिक हस्ताक्षर" : "Cryptographic Signature",
+      isHi ? "डिजिटल हस्ताक्षर" : "Digital Signature",
       isHi
-        ? "ECDSA NIST P-256 डिजिटल हस्ताक्षर सत्यापित और क्लिपबोर्ड पर कॉपी किया गया।"
-        : "ECDSA NIST P-256 digital signature verified and copied to clipboard."
+        ? "डिजिटल हस्ताक्षर क्लिपबोर्ड पर कॉपी किया गया।"
+        : "Digital signature copied to clipboard."
     );
   };
 
@@ -377,11 +377,11 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
                     <Text style={styles.authBannerDesc}>
                       {isSignatureValid
                         ? (isHi
-                            ? "भारत सरकार की आधिकारिक सार्वजनिक कुंजी के विरुद्ध NIST P-256 ECDSA डाइजेस्ट सत्यापित।"
-                            : "NIST P-256 ECDSA digest validated against the official Government of India public key.")
+                            ? "भारत सरकार द्वारा आधिकारिक रूप से सत्यापित एवं मान्य।"
+                            : "Statutory certificate verified and validated under Ministry of Consumer Affairs.")
                         : (isHi
-                            ? "क्रिप्टोग्राफ़िक डाइजेस्ट आधिकारिक सार्वजनिक कुंजी से मेल नहीं खाता। यह प्रमाणपत्र स्वीकार न करें।"
-                            : "Cryptographic digest does not match the official public key. Do not accept this certificate.")}
+                            ? "डिजिटल हस्ताक्षर अमान्य या छेड़छाड़ किया गया। यह प्रमाणपत्र स्वीकार न करें।"
+                            : "Digital signature invalid or tampered. Do not accept this certificate.")}
                     </Text>
                   </View>
 
@@ -621,7 +621,7 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
                             : "Directorate of Legal Metrology"}
                         </Text>
                         <Text style={styles.sealKey}>
-                          {isHi ? "सुरक्षा कुंजी:" : "Security Key:"} {activeCrypto.keyVersion || "v1-2026"} (ECDSA NIST P-256)
+                          {isHi ? "भारत सरकार" : "Government of India"}
                         </Text>
                         <Text style={styles.sigDigest} numberOfLines={1}>
                           {activeCrypto.signature || activeCert.digitalSignature || (isHi ? "सत्यापित हैश" : "Validated Hash")}

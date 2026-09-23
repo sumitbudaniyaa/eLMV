@@ -688,7 +688,7 @@ export function PublicVerificationPage() {
               <div className="text-right shrink-0 font-mono text-[9px] border border-zinc-300 dark:border-zinc-700 p-2 rounded bg-zinc-50 dark:bg-zinc-900">
                 <div className="font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">Digitally Verified & Stamped</div>
                 <div>Directorate of Legal Metrology</div>
-                <div>Security Key: {result.cryptographicDetails.keyVersion}</div>
+                <div>Government of India</div>
               </div>
             </div>
           </div>
