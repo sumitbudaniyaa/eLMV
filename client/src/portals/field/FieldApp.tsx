@@ -17,17 +17,20 @@ import { HelpFaqPage } from "@/features/public/HelpFaqPage";
 import { ContactUsPage } from "@/features/public/ContactUsPage";
 
 function FieldRoot() {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
 
   if (isLoading) return null;
   if (!isAuthenticated || !user) return <Navigate to="/login" replace />;
 
-  if (user.role === Role.ADMIN || user.role === Role.GATC_ADMIN) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
   if (user.role !== Role.LMO && user.role !== Role.GATC_INSPECTOR) {
-    return <Navigate to="/dashboard" replace />;
+    logout();
+    return (
+      <Navigate
+        to="/login"
+        state={{ authError: "Invalid credentials. Please try again." }}
+        replace
+      />
+    );
   }
 
   return <Navigate to="/roster" replace />;

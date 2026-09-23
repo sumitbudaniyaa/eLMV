@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils";
-import { ApiResponse } from "@sih/shared";
+import { ApiResponse, Role } from "@sih/shared";
 import { CertificateDialog } from "@/components/common/CertificateDialog";
 import {
   ShieldCheck,
@@ -274,7 +274,7 @@ export function ConsumerLandingPage() {
 
           {/* Right: Context-aware Auth Action */}
           <div className="flex items-center space-x-3 shrink-0">
-            {isAuthenticated && user ? (
+            {isAuthenticated && user && user.role === Role.CONSUMER ? (
               <div className="flex items-center gap-2">
                 <Link to="/dashboard">
                   <Button size="sm" className="h-9 px-4 text-xs font-bold shadow-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-all hover:shadow-md">

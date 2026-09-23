@@ -12,7 +12,6 @@ import { DashboardPage } from "@/features/dashboard/DashboardPage";
 import { InstrumentListPage } from "@/features/instruments/InstrumentListPage";
 import { ApplicationListPage } from "@/features/applications/ApplicationListPage";
 import { SettingsPage } from "@/features/settings/SettingsPage";
-import { WrongPortalNotice } from "@/components/common/WrongPortalNotice";
 import { ConsumerLandingPage } from "./pages/ConsumerLandingPage";
 import { WebsitePoliciesPage } from "@/features/public/WebsitePoliciesPage";
 import { TermsConditionsPage } from "@/features/public/TermsConditionsPage";
@@ -20,27 +19,17 @@ import { HelpFaqPage } from "@/features/public/HelpFaqPage";
 import { ContactUsPage } from "@/features/public/ContactUsPage";
 
 function ConsumerWorkspaceGuard({ children }: { children: React.ReactNode }) {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
   if (isLoading) return null;
   if (!isAuthenticated || !user) return <Navigate to="/login" replace />;
 
-  // Cross-portal guard: if an Admin or LMO logs in on the Consumer Portal
-  if (user.role === Role.ADMIN || user.role === Role.GATC_ADMIN) {
+  if (user.role !== Role.CONSUMER) {
+    logout();
     return (
-      <WrongPortalNotice
-        currentPortal="consumer"
-        requiredPortal="admin"
-        portalTitle="Regulatory & Agency Admin Portal"
-      />
-    );
-  }
-
-  if (user.role === Role.LMO || user.role === Role.GATC_INSPECTOR) {
-    return (
-      <WrongPortalNotice
-        currentPortal="consumer"
-        requiredPortal="field"
-        portalTitle="Field Inspection Suite"
+      <Navigate
+        to="/login"
+        state={{ authError: "Invalid credentials. Please try again." }}
+        replace
       />
     );
   }

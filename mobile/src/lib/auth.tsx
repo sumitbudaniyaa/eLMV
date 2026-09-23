@@ -97,13 +97,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       const { user: userData, tokens } = res.data.data;
+      if (userData.role !== "LMO" && userData.role !== "GATC_INSPECTOR" && userData.role !== "ADMIN") {
+        await logout();
+        throw new Error("Invalid credentials. Please try again.");
+      }
       if (tokens?.accessToken && tokens?.refreshToken) {
         await setMobileTokens(tokens.accessToken, tokens.refreshToken);
       }
       setUser(userData);
     } catch (err: any) {
       const serverMsg = err.response?.data?.error?.message;
-      throw new Error(serverMsg || err.message || "Login failed");
+      throw new Error(serverMsg || err.message || "Invalid credentials. Please try again.");
     }
   };
 

@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/AuthContext";
-import { loginSchema, LoginInput } from "@sih/shared";
+import { loginSchema, LoginInput, Role } from "@sih/shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,12 +12,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle, ArrowRight, Eye, EyeOff } from "lucide-react";
 
 export function LoginPage() {
-  const { t } = useTranslation();
-  const { login } = useAuth();
+  const { t, i18n } = useTranslation();
+  const { login, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [authError, setAuthError] = useState<string | null>(null);
+  const [authError, setAuthError] = useState<string | null>(
+    (location.state as any)?.authError || null
+  );
   const [showPassword, setShowPassword] = useState(false);
+
+  const isHindi = (i18n.resolvedLanguage || i18n.language || "en").toLowerCase().startsWith("hi");
+  const invalidCredentialsMsg = isHindi
+    ? "अमान्य क्रेडेंशियल। कृपया पुनः प्रयास करें।"
+    : "Invalid credentials. Please try again.";
 
   const from = (location.state as any)?.from?.pathname || "/dashboard";
 
@@ -36,13 +43,18 @@ export function LoginPage() {
   const onSubmit = async (data: LoginInput) => {
     try {
       setAuthError(null);
-      await login(data);
+      const loggedUser = await login(data);
+      if (loggedUser.role !== Role.CONSUMER) {
+        await logout();
+        setAuthError(invalidCredentialsMsg);
+        return;
+      }
       navigate(from, { replace: true });
     } catch (err: any) {
       setAuthError(
         err.response?.data?.error?.message ||
         err.message ||
-        t("auth.invalidCredentials")
+        invalidCredentialsMsg
       );
     }
   };
